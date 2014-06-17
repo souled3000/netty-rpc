@@ -13,6 +13,7 @@ import redis.clients.jedis.Jedis;
 
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
+import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.group.GroupData;
 import com.github.com.nettyrpc.powersocket.dao.pojo.group.GroupInfoResponse;
@@ -24,7 +25,7 @@ public class GroupInfoHandler implements IHandler {
 			.getLogger(GroupInfoHandler.class);
 
 	@Override
-	public Object rpc(RpcRequest req) throws Exception {
+	public Object rpc(RpcRequest req) throws InternalException {
 		logger.info("request: {}", req);
 
 		GroupInfoResponse result = new GroupInfoResponse();

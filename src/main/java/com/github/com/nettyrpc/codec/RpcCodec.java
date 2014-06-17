@@ -7,8 +7,8 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.SERVICE_UNAVAILABLE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.com.nettyrpc.HandlerManager;
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
+import com.github.com.nettyrpc.exception.InternalException;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -75,11 +76,21 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					NOT_FOUND));
 			return;
 		} else {
-			Object ret = handler.rpc(new RpcRequest(reqUrl, decoder, headers,
-					ctx.channel().remoteAddress().toString()));
-			byte[] data = JSON.toJSONBytes(ret, new SerializerFeature[0]);
-			sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1,
-					OK, Unpooled.wrappedBuffer(data)));
+			Object ret = null;
+			try {
+				 ret = handler.rpc(new RpcRequest(reqUrl, decoder, headers,
+						ctx.channel().remoteAddress().toString()));
+			} catch (InternalException e) {
+				logger.error("Called {} InternalError {}", reqUrl, e);
+				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1,
+					SERVICE_UNAVAILABLE, Unpooled.EMPTY_BUFFER));
+			} finally {
+				if (ret != null) {
+					byte[] data = JSON.toJSONBytes(ret, new SerializerFeature[0]);
+					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1,
+						OK, Unpooled.wrappedBuffer(data)));
+				}
+			}
 		}
 	}
 

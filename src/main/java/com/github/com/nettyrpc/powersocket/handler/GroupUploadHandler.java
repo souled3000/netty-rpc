@@ -7,6 +7,7 @@ import redis.clients.jedis.Jedis;
 
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
+import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.group.GroupUploadResponse;
 import com.github.com.nettyrpc.util.HttpUtil;
@@ -17,7 +18,7 @@ public class GroupUploadHandler implements IHandler {
 			.getLogger(GroupUploadHandler.class);
 
 	@Override
-	public Object rpc(RpcRequest req) throws Exception {
+	public Object rpc(RpcRequest req) throws InternalException {
 		logger.info("request: {}", req);
 
 		GroupUploadResponse result = new GroupUploadResponse();

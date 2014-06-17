@@ -13,6 +13,7 @@ import redis.clients.jedis.Jedis;
 
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
+import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.upgrade.UpgradeData;
 import com.github.com.nettyrpc.powersocket.dao.pojo.upgrade.UpgradeInfoResponse;
@@ -23,7 +24,7 @@ public class UpgradeInfoHandler implements IHandler {
 			.getLogger(UpgradeInfoHandler.class);
 
 	@Override
-	public Object rpc(RpcRequest req) throws Exception {
+	public Object rpc(RpcRequest req) throws InternalException {
 		logger.info("request: {}", req);
 
 		UpgradeInfoResponse result = new UpgradeInfoResponse();
