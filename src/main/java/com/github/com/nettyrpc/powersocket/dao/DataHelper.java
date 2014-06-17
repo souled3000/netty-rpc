@@ -23,6 +23,18 @@ public class DataHelper {
 	public static Jedis getJedis() {
 		return pool.getResource();
 	}
+	
+	public static void returnJedis(Jedis res) {
+		if (res != null) {
+			pool.returnResource(res);
+		}
+	}
+	
+	public static void returnBrokenJedis(Jedis res) {
+		if (res != null) {
+			pool.returnBrokenResource(res);
+		}
+	}
 
 	public static void main(String[] args) {
 		System.out.println(DataHelper.getJedis());
