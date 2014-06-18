@@ -6,18 +6,18 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class DataHelper {
 	private static final JedisPool pool;
+	private static final int ONE_SECOND = 1000;
 
 	static {
 		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		poolConfig.setMaxIdle(1000);
-		poolConfig.setMaxWaitMillis(1000000);
-
-		String host = "193.168.1.14";
+		poolConfig.setMaxIdle(1000);		
+		poolConfig.setMaxWaitMillis(ONE_SECOND);
+//		String host = "193.168.1.14";
+		String host = "127.0.0.1";
 		int port = 6379;
-		int timeout = 1000;
 		String password = null;
 
-		pool = new JedisPool(poolConfig, host, port, timeout, password);
+		pool = new JedisPool(poolConfig, host, port, ONE_SECOND, password);
 	}
 
 	public static Jedis getJedis() {
