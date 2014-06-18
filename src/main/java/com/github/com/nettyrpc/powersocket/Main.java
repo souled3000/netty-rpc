@@ -14,13 +14,20 @@ import com.github.com.nettyrpc.HandlerManager;
 import com.github.com.nettyrpc.codec.RpcServerInitializer;
 import com.github.com.nettyrpc.examples.App;
 import com.github.com.nettyrpc.exception.HandlerExistedException;
+import com.github.com.nettyrpc.powersocket.handler.BindInHandler;
+import com.github.com.nettyrpc.powersocket.handler.BindOutHandler;
+import com.github.com.nettyrpc.powersocket.handler.DeviceLoginHandler;
+import com.github.com.nettyrpc.powersocket.handler.DeviceRegisterHandler;
 import com.github.com.nettyrpc.powersocket.handler.GroupInfoHandler;
 import com.github.com.nettyrpc.powersocket.handler.GroupUploadHandler;
 import com.github.com.nettyrpc.powersocket.handler.UpgradeInfoHandler;
 import com.github.com.nettyrpc.powersocket.handler.UpgradeUploadHandler;
+import com.github.com.nettyrpc.powersocket.handler.UserDevicesHandler;
+import com.github.com.nettyrpc.powersocket.handler.UserLoginHandler;
+import com.github.com.nettyrpc.powersocket.handler.UserRegisterHandler;
 
 public class Main {
-	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private final int port;
 
@@ -51,6 +58,13 @@ public class Main {
 		HandlerManager.regHandler("/api/deviceGrouping/info", new GroupInfoHandler());
 		HandlerManager.regHandler("/api/softwareUpgrading/upgradeUpload", new UpgradeUploadHandler());
 		HandlerManager.regHandler("/api/softwareUpgrading/upgradeInfo", new UpgradeInfoHandler());
+		HandlerManager.regHandler("/api/user/register", new UserRegisterHandler());
+		HandlerManager.regHandler("/api/user/login", new UserLoginHandler());
+		HandlerManager.regHandler("/api/user/devices", new UserDevicesHandler());
+		HandlerManager.regHandler("/api/device/register", new DeviceRegisterHandler());
+		HandlerManager.regHandler("/api/device/login", new DeviceLoginHandler());
+		HandlerManager.regHandler("/api/bind/in", new BindInHandler());
+		HandlerManager.regHandler("/api/bind/out", new BindOutHandler());
 	}
 
 	public static void main(String[] args) throws Exception {
