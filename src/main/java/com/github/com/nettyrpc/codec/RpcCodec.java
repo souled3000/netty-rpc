@@ -83,7 +83,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 			} catch (InternalException e) {
 				logger.error("Called {} InternalError {}", reqUrl, e);
 				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1,
-					SERVICE_UNAVAILABLE, Unpooled.EMPTY_BUFFER));
+					SERVICE_UNAVAILABLE));
 			} finally {
 				if (ret != null) {
 					byte[] data = JSON.toJSONBytes(ret, new SerializerFeature[0]);
