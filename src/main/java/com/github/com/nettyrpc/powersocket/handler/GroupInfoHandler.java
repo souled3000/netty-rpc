@@ -59,15 +59,11 @@ public class GroupInfoHandler implements IHandler {
 			result.setGroupDatas(gds);
 			result.setUrlOrigin(req.getUrlOrigin());
 		} catch (Exception e) {
-			String msg = String.format("Get group info failed, msg = %s",
-					e.getMessage());
-			result.setStatus(-1);
-			result.setStatusMsg(msg);
-			logger.error(msg);
+			DataHelper.returnBrokenJedis(jedis);
+			logger.error("Get Group info error.");
+			throw new InternalException(e.getMessage());
 		} finally {
-			if (null != jedis) {
-				jedis.disconnect();
-			}
+			DataHelper.returnJedis(jedis);
 		}
 
 		logger.info("response: {}", result);

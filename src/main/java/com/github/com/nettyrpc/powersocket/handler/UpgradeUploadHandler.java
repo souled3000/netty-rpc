@@ -35,14 +35,11 @@ public class UpgradeUploadHandler implements IHandler {
 			result.setStatus(0);
 			result.setUrlOrigin(req.getUrlOrigin());
 		} catch (Exception e) {
-			String msg = String.format("upload error, msg=", e.getMessage());
-			result.setStatus(-1);
-			result.setStatusMsg(msg);
-			logger.error(msg);
+			DataHelper.returnBrokenJedis(jedis);
+			logger.error("Upload upgrade info error.");
+			throw new InternalException(e.getMessage());
 		} finally {
-			if (null != jedis) {
-				jedis.disconnect();
-			}
+			DataHelper.returnJedis(jedis);
 		}
 
 		logger.info("response: {}", result);
