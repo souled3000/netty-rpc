@@ -59,15 +59,15 @@ public class DeviceLoginHandler implements IHandler {
 
 			Set<String> users = jedis.smembers("bind:device:" + deviceId);
 
-			String wbKey = CookieUtil.generateKey(deviceId,
+			String proxyKey = CookieUtil.generateKey(deviceId,
 					String.valueOf(System.currentTimeMillis()),
 					CookieUtil.EXPIRE_SEC);
-			String websocketAddr = CookieUtil.getWebsocketAddr();
+			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setStatus(0);
 			result.setBindedUsers(new ArrayList<String>(users));
-			result.setWbKey(wbKey);
-			result.setWebsocketAddr(websocketAddr);
+			result.setProxyKey(proxyKey);
+			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);

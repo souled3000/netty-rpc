@@ -7,9 +7,9 @@ public class UserRegisterResponse extends ApiResponse {
 
 	private String cookie;
 
-	private String wbKey;
+	private String proxyKey;
 
-	private String websocketAddr;
+	private String proxyAddr;
 
 	public String getUserId() {
 		return userId;
@@ -27,20 +27,20 @@ public class UserRegisterResponse extends ApiResponse {
 		this.cookie = cookie;
 	}
 
-	public String getWbKey() {
-		return wbKey;
+	public String getProxyKey() {
+		return proxyKey;
 	}
 
-	public void setWbKey(String wbKey) {
-		this.wbKey = wbKey;
+	public void setProxyKey(String proxyKey) {
+		this.proxyKey = proxyKey;
 	}
 
-	public String getWebsocketAddr() {
-		return websocketAddr;
+	public String getProxyAddr() {
+		return proxyAddr;
 	}
 
-	public void setWebsocketAddr(String websocketAddr) {
-		this.websocketAddr = websocketAddr;
+	public void setProxyAddr(String proxyAddr) {
+		this.proxyAddr = proxyAddr;
 	}
 
 }

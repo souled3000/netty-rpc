@@ -50,16 +50,16 @@ public class UserLoginHandler implements IHandler {
 			}
 
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
-			String wbKey = CookieUtil.generateKey(userId,
+			String proxyKey = CookieUtil.generateKey(userId,
 					String.valueOf(System.currentTimeMillis()),
 					CookieUtil.EXPIRE_SEC);
-			String websocketAddr = CookieUtil.getWebsocketAddr();
+			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setStatus(0);
 			result.setUserId(userId);
 			result.setCookie(cookie);
-			result.setWbKey(wbKey);
-			result.setWebsocketAddr(websocketAddr);
+			result.setProxyKey(proxyKey);
+			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);

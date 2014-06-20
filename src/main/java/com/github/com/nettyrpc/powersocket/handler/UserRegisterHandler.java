@@ -64,14 +64,14 @@ public class UserRegisterHandler implements IHandler {
 
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
 			String timeStamp = String.valueOf(System.currentTimeMillis());
-			String wbKey = CookieUtil.generateKey(userId, timeStamp,
+			String proxyKey = CookieUtil.generateKey(userId, timeStamp,
 					CookieUtil.EXPIRE_SEC);
-			String websocketAddr = CookieUtil.getWebsocketAddr();
+			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setUserId(userId);
 			result.setCookie(cookie);
-			result.setWbKey(wbKey);
-			result.setWebsocketAddr(websocketAddr);
+			result.setProxyKey(proxyKey);
+			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);

@@ -64,14 +64,14 @@ public class DeviceRegisterHandler implements IHandler {
 
 			String cookie = CookieUtil.encode(mac, deviceId);
 			String timeStamp = String.valueOf(System.currentTimeMillis());
-			String wbKey = CookieUtil.generateKey(deviceId, timeStamp, mac);
-			String websocketAddr = CookieUtil.getWebsocketAddr();
+			String proxyKey = CookieUtil.generateKey(deviceId, timeStamp, mac);
+			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setStatus(0);
 			result.setDeviceId(deviceId);
 			result.setCookie(cookie);
-			result.setWbKey(wbKey);
-			result.setWebsocketAddr(websocketAddr);
+			result.setProxyKey(proxyKey);
+			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);

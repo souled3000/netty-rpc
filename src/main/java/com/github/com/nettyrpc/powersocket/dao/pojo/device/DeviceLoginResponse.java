@@ -5,26 +5,26 @@ import java.util.List;
 import com.github.com.nettyrpc.powersocket.dao.pojo.ApiResponse;
 
 public class DeviceLoginResponse extends ApiResponse {
-	private String wbKey;
+	private String proxyKey;
 
-	private String websocketAddr;
+	private String proxyAddr;
 
 	private List<String> bindedUsers;
 
-	public String getWbKey() {
-		return wbKey;
+	public String getProxyKey() {
+		return proxyKey;
 	}
 
-	public void setWbKey(String wbKey) {
-		this.wbKey = wbKey;
+	public void setProxyKey(String proxyKey) {
+		this.proxyKey = proxyKey;
 	}
 
-	public String getWebsocketAddr() {
-		return websocketAddr;
+	public String getProxyAddr() {
+		return proxyAddr;
 	}
 
-	public void setWebsocketAddr(String websocketAddr) {
-		this.websocketAddr = websocketAddr;
+	public void setProxyAddr(String proxyAddr) {
+		this.proxyAddr = proxyAddr;
 	}
 
 	public List<String> getBindedUsers() {
