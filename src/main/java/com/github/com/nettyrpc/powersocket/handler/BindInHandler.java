@@ -58,7 +58,6 @@ public class BindInHandler implements IHandler {
 			}
 
 			result.setStatus(0);
-			result.setWebsocketAddr(CookieUtil.getWebsocketAddr());
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Bind in error");
