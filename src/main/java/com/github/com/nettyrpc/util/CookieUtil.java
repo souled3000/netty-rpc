@@ -1,14 +1,20 @@
 package com.github.com.nettyrpc.util;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 /**
  * 
  * @author j
  * 
  */
+@SuppressWarnings("restriction")
 public class CookieUtil {
+
 	/**
 	 * cookie过期时间
 	 */
@@ -40,9 +46,11 @@ public class CookieUtil {
 
 		String beforeAes = String.format("%s|%s|%s", userId, expire, sha1Value);
 
-		byte[] arr = AES.encrypt(beforeAes, "aeskey");
+		BASE64Encoder encoder = new BASE64Encoder();
 
-		cookie = StringUtil.toHex(arr);
+		cookie = encoder.encode(beforeAes.getBytes());
+
+		cookie = cookie.replace("+", "%2B");
 
 		return cookie;
 	}
@@ -54,13 +62,16 @@ public class CookieUtil {
 	 *            cookie
 	 * @return 用户Id
 	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
 	 */
 	public static String[] decode(String cookie)
-			throws NoSuchAlgorithmException {
+			throws NoSuchAlgorithmException, IOException {
 
-		byte[] cookieHexByte = StringUtil.fromHex(cookie);
+		cookie = cookie.replace("%2B", "+");
 
-		byte[] cookieStrByte = AES.decrypt(cookieHexByte, "aeskey");
+		BASE64Decoder decoder = new BASE64Decoder();
+
+		byte[] cookieStrByte = decoder.decodeBuffer(cookie);
 
 		String beforeAes = new String(cookieStrByte);
 
@@ -89,20 +100,25 @@ public class CookieUtil {
 	 * @param timestamp
 	 *            系统时间戳
 	 * @return websocket连接的key
+	 * @throws NoSuchAlgorithmException
 	 */
-	public static String generateKey(String id, String timestamp, String expire) {
-
+	public static String generateKey(String id, String timestamp, String expire)
+			throws NoSuchAlgorithmException {
 		String key = "";
+
+		BASE64Encoder encoder = new BASE64Encoder();
+
+		String timestampB = encoder.encode(timestamp.getBytes());
 
 		String kWbSalt = "BlackCrystalWb14527";
 
-		String buf = String.format("0|%s|%s|%s|%s", id, timestamp, expire,
-				kWbSalt);
+		String buf = String.format("0|%s|%s|%s", id, timestampB, expire);
 		String md5_buf = String.format("0|%s|%s|%s|%s", id, timestamp, expire,
 				kWbSalt);
 
-		// TODO:
-		String md5Str = md5_buf;
+		byte[] bytes = MessageDigest.getInstance("MD5").digest(
+				md5_buf.getBytes());
+		String md5Str = encoder.encode(bytes);
 
 		key = String.format("%s|%s", buf, md5Str);
 		return key;
