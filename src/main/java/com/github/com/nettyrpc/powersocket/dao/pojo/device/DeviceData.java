@@ -7,6 +7,8 @@ public class DeviceData {
 
 	private String sn;
 
+	private String deviceName;
+
 	public String getId() {
 		return id;
 	}
@@ -29,6 +31,14 @@ public class DeviceData {
 
 	public void setSn(String sn) {
 		this.sn = sn;
+	}
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 	}
 
 }
