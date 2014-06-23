@@ -1,6 +1,7 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
 import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
+import com.github.com.nettyrpc.powersocket.dao.pojo.device.DeviceData;
 import com.github.com.nettyrpc.powersocket.dao.pojo.user.UserDevicesResponse;
 import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
@@ -53,8 +55,23 @@ public class UserDevicesHandler implements IHandler {
 
 			Set<String> devIds = jedis.smembers("bind:user:" + userId);
 
+			List<DeviceData> bindedDevices = new ArrayList<DeviceData>();
+			for (String id : devIds) {
+				DeviceData devData = new DeviceData();
+				String mac = jedis.hget("device:mac", id);
+				String name = jedis.hget("device:name", id);
+
+				// TODO: just for test, delete later
+				name = (null == name ? "default" : name);
+
+				devData.setId(id);
+				devData.setMac(mac);
+				devData.setDeviceName(name);
+				bindedDevices.add(devData);
+			}
+
 			result.setStatus(0);
-			result.setBindedDevices(new ArrayList<String>(devIds));
+			result.setBindedDevices(bindedDevices);
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Get user's device error.");
