@@ -22,8 +22,10 @@ import com.github.com.nettyrpc.powersocket.handler.GroupInfoHandler;
 import com.github.com.nettyrpc.powersocket.handler.GroupUploadHandler;
 import com.github.com.nettyrpc.powersocket.handler.UpgradeInfoHandler;
 import com.github.com.nettyrpc.powersocket.handler.UpgradeUploadHandler;
+import com.github.com.nettyrpc.powersocket.handler.UserChangeNickHandler;
 import com.github.com.nettyrpc.powersocket.handler.UserDevicesHandler;
 import com.github.com.nettyrpc.powersocket.handler.UserLoginHandler;
+import com.github.com.nettyrpc.powersocket.handler.UserChangePassHandler;
 import com.github.com.nettyrpc.powersocket.handler.UserRegisterHandler;
 
 public class Main {
@@ -65,6 +67,8 @@ public class Main {
 		HandlerManager.regHandler("/api/device/login", new DeviceLoginHandler());
 		HandlerManager.regHandler("/api/bind/in", new BindInHandler());
 		HandlerManager.regHandler("/api/bind/out", new BindOutHandler());
+		HandlerManager.regHandler("/api/user/changeNick", new UserChangeNickHandler());
+		HandlerManager.regHandler("/api/user/changePass", new UserChangePassHandler());
 	}
 
 	public static void main(String[] args) throws Exception {
