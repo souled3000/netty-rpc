@@ -29,6 +29,7 @@ public class DeviceRegisterHandler implements IHandler {
 
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
+		String name = HttpUtil.getPostValue(req.getParams(), "deviceName");
 		String regTime = String.valueOf(System.currentTimeMillis());
 
 		if (!isValidSN(sn)) {
@@ -61,6 +62,9 @@ public class DeviceRegisterHandler implements IHandler {
 
 			// 6. 设备注册时间
 			jedis.hset("device:regtime", deviceId, regTime);
+
+			// 7. 设备名称
+			jedis.hset("device:name", deviceId, name);
 
 			String cookie = CookieUtil.encode(mac, deviceId);
 			String timeStamp = String.valueOf(System.currentTimeMillis());
