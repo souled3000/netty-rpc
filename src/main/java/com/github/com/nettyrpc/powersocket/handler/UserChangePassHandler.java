@@ -27,8 +27,8 @@ public class UserChangePassHandler implements IHandler {
 		result.setUrlOrigin(req.getUrlOrigin());
 
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
-		String oldPass = HttpUtil.getPostValue(req.getParams(), "oldPass");
-		String newPass = HttpUtil.getPostValue(req.getParams(), "newPass");
+		String passOld = HttpUtil.getPostValue(req.getParams(), "passOld");
+		String passNew = HttpUtil.getPostValue(req.getParams(), "passNew");
 
 		Jedis jedis = null;
 		try {
@@ -42,13 +42,13 @@ public class UserChangePassHandler implements IHandler {
 			}
 
 			// 2. 校验密码是否正确
-			if (!PBKDF2.validate(oldPass, shadow)) {
+			if (!PBKDF2.validate(passOld, shadow)) {
 				result.setStatusMsg("Password is incorrect.");
 				return result;
 			}
 
 			// 3. 生成新密码
-			String newShadow = PBKDF2.encode(newPass);
+			String newShadow = PBKDF2.encode(passNew);
 			jedis.hset("user:shadow", userId, newShadow);
 
 			result.setStatus(0);
