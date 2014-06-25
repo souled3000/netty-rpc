@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
@@ -51,20 +52,22 @@ public class DeviceRegisterHandler implements IHandler {
 			// 2. 生成设备ID
 			String deviceId = String.valueOf(jedis.incr("device:nextid"));
 
+			Transaction tx = jedis.multi();
+
 			// 3. 记录设备Id
-			jedis.hset("device:mactoid", mac, deviceId);
+			tx.hset("device:mactoid", mac, deviceId);
 
 			// 4. 记录MAC地址
-			jedis.hset("device:mac", deviceId, mac);
+			tx.hset("device:mac", deviceId, mac);
 
 			// 5. 记录设备SN号
-			jedis.hset("device:sn", deviceId, sn);
+			tx.hset("device:sn", deviceId, sn);
 
 			// 6. 设备注册时间
-			jedis.hset("device:regtime", deviceId, regTime);
+			tx.hset("device:regtime", deviceId, regTime);
 
 			// 7. 设备名称
-			jedis.hset("device:name", deviceId, name);
+			tx.hset("device:name", deviceId, name);
 
 			String cookie = CookieUtil.encode(mac, deviceId);
 			String timeStamp = String.valueOf(System.currentTimeMillis());
@@ -77,6 +80,7 @@ public class DeviceRegisterHandler implements IHandler {
 			result.setProxyKey(proxyKey);
 			result.setProxyAddr(proxyAddr);
 
+			tx.exec();
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Device regist error.");

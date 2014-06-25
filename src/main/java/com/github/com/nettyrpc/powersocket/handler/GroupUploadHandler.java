@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
@@ -33,11 +34,15 @@ public class GroupUploadHandler implements IHandler {
 		try {
 			jedis = DataHelper.getJedis();
 
+			Transaction tx = null;
 			if (jedis.hexists(key, grpOld)) {
-				jedis.hdel(key, grpOld);
+				tx = jedis.multi();
+				tx.hdel(key, grpOld);
+				tx.hset(key, grpNew, grpValue);
+				tx.exec();
+			} else {
+				jedis.hset(key, grpNew, grpValue);
 			}
-
-			jedis.hset(key, grpNew, grpValue);
 
 			result.setStatus(0);
 			result.setUrlOrigin(req.getUrlOrigin());
