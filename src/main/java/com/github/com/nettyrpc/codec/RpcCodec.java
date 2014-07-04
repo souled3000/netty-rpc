@@ -101,8 +101,8 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					CharsetUtil.UTF_8);
 			res.content().writeBytes(buf);
 			buf.release();
-			setContentLength(res, res.content().readableBytes());
 		}
+		setContentLength(res, res.content().readableBytes());
 		ChannelFuture f = ctx.channel().writeAndFlush(res);
 		if (!isKeepAlive(req) || res.getStatus().code() != 200) {
 			 f.addListener(ChannelFutureListener.CLOSE);
