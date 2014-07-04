@@ -50,6 +50,7 @@ public class BindOutHandler implements IHandler {
 
 			if ((jedis.srem("bind:device:" + deviceId, userId) == 0)
 					|| (jedis.srem("bind:user:" + userId, deviceId) == 0)) {
+				result.setStatus(12); // 未绑定
 				result.setStatusMsg("User device not binded!");
 				return result;
 			}

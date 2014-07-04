@@ -32,8 +32,7 @@ public class BindInHandler implements IHandler {
 
 		String deviceId = "";
 		try {
-			if (!CookieUtil.verifyDeviceKey(mac, cookie))
-			{
+			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
 				result.setStatusMsg("mac not matched cookie");
 				return result;
 			}
@@ -50,6 +49,7 @@ public class BindInHandler implements IHandler {
 
 			if ((jedis.sadd("bind:device:" + deviceId, userId) == 0)
 					|| (jedis.sadd("bind:user:" + userId, deviceId) == 0)) {
+				result.setStatus(11); // 重复绑定
 				result.setStatusMsg("User device has binded!");
 				return result;
 			}
