@@ -30,17 +30,14 @@ public class BindOutHandler implements IHandler {
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 
-		String[] infos = null;
 		String deviceId = "";
 		try {
-			infos = CookieUtil.decode(cookie);
-			String tmpMac = infos[0];
-			String tmpDevicId = infos[1];
-			if (!mac.equals(tmpMac)) {
-				throw new IllegalArgumentException();
+			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
+				logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
+				result.setStatusMsg("mac not matched cookie");
+				return result;
 			}
-			deviceId = tmpDevicId;
-
+			deviceId = CookieUtil.extractDeviceId(cookie);
 		} catch (Exception e) {
 			logger.error("Cookie decode error.");
 			result.setStatusMsg("Cookie decode error.");

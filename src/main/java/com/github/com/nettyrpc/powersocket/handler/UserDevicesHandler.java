@@ -64,7 +64,7 @@ public class UserDevicesHandler implements IHandler {
 				// TODO: just for test, delete later
 				name = (null == name ? "default" : name);
 
-				devData.setId(id);
+				devData.setDeviceId(id);
 				devData.setMac(mac);
 				devData.setDeviceName(name);
 				bindedDevices.add(devData);
