@@ -32,17 +32,15 @@ public class DeviceLoginHandler implements IHandler {
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 
-		String[] infos = null;
 		try {
-			infos = CookieUtil.decode(cookie);
+			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
+				logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
+				result.setStatusMsg("mac not matched cookie");
+				return result;
+			}
 		} catch (Exception e) {
 			logger.error("Cookie decode error.");
 			result.setStatusMsg("Cookie decode error.");
-			return result;
-		}
-
-		if (null == infos || infos.length != 2 || !mac.equals(infos[0])) {
-			result.setStatusMsg("Cookie not matched.");
 			return result;
 		}
 
@@ -59,9 +57,8 @@ public class DeviceLoginHandler implements IHandler {
 
 			Set<String> users = jedis.smembers("bind:device:" + deviceId);
 
-			String proxyKey = CookieUtil.generateKey(deviceId,
-					String.valueOf(System.currentTimeMillis()),
-					CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.generateKey(deviceId, mac, "alias", 
+					CookieUtil.EXPIRE_SEC, new String[]{"1", "2"}, "123456");
 			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setStatus(0);

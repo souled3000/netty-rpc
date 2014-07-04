@@ -50,9 +50,8 @@ public class UserLoginHandler implements IHandler {
 			}
 
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
-			String proxyKey = CookieUtil.generateKey(userId,
-					String.valueOf(System.currentTimeMillis()),
-					CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.generateKey(userId,"mactemp","aliastemp",
+					CookieUtil.EXPIRE_SEC, new String[]{}, "1234567");
 			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setStatus(0);

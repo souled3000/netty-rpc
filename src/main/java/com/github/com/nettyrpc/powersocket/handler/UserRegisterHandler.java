@@ -67,8 +67,8 @@ public class UserRegisterHandler implements IHandler {
 
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
 			String timeStamp = String.valueOf(System.currentTimeMillis());
-			String proxyKey = CookieUtil.generateKey(userId, timeStamp,
-					CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.generateKey(userId, "mactemp", "aliastemp",
+					CookieUtil.EXPIRE_SEC, new String[]{}, timeStamp);
 			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setUserId(userId);

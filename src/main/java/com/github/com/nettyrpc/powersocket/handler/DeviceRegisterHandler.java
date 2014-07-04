@@ -45,42 +45,53 @@ public class DeviceRegisterHandler implements IHandler {
 			// 1. 邮箱是否注册
 			String existId = jedis.hget("device:mactoid", mac);
 			if (null != existId) {
-				result.setStatusMsg("Regist failed! mac exists.");
-				return result;
+				// result.setStatusMsg("Regist failed! mac exists.");
+
+				String cookie = CookieUtil.generateDeviceKey(mac, existId);
+				// String timeStamp =
+				// String.valueOf(System.currentTimeMillis());
+				// String proxyKey = CookieUtil.generateKey(existId, timeStamp,
+				// mac);
+				// String proxyAddr = CookieUtil.getWebsocketAddr();
+
+				result.setStatus(0);
+				// result.setDeviceId(existId);
+				result.setCookie(cookie);
+			} else {
+				// 2. 生成设备ID
+				String deviceId = String.valueOf(jedis.incr("device:nextid"));
+
+				Transaction tx = jedis.multi();
+
+				// 3. 记录设备Id
+				tx.hset("device:mactoid", mac, deviceId);
+
+				// 4. 记录MAC地址
+				tx.hset("device:mac", deviceId, mac);
+
+				// 5. 记录设备SN号
+				tx.hset("device:sn", deviceId, sn);
+
+				// 6. 设备注册时间
+				tx.hset("device:regtime", deviceId, regTime);
+
+				// 7. 设备名称
+				tx.hset("device:name", deviceId, name);
+
+				String cookie = CookieUtil.generateDeviceKey(mac, deviceId);
+				// String timeStamp =
+				// String.valueOf(System.currentTimeMillis());
+				// String proxyKey = CookieUtil.generateKey(deviceId, timeStamp,
+				// mac);
+				// String proxyAddr = CookieUtil.getWebsocketAddr();
+
+				result.setStatus(0);
+				// result.setDeviceId(deviceId);
+				result.setCookie(cookie);
+
+				tx.exec();
 			}
 
-			// 2. 生成设备ID
-			String deviceId = String.valueOf(jedis.incr("device:nextid"));
-
-			Transaction tx = jedis.multi();
-
-			// 3. 记录设备Id
-			tx.hset("device:mactoid", mac, deviceId);
-
-			// 4. 记录MAC地址
-			tx.hset("device:mac", deviceId, mac);
-
-			// 5. 记录设备SN号
-			tx.hset("device:sn", deviceId, sn);
-
-			// 6. 设备注册时间
-			tx.hset("device:regtime", deviceId, regTime);
-
-			// 7. 设备名称
-			tx.hset("device:name", deviceId, name);
-
-			String cookie = CookieUtil.encode(mac, deviceId);
-			String timeStamp = String.valueOf(System.currentTimeMillis());
-			String proxyKey = CookieUtil.generateKey(deviceId, timeStamp, mac);
-			String proxyAddr = CookieUtil.getWebsocketAddr();
-
-			result.setStatus(0);
-			result.setDeviceId(deviceId);
-			result.setCookie(cookie);
-			result.setProxyKey(proxyKey);
-			result.setProxyAddr(proxyAddr);
-
-			tx.exec();
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Device regist error.");
