@@ -29,6 +29,8 @@ public class App {
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			b.option(ChannelOption.SO_BACKLOG, 1024);
+			b.option(ChannelOption.SO_KEEPALIVE, true);
+			b.option(ChannelOption.TCP_NODELAY, true);
 			b.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new RpcServerInitializer());

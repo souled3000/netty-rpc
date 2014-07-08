@@ -138,39 +138,18 @@ public class CookieUtil {
 		return deviceId;
 	}
 
-	/**
-	 * 注册成功后，返回的用于websocket连接的key
-	 * 
-	 * @param id
-	 *            用户Id/设备Id
-	 * @param timestamp
-	 *            系统时间戳
-	 * @return websocket连接的key
-	 * @throws NoSuchAlgorithmException
-	 */
-	public static String generateKey(String id, String mac, String alias, String expire, String[] bindedIds, String timestamp)
+	public static String generateKey(String id, String timestamp, String expire)
 			throws NoSuchAlgorithmException {
 		String key = "";
+		String buf = String.format("%s|%s|%s", id, timestamp, expire);
 
-		StringBuilder sb = new StringBuilder();
-		for (String bindedId : bindedIds)
-		{
-			sb.append(bindedId).append(",");
-		}
-		String bindedIdStr = sb.toString();
-		if (bindedIdStr.endsWith(","))
-		{
-			bindedIdStr = bindedIdStr.substring(0, bindedIdStr.length()-1);
-		}
-		String buf = String.format("0|%s|%s|%s|%s|%s", id, mac, alias, expire, bindedIdStr);
-		
-		BASE64Encoder encoder = new BASE64Encoder();
-		String timestampB = encoder.encode(timestamp.getBytes());
 		String kWbSalt = "BlackCrystalWb14527";
-		String md5_buf = String.format("0|%s|%s|%s|%s", id, timestampB, expire,
+		String md5_buf = String.format("%s|%s|%s|%s", id, timestamp, expire,
 				kWbSalt);
 		byte[] bytes = MessageDigest.getInstance("MD5").digest(
 				md5_buf.getBytes());
+
+		BASE64Encoder encoder = new BASE64Encoder();
 		String md5Str = encoder.encode(bytes);
 
 		key = String.format("%s|%s", buf, md5Str);

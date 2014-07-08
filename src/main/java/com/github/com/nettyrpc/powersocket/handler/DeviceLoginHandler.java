@@ -55,14 +55,14 @@ public class DeviceLoginHandler implements IHandler {
 				return result;
 			}
 
-			Set<String> users = jedis.smembers("bind:device:" + deviceId);
-
-			String proxyKey = CookieUtil.generateKey(deviceId, mac, "alias", 
-					CookieUtil.EXPIRE_SEC, new String[]{"1", "2"}, "123456");
+//			Set<String> users = jedis.smembers("bind:device:" + deviceId);
+//			result.setBindedUsers(new ArrayList<String>(users));
+			
+			String proxyKey = CookieUtil.generateKey(deviceId,String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
 			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setStatus(0);
-			result.setBindedUsers(new ArrayList<String>(users));
+			logger.info("proxykey:"+proxyKey+" size:"+proxyKey.getBytes().length);
 			result.setProxyKey(proxyKey);
 			result.setProxyAddr(proxyAddr);
 
