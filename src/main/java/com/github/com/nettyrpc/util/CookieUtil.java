@@ -23,7 +23,8 @@ public class CookieUtil {
 	/**
 	 * cookie过期时间
 	 */
-	public static final String EXPIRE_SEC = "300";
+	public static final String EXPIRE_SEC = Constants.getProperty("expire",
+			"300");
 
 	/**
 	 * websocket地址
@@ -31,14 +32,21 @@ public class CookieUtil {
 	public static final String WEBSOCKET_ADDR = Constants.WEBSOCKET_ADDR;
 
 	/**
-	 * 
+	 * 用户认证
 	 */
-	public static final String PRIVIATE_KEY = "black_crystal";
+	public static final String USER_SALT = Constants.getProperty("USER_SALT",
+			"black_crystal");
 
 	/**
 	 * 设备cookie生成的盐
 	 */
-	public static final String DEVICESALT_KEY = "BlackCrystalDevice14529";
+	public static final String DEVICE_SALT = Constants.getProperty(
+			"DEVICE_SALT", "BlackCrystalDevice14529");
+	/**
+	 * WEBSOCKET的盐
+	 */
+	public static final String WEBSOCKET_SALT = Constants.getProperty(
+			"WEBSOCKET_SALT", "BlackCrystalWb14527");
 
 	/**
 	 * 生成cookie
@@ -107,7 +115,7 @@ public class CookieUtil {
 		String cookie = "";
 
 		Mac hmac = Mac.getInstance("HmacSHA256");
-		SecretKey secret = new SecretKeySpec(DEVICESALT_KEY.getBytes(),
+		SecretKey secret = new SecretKeySpec(DEVICE_SALT.getBytes(),
 				"HMACSHA256");
 		hmac.init(secret);
 
@@ -143,9 +151,8 @@ public class CookieUtil {
 		String key = "";
 		String buf = String.format("%s|%s|%s", id, timestamp, expire);
 
-		String kWbSalt = "BlackCrystalWb14527";
 		String md5_buf = String.format("%s|%s|%s|%s", id, timestamp, expire,
-				kWbSalt);
+				WEBSOCKET_SALT);
 		byte[] bytes = MessageDigest.getInstance("MD5").digest(
 				md5_buf.getBytes());
 
@@ -184,7 +191,7 @@ public class CookieUtil {
 			throws NoSuchAlgorithmException {
 		String result = "";
 
-		String beforeSha1 = String.format("%s|%s|%s", id, expire, PRIVIATE_KEY);
+		String beforeSha1 = String.format("%s|%s|%s", id, expire, USER_SALT);
 		result = sha1(beforeSha1);
 
 		return result;

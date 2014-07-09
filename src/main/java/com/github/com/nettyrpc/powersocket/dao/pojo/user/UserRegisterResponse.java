@@ -10,6 +10,16 @@ public class UserRegisterResponse extends ApiResponse {
 	private String proxyKey;
 
 	private String proxyAddr;
+	
+	private String expire;
+
+	public String getExpire() {
+		return expire;
+	}
+
+	public void setExpire(String expire) {
+		this.expire = expire;
+	}
 
 	public String getUserId() {
 		return userId;

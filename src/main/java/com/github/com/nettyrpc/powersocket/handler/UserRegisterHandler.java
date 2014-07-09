@@ -70,6 +70,7 @@ public class UserRegisterHandler implements IHandler {
 			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setUserId(userId);
+			result.setExpire(CookieUtil.EXPIRE_SEC);
 			result.setCookie(cookie);
 			result.setProxyKey(proxyKey);
 			result.setProxyAddr(proxyAddr);

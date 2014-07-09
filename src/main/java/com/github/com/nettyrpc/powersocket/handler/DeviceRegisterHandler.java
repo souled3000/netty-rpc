@@ -59,7 +59,7 @@ public class DeviceRegisterHandler implements IHandler {
 				result.setCookie(cookie);
 			} else {
 				// 2. 生成设备ID
-				String deviceId = String.valueOf(jedis.incr("device:nextid"));
+				String deviceId = String.valueOf(jedis.decr("device:nextid"));
 
 				Transaction tx = jedis.multi();
 

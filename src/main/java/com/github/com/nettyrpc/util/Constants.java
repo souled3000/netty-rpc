@@ -4,8 +4,7 @@ public class Constants extends ConfigurableConstants{
 
 	static
 	{
-		init("redis-conn.properties");
-		init("websocket.properties");
+		init("sys.properties");
 	}
 	
 	public static String REDIS_HOST = getProperty("redis.host", "localhost");
