@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class ConfigurableConstants {
 
-	protected static final Logger logger = LoggerFactory
-			.getLogger(ConfigurableConstants.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ConfigurableConstants.class);
 
 	protected static final Properties p = new Properties();
 
@@ -18,9 +17,7 @@ public class ConfigurableConstants {
 		logger.info("init: {}", propertyFileName);
 		InputStream is = null;
 		try {
-			is = ConfigurableConstants.class.getClassLoader()
-					.getResourceAsStream(propertyFileName);
-
+			is = ClassLoader.getSystemResourceAsStream(propertyFileName);
 			if (null != is) {
 				p.load(is);
 			}
@@ -37,7 +34,7 @@ public class ConfigurableConstants {
 		}
 	}
 
-	protected static String getProperty(String key, String defaultValue) {
+	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}
 }

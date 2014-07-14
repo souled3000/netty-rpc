@@ -17,8 +17,7 @@ import com.github.com.nettyrpc.util.PBKDF2;
 
 public class UserRegisterHandler implements IHandler {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserRegisterHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserRegisterHandler.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -66,7 +65,7 @@ public class UserRegisterHandler implements IHandler {
 			result.setUrlOrigin(req.getUrlOrigin());
 
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
-			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
 			String proxyAddr = CookieUtil.getWebsocketAddr();
 
 			result.setUserId(userId);
@@ -78,8 +77,7 @@ public class UserRegisterHandler implements IHandler {
 			tx.exec();
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			String msg = String.format("User regist error, msg: %s",
-					e.getMessage());
+			String msg = String.format("User regist error, msg: %s", e.getMessage());
 			logger.error(msg);
 			throw new InternalException(msg);
 		} finally {

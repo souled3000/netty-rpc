@@ -14,8 +14,7 @@ import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
 
 public class BindInHandler implements IHandler {
-	private static final Logger logger = LoggerFactory
-			.getLogger(BindInHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(BindInHandler.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -47,8 +46,7 @@ public class BindInHandler implements IHandler {
 		try {
 			jedis = DataHelper.getJedis();
 
-			if ((jedis.sadd("bind:device:" + deviceId, userId) == 0)
-					|| (jedis.sadd("bind:user:" + userId, deviceId) == 0)) {
+			if ((jedis.sadd("bind:device:" + deviceId, userId) == 0) || (jedis.sadd("bind:user:" + userId, deviceId) == 0)) {
 				result.setStatus(11); // 重复绑定
 				result.setStatusMsg("User device has binded!");
 				return result;
