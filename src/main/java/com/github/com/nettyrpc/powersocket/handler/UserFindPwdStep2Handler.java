@@ -31,7 +31,14 @@ public class UserFindPwdStep2Handler implements IHandler {
 			resp.setStatus(4);
 			return resp;
 		}
-		logger.info("new pwd: {}",pwd);
+		if(StringUtils.isBlank(code)){
+			resp.setStatus(5);
+			return resp;
+		}
+		if(StringUtils.isBlank(userEmail)){
+			resp.setStatus(6);
+			return resp;
+		}
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();

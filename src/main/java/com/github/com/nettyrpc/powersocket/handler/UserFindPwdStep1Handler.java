@@ -1,5 +1,6 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,12 @@ public class UserFindPwdStep1Handler implements IHandler {
 		resp.setUrlOrigin(req.getUrlOrigin());
 
 		String destEmailAddr = HttpUtil.getPostValue(req.getParams(), "email");
+		
+		if(StringUtils.isBlank(destEmailAddr)){
+			resp.setStatus(2);
+			return resp;
+		}
+		
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
