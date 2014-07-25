@@ -40,8 +40,11 @@ public class DeviceNameModifying implements IHandler {
 			}
 			String[] cookies = CookieUtil.decode(cookie);
 			String userId = cookies[0];
-				
-			jedis.hset("user:device:name", userId+"_"+deviceId, newDeviceName);
+
+			String key = "bind:user:"+userId;
+			
+			jedis.hset("device:name:"+userId,deviceId,newDeviceName);
+			
 			resp.setStatus(0);
 		}catch(Exception e){
 			resp.setStatus(-1);

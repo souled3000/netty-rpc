@@ -59,14 +59,15 @@ public class UserDevicesHandler implements IHandler {
 			for (String id : devIds) {
 				DeviceData devData = new DeviceData();
 				String mac = jedis.hget("device:mac", id);
-				String name = jedis.hget("device:name", id);
-
+				String name = jedis.hget("device:name:"+userId, id);
+				String pwd = jedis.hget("device:pwd:"+userId, id);
 				// TODO: just for test, delete later
 				name = (null == name ? "default" : name);
 
 				devData.setDeviceId(id);
 				devData.setMac(mac);
 				devData.setDeviceName(name);
+				devData.setPwd(pwd);
 				bindedDevices.add(devData);
 			}
 

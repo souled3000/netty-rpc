@@ -56,7 +56,7 @@ public class UserLoginHandler implements IHandler {
 
 			result.setStatus(0);
 			result.setUserId(userId);
-			result.setExpire(CookieUtil.EXPIRE_SEC);
+			result.setHeartBeat(CookieUtil.EXPIRE_SEC);
 			result.setCookie(cookie);
 			result.setProxyKey(proxyKey);
 			result.setProxyAddr(proxyAddr);

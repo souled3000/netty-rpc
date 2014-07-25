@@ -38,12 +38,14 @@ public class UserChangePassHandler implements IHandler {
 			String shadow = jedis.hget("user:shadow", userId);
 			if (null == shadow) {
 				result.setStatusMsg("userId not exist.");
+				result.setStatus(1);
 				return result;
 			}
 
 			// 2. 校验密码是否正确
 			if (!PBKDF2.validate(passOld, shadow)) {
 				result.setStatusMsg("Password is incorrect.");
+				result.setStatus(2);
 				return result;
 			}
 

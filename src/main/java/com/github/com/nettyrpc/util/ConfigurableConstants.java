@@ -34,7 +34,5 @@ public class ConfigurableConstants {
 		}
 	}
 
-	public static String getProperty(String key, String defaultValue) {
-		return p.getProperty(key, defaultValue);
-	}
+	
 }

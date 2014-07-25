@@ -16,8 +16,7 @@ import com.github.com.nettyrpc.util.HttpUtil;
 
 public class DeviceRegisterHandler implements IHandler {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserLoginHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserLoginHandler.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -30,7 +29,7 @@ public class DeviceRegisterHandler implements IHandler {
 
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
-//		String name = HttpUtil.getPostValue(req.getParams(), "deviceName");
+		// String name = HttpUtil.getPostValue(req.getParams(), "deviceName");
 		String regTime = String.valueOf(System.currentTimeMillis());
 
 		if (!isValidSN(sn)) {
@@ -76,7 +75,7 @@ public class DeviceRegisterHandler implements IHandler {
 				tx.hset("device:regtime", deviceId, regTime);
 
 				// 7. 设备名称
-//				tx.hset("device:name", deviceId, name);
+				// tx.hset("device:name", deviceId, name);
 
 				String cookie = CookieUtil.generateDeviceKey(mac, deviceId);
 				// String timeStamp =

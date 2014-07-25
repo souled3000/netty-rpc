@@ -14,8 +14,7 @@ import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
 
 public class BindOutHandler implements IHandler {
-	private static final Logger logger = LoggerFactory
-			.getLogger(BindOutHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(BindOutHandler.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -29,7 +28,7 @@ public class BindOutHandler implements IHandler {
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
-
+		logger.info("[mac:{}][userId:{}][cookie:{}]", mac, userId, cookie);
 		String deviceId = "";
 		try {
 			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
@@ -39,7 +38,7 @@ public class BindOutHandler implements IHandler {
 			}
 			deviceId = CookieUtil.extractDeviceId(cookie);
 		} catch (Exception e) {
-			logger.error("Cookie decode error.");
+			logger.error("Cookie decode error.", e);
 			result.setStatusMsg("Cookie decode error.");
 			return result;
 		}
@@ -48,8 +47,7 @@ public class BindOutHandler implements IHandler {
 		try {
 			jedis = DataHelper.getJedis();
 
-			if ((jedis.srem("bind:device:" + deviceId, userId) == 0)
-					|| (jedis.srem("bind:user:" + userId, deviceId) == 0)) {
+			if ((jedis.srem("bind:device:" + deviceId, userId) == 0) || (jedis.srem("bind:user:" + userId, deviceId) == 0)) {
 				result.setStatus(12); // 未绑定
 				result.setStatusMsg("User device not binded!");
 				return result;
@@ -58,7 +56,7 @@ public class BindOutHandler implements IHandler {
 			result.setStatus(0);
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Bind out error");
+			logger.error("Bind out error", e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);

@@ -11,14 +11,15 @@ public class UserRegisterResponse extends ApiResponse {
 
 	private String proxyAddr;
 	
-	private String expire;
+	private String heartBeat;
 
-	public String getExpire() {
-		return expire;
+
+	public String getHeartBeat() {
+		return heartBeat;
 	}
 
-	public void setExpire(String expire) {
-		this.expire = expire;
+	public void setHeartBeat(String heartBeat) {
+		this.heartBeat = heartBeat;
 	}
 
 	public String getUserId() {

@@ -26,7 +26,7 @@ public class WebsocketInfoHandler implements IHandler {
 			String heartBeat = CookieUtil.EXPIRE_SEC;
 			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
 			
-			resp.setWebsocketAddr(CookieUtil.WEBSOCKET_ADDR);
+			resp.setProxyAddr(CookieUtil.WEBSOCKET_ADDR);
 			resp.setHeartBeat(heartBeat);
 			resp.setProxyKey(proxyKey);
 			resp.setStatus(0);
@@ -40,14 +40,14 @@ public class WebsocketInfoHandler implements IHandler {
 	}
 
 	private class WebsocketInfoHandlerResponse extends ApiResponse {
-		private String websocketAddr;
+		private String proxyAddr;
 		private String proxyKey;
 		private String heartBeat;
-		public String getWebsocketAddr() {
-			return websocketAddr;
+		public String getProxyAddr() {
+			return proxyAddr;
 		}
-		public void setWebsocketAddr(String websocketAddr) {
-			this.websocketAddr = websocketAddr;
+		public void setProxyAddr(String proxyAddr) {
+			this.proxyAddr = proxyAddr;
 		}
 		public String getProxyKey() {
 			return proxyKey;
@@ -61,5 +61,6 @@ public class WebsocketInfoHandler implements IHandler {
 		public void setHeartBeat(String heartBeat) {
 			this.heartBeat = heartBeat;
 		}
+		
 	}
 }

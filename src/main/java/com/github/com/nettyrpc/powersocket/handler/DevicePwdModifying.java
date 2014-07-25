@@ -41,7 +41,7 @@ public class DevicePwdModifying implements IHandler {
 			String[] cookies = CookieUtil.decode(cookie);
 			String userId = cookies[0];
 				
-			jedis.hset("user:device:pwd", userId+"_"+deviceId, newDevicePwd);
+			jedis.hset("device:pwd:"+userId,deviceId,newDevicePwd);
 			resp.setStatus(0);
 		}catch(Exception e){
 			resp.setStatus(-1);

@@ -9,6 +9,16 @@ public class DeviceData {
 
 	private String deviceName;
 
+	private String pwd;
+	
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
 	public String getDeviceId() {
 		return deviceId;
 	}

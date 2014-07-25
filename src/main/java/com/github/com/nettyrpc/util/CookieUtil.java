@@ -72,7 +72,10 @@ public class CookieUtil {
 
 		return cookie;
 	}
-
+public static void main(String[] args) {
+	String s = "gD BOoD";
+	
+}
 	/**
 	 * 解析用户Id
 	 * 

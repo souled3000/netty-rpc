@@ -36,10 +36,12 @@ public class DeviceLoginHandler implements IHandler {
 			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
 				logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
 				result.setStatusMsg("mac not matched cookie");
+				result.setStatus(1);
 				return result;
 			}
 		} catch (Exception e) {
 			logger.error("Cookie decode error.");
+			result.setStatus(-1);
 			result.setStatusMsg("Cookie decode error.");
 			return result;
 		}
@@ -51,6 +53,7 @@ public class DeviceLoginHandler implements IHandler {
 			// 1. 根据Email获取userId
 			String deviceId = jedis.hget("device:mactoid", mac);
 			if (null == deviceId) {
+				result.setStatus(2);
 				result.setStatusMsg("Mac not exists, please regist it.");
 				return result;
 			}
@@ -67,6 +70,7 @@ public class DeviceLoginHandler implements IHandler {
 			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
+			result.setStatus(-1);
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Device login error");
 			throw new InternalException(e.getMessage());
