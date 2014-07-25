@@ -1,5 +1,6 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,12 @@ public class UserFindPwdStep2Handler implements IHandler {
 		String userEmail = HttpUtil.getPostValue(req.getParams(), "email");
 		String code = HttpUtil.getPostValue(req.getParams(), "code");
 		String keyCode = new String(userEmail + "-code");
-		String newPwd = HttpUtil.getPostValue(req.getParams(), "newPwd");
+		String pwd = HttpUtil.getPostValue(req.getParams(), "pwd");
+		if(StringUtils.isBlank(pwd)){
+			resp.setStatus(4);
+			return resp;
+		}
+		logger.info("new pwd: {}",pwd);
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
@@ -52,7 +58,7 @@ public class UserFindPwdStep2Handler implements IHandler {
 			String userId = jedis.hget("user:mailtoid", userEmail);
 			
 			//生成新密码
-			String newShadow = PBKDF2.encode(newPwd);
+			String newShadow = PBKDF2.encode(pwd);
 			jedis.hset("user:shadow", userId, newShadow);
 
 			resp.setStatus(0);
@@ -72,6 +78,8 @@ public class UserFindPwdStep2Handler implements IHandler {
 	private class UserFindPwdStep2Response extends ApiResponse {
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
+		System.out.println(PBKDF2.encode("123456"));
+		System.out.println(PBKDF2.validate("123456","1000:5b42403636346365383938:179b4313a73cdf760137c112b05987e51387f4a7e8e3c8afaa3d5707bbb7187484038c332838ead052797eb45d6b18ecb13b2eb2d57882cf8fbe050765d28472"));
 	}
 }

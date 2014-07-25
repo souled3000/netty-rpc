@@ -1,5 +1,6 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,19 @@ public class UserRegisterHandler implements IHandler {
 		String phone = HttpUtil.getPostValue(req.getParams(), "phone");
 		String passwd = HttpUtil.getPostValue(req.getParams(), "passwd");
 
+		if(StringUtils.isBlank(email)){
+			result.setStatus(1);
+			return result;
+		}
+		if(StringUtils.isBlank(phone)){
+			result.setStatus(2);
+			return result;
+		}
+		if(StringUtils.isBlank(passwd)){
+			result.setStatus(3);
+			return result;
+		}
+		
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();

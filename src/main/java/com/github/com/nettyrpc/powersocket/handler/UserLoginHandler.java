@@ -1,5 +1,6 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,13 @@ public class UserLoginHandler implements IHandler {
 
 		String email = HttpUtil.getPostValue(req.getParams(), "email");
 		String passwd = HttpUtil.getPostValue(req.getParams(), "passwd");
-
+		
+		logger.info("passwd : {}",passwd);
+		
+		if(StringUtils.isBlank(passwd)){
+			result.setStatus(3);
+			return result;
+		}
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
@@ -39,6 +46,7 @@ public class UserLoginHandler implements IHandler {
 			String userId = jedis.hget("user:mailtoid", email);
 			if (null == userId) {
 				result.setStatusMsg("User not exist.");
+				result.setStatus(1);
 				return result;
 			}
 
@@ -46,6 +54,7 @@ public class UserLoginHandler implements IHandler {
 			String encodePwd = jedis.hget("user:shadow", userId);
 			if (!PBKDF2.validate(passwd, encodePwd)) {
 				result.setStatusMsg("Password error.");
+				result.setStatus(2);
 				return result;
 			}
 			

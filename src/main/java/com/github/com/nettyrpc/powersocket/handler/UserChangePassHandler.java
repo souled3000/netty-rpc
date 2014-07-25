@@ -1,5 +1,6 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,19 @@ public class UserChangePassHandler implements IHandler {
 		String passOld = HttpUtil.getPostValue(req.getParams(), "passOld");
 		String passNew = HttpUtil.getPostValue(req.getParams(), "passNew");
 
+		if(StringUtils.isBlank(userId)){
+			result.setStatus(3);
+			return result;
+		}
+		if(StringUtils.isBlank(passOld)){
+			result.setStatus(4);
+			return result;
+		}
+		if(StringUtils.isBlank(passNew)){
+			result.setStatus(5);
+			return result;
+		}
+		
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
