@@ -77,9 +77,4 @@ public class UserFindPwdStep2Handler implements IHandler {
 
 	private class UserFindPwdStep2Response extends ApiResponse {
 	}
-	
-	public static void main(String[] args) throws Exception{
-		System.out.println(PBKDF2.encode("123456"));
-		System.out.println(PBKDF2.validate("123456","1000:5b42403636346365383938:179b4313a73cdf760137c112b05987e51387f4a7e8e3c8afaa3d5707bbb7187484038c332838ead052797eb45d6b18ecb13b2eb2d57882cf8fbe050765d28472"));
-	}
 }
