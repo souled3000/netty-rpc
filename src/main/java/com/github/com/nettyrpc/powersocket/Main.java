@@ -10,6 +10,7 @@ import com.github.com.nettyrpc.HandlerManager;
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.examples.App;
 import com.github.com.nettyrpc.exception.HandlerExistedException;
+import com.github.com.nettyrpc.util.CometScanner;
 
 public class Main {
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -34,7 +35,9 @@ public class Main {
 			port = 8080;
 		}
 		logger.info("Start Port {}", port);
+		CometScanner.tiktok();
 		bindHandler();
 		new App(port).run();
 	}
+	
 }

@@ -12,6 +12,7 @@ import com.github.com.nettyrpc.RpcRequest;
 import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.user.UserRegisterResponse;
+import com.github.com.nettyrpc.util.CometScanner;
 import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
 import com.github.com.nettyrpc.util.PBKDF2;
@@ -37,10 +38,10 @@ public class UserRegisterHandler implements IHandler {
 			result.setStatus(1);
 			return result;
 		}
-		if(StringUtils.isBlank(phone)){
-			result.setStatus(2);
-			return result;
-		}
+//		if(StringUtils.isBlank(phone)){
+//			result.setStatus(2);
+//			return result;
+//		}
 		if(StringUtils.isBlank(passwd)){
 			result.setStatus(3);
 			return result;
@@ -80,8 +81,8 @@ public class UserRegisterHandler implements IHandler {
 
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
 			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
-			String proxyAddr = CookieUtil.getWebsocketAddr();
-
+			String proxyAddr = CometScanner.take();
+			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);
 			result.setUserId(userId);
 			result.setHeartBeat(CookieUtil.EXPIRE_SEC);
 			result.setCookie(cookie);

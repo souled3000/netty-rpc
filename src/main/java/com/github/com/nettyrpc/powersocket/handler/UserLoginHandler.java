@@ -1,5 +1,9 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +15,7 @@ import com.github.com.nettyrpc.RpcRequest;
 import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.user.UserLoginResponse;
+import com.github.com.nettyrpc.util.CometScanner;
 import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
 import com.github.com.nettyrpc.util.PBKDF2;
@@ -22,7 +27,7 @@ public class UserLoginHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
+		logger.info("UserLoginHandler");
 
 		UserLoginResponse result = new UserLoginResponse();
 		result.setStatus(-1);
@@ -32,13 +37,16 @@ public class UserLoginHandler implements IHandler {
 		String email = HttpUtil.getPostValue(req.getParams(), "email");
 		String passwd = HttpUtil.getPostValue(req.getParams(), "passwd");
 		
-		logger.info("passwd : {}",passwd);
+		logger.info("email:{}",email);
+		logger.info("passwd:{}",passwd);
 		
 		if(StringUtils.isBlank(passwd)){
 			result.setStatus(3);
 			return result;
 		}
+		
 		Jedis jedis = null;
+		
 		try {
 			jedis = DataHelper.getJedis();
 
@@ -61,8 +69,8 @@ public class UserLoginHandler implements IHandler {
 			
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
 			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
-			String proxyAddr = CookieUtil.getWebsocketAddr();
-
+			String proxyAddr = CometScanner.take();
+			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);
 			result.setStatus(0);
 			result.setUserId(userId);
 			result.setHeartBeat(CookieUtil.EXPIRE_SEC);

@@ -20,7 +20,7 @@ public class GroupUploadHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
+		logger.info("GroupUploadHandler");
 
 		GroupUploadResponse result = new GroupUploadResponse();
 		result.setUrlOrigin(req.getUrlOrigin());

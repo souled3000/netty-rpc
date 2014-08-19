@@ -11,13 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
 import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.group.GroupData;
+import com.github.com.nettyrpc.powersocket.dao.pojo.group.GroupDevice;
 import com.github.com.nettyrpc.powersocket.dao.pojo.group.GroupInfoResponse;
 import com.github.com.nettyrpc.util.HttpUtil;
+import com.google.gson.Gson;
 
 public class GroupInfoHandler implements IHandler {
 
@@ -47,11 +50,10 @@ public class GroupInfoHandler implements IHandler {
 			for (Entry<String, String> entry : entrySet) {
 				grpName = entry.getKey();
 				grpValue = entry.getValue();
-
+				List<GroupDevice> ds = JSONArray.parseArray(grpValue, GroupDevice.class);
 				GroupData gd = new GroupData();
 				gd.setGrpName(grpName);
-				gd.setGrpValue(grpValue);
-
+				gd.setGrpValue(ds);
 				gds.add(gd);
 			}
 
@@ -69,5 +71,23 @@ public class GroupInfoHandler implements IHandler {
 		logger.info("response: {}", result);
 		return result;
 	}
-
+	public static void main(String[] args) throws Exception{
+		Jedis jedis = DataHelper.getJedis();
+		Map<String, String> allGrpInfo = jedis.hgetAll("user:group:1");
+		for (Entry<String, String> entry : allGrpInfo.entrySet()) {
+			String grpName = entry.getKey();
+			String grpValue = entry.getValue();
+			
+			logger.info("grpName:{}|grpVal:{}",grpName,grpValue);
+			
+			
+			List<GroupDevice> ds = JSONArray.parseArray(grpValue, GroupDevice.class);
+			
+			
+			for(GroupDevice d : ds){
+				logger.info("name:{}|mac:{}",d.getDeviceName(),d.getMac());
+			}
+		}
+		DataHelper.returnJedis(jedis);
+	}
 }

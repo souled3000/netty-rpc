@@ -7,6 +7,7 @@ import com.github.com.nettyrpc.IHandler;
 import com.github.com.nettyrpc.RpcRequest;
 import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.pojo.ApiResponse;
+import com.github.com.nettyrpc.util.CometScanner;
 import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
 
@@ -26,7 +27,9 @@ public class WebsocketInfoHandler implements IHandler {
 			String heartBeat = CookieUtil.EXPIRE_SEC;
 			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
 			
-			resp.setProxyAddr(CookieUtil.WEBSOCKET_ADDR);
+//			resp.setProxyAddr(CookieUtil.WEBSOCKET_ADDR);
+			resp.setProxyAddr(CometScanner.take());
+			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, resp.getProxyAddr());
 			resp.setHeartBeat(heartBeat);
 			resp.setProxyKey(proxyKey);
 			resp.setStatus(0);

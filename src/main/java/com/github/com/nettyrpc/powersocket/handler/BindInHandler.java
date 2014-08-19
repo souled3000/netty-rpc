@@ -48,14 +48,14 @@ public class BindInHandler implements IHandler {
 
 			if ((jedis.sadd("bind:device:" + deviceId, userId) == 0) || (jedis.sadd("bind:user:" + userId, deviceId) == 0)) {
 				result.setStatus(11); // 重复绑定
-				result.setStatusMsg("User device has binded!");
+				logger.info("User device has binded! {},{}",deviceId,userId);
 				return result;
 			}
 
 			result.setStatus(0);
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Bind in error");
+			logger.error("Bind in error",e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);

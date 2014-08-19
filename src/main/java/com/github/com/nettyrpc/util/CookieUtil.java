@@ -23,30 +23,21 @@ public class CookieUtil {
 	/**
 	 * cookie过期时间
 	 */
-	public static final String EXPIRE_SEC = Constants.getProperty("expire",
-			"300");
-
-	/**
-	 * websocket地址
-	 */
-	public static final String WEBSOCKET_ADDR = Constants.WEBSOCKET_ADDR;
+	public static final String EXPIRE_SEC = Constants.getProperty("expire", "300");
 
 	/**
 	 * 用户认证
 	 */
-	public static final String USER_SALT = Constants.getProperty("USER_SALT",
-			"black_crystal");
+	public static final String USER_SALT = Constants.getProperty("USER_SALT", "black_crystal");
 
 	/**
 	 * 设备cookie生成的盐
 	 */
-	public static final String DEVICE_SALT = Constants.getProperty(
-			"DEVICE_SALT", "BlackCrystalDevice14529");
+	public static final String DEVICE_SALT = Constants.getProperty("DEVICE_SALT", "BlackCrystalDevice14529");
 	/**
 	 * WEBSOCKET的盐
 	 */
-	public static final String WEBSOCKET_SALT = Constants.getProperty(
-			"WEBSOCKET_SALT", "BlackCrystalWb14527");
+	public static final String WEBSOCKET_SALT = Constants.getProperty("WEBSOCKET_SALT", "BlackCrystalWb14527");
 
 	/**
 	 * 生成cookie
@@ -56,8 +47,7 @@ public class CookieUtil {
 	 * @return cookie
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static String encode(String userId, String expire)
-			throws NoSuchAlgorithmException {
+	public static String encode(String userId, String expire) throws NoSuchAlgorithmException {
 		String cookie = "";
 
 		String sha1Value = encodeSha1(userId, expire);
@@ -72,10 +62,12 @@ public class CookieUtil {
 
 		return cookie;
 	}
-public static void main(String[] args) {
-	String s = "gD BOoD";
-	
-}
+
+	public static void main(String[] args) {
+		String s = "gD BOoD";
+
+	}
+
 	/**
 	 * 解析用户Id
 	 * 
@@ -85,8 +77,7 @@ public static void main(String[] args) {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 */
-	public static String[] decode(String cookie)
-			throws NoSuchAlgorithmException, IOException {
+	public static String[] decode(String cookie) throws NoSuchAlgorithmException, IOException,Exception {
 
 		cookie = cookie.replace("%2B", "+");
 
@@ -98,6 +89,9 @@ public static void main(String[] args) {
 
 		String[] parts = beforeAes.split("\\|");
 
+		if(parts.length<3){
+			throw new ArrayIndexOutOfBoundsException("parts's length less than three.");
+		}
 		String userId = "";
 		String expire = "";
 		String sha1Value = "";
@@ -113,13 +107,11 @@ public static void main(String[] args) {
 		return new String[] { userId, expire };
 	}
 
-	public static String generateDeviceKey(String mac, String id)
-			throws NoSuchAlgorithmException, InvalidKeyException {
+	public static String generateDeviceKey(String mac, String id) throws NoSuchAlgorithmException, InvalidKeyException {
 		String cookie = "";
 
 		Mac hmac = Mac.getInstance("HmacSHA256");
-		SecretKey secret = new SecretKeySpec(DEVICE_SALT.getBytes(),
-				"HMACSHA256");
+		SecretKey secret = new SecretKeySpec(DEVICE_SALT.getBytes(), "HMACSHA256");
 		hmac.init(secret);
 
 		byte[] doFinal = hmac.doFinal(mac.getBytes());
@@ -149,15 +141,12 @@ public static void main(String[] args) {
 		return deviceId;
 	}
 
-	public static String generateKey(String id, String timestamp, String expire)
-			throws NoSuchAlgorithmException {
+	public static String generateKey(String id, String timestamp, String expire) throws NoSuchAlgorithmException {
 		String key = "";
 		String buf = String.format("%s|%s|%s", id, timestamp, expire);
 
-		String md5_buf = String.format("%s|%s|%s|%s", id, timestamp, expire,
-				WEBSOCKET_SALT);
-		byte[] bytes = MessageDigest.getInstance("MD5").digest(
-				md5_buf.getBytes());
+		String md5_buf = String.format("%s|%s|%s|%s", id, timestamp, expire, WEBSOCKET_SALT);
+		byte[] bytes = MessageDigest.getInstance("MD5").digest(md5_buf.getBytes());
 
 		BASE64Encoder encoder = new BASE64Encoder();
 		String md5Str = encoder.encode(bytes);
@@ -166,17 +155,7 @@ public static void main(String[] args) {
 		return key;
 	}
 
-	/**
-	 * 用于连接websocket的地址
-	 * 
-	 * @return websocket的地址
-	 */
-	public static String getWebsocketAddr() {
-		return WEBSOCKET_ADDR;
-	}
-
-	public static boolean verifyDeviceKey(String mac, String cookie)
-			throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+	public static boolean verifyDeviceKey(String mac, String cookie) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
 		boolean result = false;
 
 		String id = extractDeviceId(cookie);
@@ -190,8 +169,7 @@ public static void main(String[] args) {
 		return result;
 	}
 
-	private static String encodeSha1(String id, String expire)
-			throws NoSuchAlgorithmException {
+	private static String encodeSha1(String id, String expire) throws NoSuchAlgorithmException {
 		String result = "";
 
 		String beforeSha1 = String.format("%s|%s|%s", id, expire, USER_SALT);

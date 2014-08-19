@@ -1,8 +1,5 @@
 package com.github.com.nettyrpc.powersocket.handler;
 
-import java.util.ArrayList;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +10,12 @@ import com.github.com.nettyrpc.RpcRequest;
 import com.github.com.nettyrpc.exception.InternalException;
 import com.github.com.nettyrpc.powersocket.dao.DataHelper;
 import com.github.com.nettyrpc.powersocket.dao.pojo.device.DeviceLoginResponse;
+import com.github.com.nettyrpc.util.CometScanner;
 import com.github.com.nettyrpc.util.CookieUtil;
 import com.github.com.nettyrpc.util.HttpUtil;
 
 public class DeviceLoginHandler implements IHandler {
-	private static final Logger logger = LoggerFactory
-			.getLogger(DeviceLoginHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -40,7 +37,7 @@ public class DeviceLoginHandler implements IHandler {
 				return result;
 			}
 		} catch (Exception e) {
-			logger.error("Cookie decode error.");
+			logger.error("Cookie decode error.", e);
 			result.setStatus(-1);
 			result.setStatusMsg("Cookie decode error.");
 			return result;
@@ -58,21 +55,21 @@ public class DeviceLoginHandler implements IHandler {
 				return result;
 			}
 
-//			Set<String> users = jedis.smembers("bind:device:" + deviceId);
-//			result.setBindedUsers(new ArrayList<String>(users));
-			
-			String proxyKey = CookieUtil.generateKey(deviceId,String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
-			String proxyAddr = CookieUtil.getWebsocketAddr();
+			// Set<String> users = jedis.smembers("bind:device:" + deviceId);
+			// result.setBindedUsers(new ArrayList<String>(users));
+
+			String proxyKey = CookieUtil.generateKey(deviceId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
+			String proxyAddr = CometScanner.take();
 
 			result.setStatus(0);
-			logger.info("proxykey:"+proxyKey+" size:"+proxyKey.getBytes().length);
+			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);
 			result.setProxyKey(proxyKey);
 			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
 			result.setStatus(-1);
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Device login error");
+			logger.error("Device login error", e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);

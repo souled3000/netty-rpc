@@ -1,11 +1,13 @@
 package com.github.com.nettyrpc.powersocket.dao.pojo.group;
 
+import java.util.List;
+
 
 public class GroupData {
 
 	private String grpName;
 
-	private String grpValue;
+	private List<GroupDevice> grpValue;
 
 	public String getGrpName() {
 		return grpName;
@@ -15,11 +17,11 @@ public class GroupData {
 		this.grpName = grpName;
 	}
 
-	public String getGrpValue() {
+	public List<GroupDevice> getGrpValue() {
 		return grpValue;
 	}
 
-	public void setGrpValue(String grpValue) {
+	public void setGrpValue(List<GroupDevice> grpValue) {
 		this.grpValue = grpValue;
 	}
 
@@ -27,5 +29,4 @@ public class GroupData {
 	public String toString() {
 		return "GroupData [grpName=" + grpName + ", grpValue=" + grpValue + "]";
 	}
-
 }
