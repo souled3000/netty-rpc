@@ -7,7 +7,7 @@
 # 修改时间:
 # 修改作者:
 
-PROCESS_NAME="Main"
+PROCESS_NAME="SlotPlatformLauncher"
 
 ps -ef|grep $PROCESS_NAME | grep java | grep -v grep | awk '{print $2}' |while read pid
 do

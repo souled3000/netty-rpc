@@ -1,5 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,14 +20,20 @@ public class UpgradeUploadHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 
 		GroupUploadResponse result = new GroupUploadResponse();
 
 		String softId = HttpUtil.getPostValue(req.getParams(), "softId");
 		String softInfo = HttpUtil.getPostValue(req.getParams(), "softInfo");
+		logger.info("UpgradeInfoHandler begin softId:{}|softInfo:{}",softId,softInfo);
+		
 		String key = "software:upgrade";
 
+		if(StringUtils.isBlank(softId)||StringUtils.isBlank(softInfo)){
+			result.setStatus(1);
+			return result;
+		}
+		
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
@@ -42,7 +49,7 @@ public class UpgradeUploadHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 

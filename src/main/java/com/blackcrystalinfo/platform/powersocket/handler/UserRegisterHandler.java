@@ -23,7 +23,6 @@ public class UserRegisterHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 
 		UserRegisterResponse result = new UserRegisterResponse();
 		result.setStatus(-1);
@@ -32,8 +31,11 @@ public class UserRegisterHandler implements IHandler {
 
 		String email = HttpUtil.getPostValue(req.getParams(), "email");
 		String phone = HttpUtil.getPostValue(req.getParams(), "phone");
-		String passwd = HttpUtil.getPostValue(req.getParams(), "passwd");
+		String pwd = HttpUtil.getPostValue(req.getParams(), "passwd");
 
+		logger.info("UserRegisterHandler begin email:{}|phone:{}|passwd:{}", email,phone,pwd);
+		
+		
 		if (StringUtils.isBlank(email)) {
 			result.setStatus(1);
 			return result;
@@ -42,7 +44,7 @@ public class UserRegisterHandler implements IHandler {
 		// result.setStatus(2);
 		// return result;
 		// }
-		if (StringUtils.isBlank(passwd)) {
+		if (StringUtils.isBlank(pwd)) {
 			result.setStatus(3);
 			return result;
 		}
@@ -50,7 +52,7 @@ public class UserRegisterHandler implements IHandler {
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
-
+			email=email.toLowerCase();
 			// 1. 邮箱是否注册
 			String existId = jedis.hget("user:mailtoid", email);
 			if (null != existId) {
@@ -81,7 +83,7 @@ public class UserRegisterHandler implements IHandler {
 			tx.hset("user:phone", userId, phone);
 
 			// 6. 记录<用户Id，密码>
-			String shadow = PBKDF2.encode(passwd);
+			String shadow = PBKDF2.encode(pwd);
 			tx.hset("user:shadow", userId, shadow);
 
 			result.setStatus(0);
@@ -107,7 +109,7 @@ public class UserRegisterHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 
 	}

@@ -39,6 +39,6 @@ echo "MEM_ARGS=${MEM_ARGS}"
 echo "JAVA_OPTIONS=${JAVA_OPTIONS}"
 
 #启动命令行
-#${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} com.blackcrystalinfo.platform.powersocket.Main  2>&1 >>  ${APP_HOME}/bin/logs/all.log &
-${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} com.blackcrystalinfo.platform.powersocket.Main 2>&1 &
+#${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} com.blackcrystalinfo.platform.powersocket.SlotPlatformLauncher  2>&1 >>  ${APP_HOME}/bin/logs/all.log &
+${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} com.blackcrystalinfo.platform.powersocket.SlotPlatformLauncher 2>&1 &
 echo "启动完成,请查看日志"

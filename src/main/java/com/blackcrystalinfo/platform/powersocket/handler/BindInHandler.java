@@ -21,7 +21,6 @@ public class BindInHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 
 		BindInResponse result = new BindInResponse();
 		result.setStatus(-1);
@@ -32,48 +31,65 @@ public class BindInHandler implements IHandler {
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 
+		logger.info("BindInHandler  mac:{}|userId:{}|cookie:{}", mac, userId, cookie);
+
 		String deviceId = "";
-		try {
-			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
-				result.setStatusMsg("mac not matched cookie");
-				return result;
-			}
-			deviceId = CookieUtil.extractDeviceId(cookie);
-		} catch (Exception e) {
-			logger.error("Cookie decode error.");
-			result.setStatusMsg("Cookie decode error.");
-			return result;
-		}
 
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
-
-			if ((jedis.sadd("bind:device:" + deviceId, userId) == 0) || (jedis.sadd("bind:user:" + userId, deviceId) == 0)) {
+			
+			String email = jedis.hget("user:email", userId);
+			if(null == email){
+				result.setStatus(3);
+				logger.info("There is not this user.");
+				return result;
+			}
+			
+			
+			deviceId = jedis.hget("device:mactoid", mac);
+			if (null == deviceId) {
+				result.setStatus(2);
+				logger.info("Mac does not exist.mac:{}", mac);
+				return result;
+			}
+			try {
+				if (!CookieUtil.verifyDeviceKey(mac, cookie, deviceId)) {
+					result.setStatus(1);
+					result.setStatusMsg("mac do not match cookie");
+					return result;
+				}
+			} catch (Exception e) {
+				logger.error("Cookie decode error.");
+				result.setStatusMsg("Cookie decode error.");
+				return result;
+			}
+			long b1 = jedis.sadd("bind:device:" + deviceId, userId);
+			long b2 = jedis.sadd("bind:user:" + userId, deviceId);
+			if (b1 == 0 || b2 == 0) {
 				result.setStatus(11); // 重复绑定
-				logger.info("User device has binded! {},{}",deviceId,userId);
+				logger.info("User device has binded! deviceId:{}|userId:{}|mac:{}|cookie:{}", deviceId, userId, mac, cookie);
 				return result;
 			}
 
 			result.setStatus(0);
-			
-			//send message that is the users are related to the device to comet in format deviceId|userAId,userBId,userCId,etc..
-			Set<String> users = jedis.smembers("bind:device"+deviceId);
+
+			// send message that is the users are related to the device to comet in format deviceId|userAId,userBId,userCId,etc..
+			Set<String> users = jedis.smembers("bind:device" + deviceId);
 			String strUsers = StringUtils.join(users.toArray(), ",");
 			StringBuilder sb = new StringBuilder();
 			sb.append(deviceId).append("|").append(strUsers);
 			jedis.publish("PubDeviceUsers", sb.toString());
-			
+
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Bind in error",e);
+			logger.error("Bind in error", e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
-
 }

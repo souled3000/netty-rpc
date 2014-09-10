@@ -19,6 +19,9 @@ public class WebsocketInfoHandler implements IHandler {
 		WebsocketInfoHandlerResponse resp = new WebsocketInfoHandlerResponse();
 		resp.setStatusMsg("");
 		resp.setUrlOrigin(req.getUrlOrigin());
+		
+		logger.info("WebsocketInfoHandler begin cookie:{}",cookie);
+		
 		// 1. 校验cookie信息
 		String[] infos = null;
 		try {
@@ -38,7 +41,7 @@ public class WebsocketInfoHandler implements IHandler {
 			resp.setStatus(-1);
 			return resp;
 		}
-
+		logger.info("response: {}", resp.getStatus());
 		return resp;
 	}
 

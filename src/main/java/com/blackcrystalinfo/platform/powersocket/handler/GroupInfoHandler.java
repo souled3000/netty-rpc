@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +30,18 @@ public class GroupInfoHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 
 		GroupInfoResponse result = new GroupInfoResponse();
-
+		result.setUrlOrigin(req.getUrlOrigin());
+		
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
-
+		logger.info("DeviceRegisterHandler begin userId:{}",userId);
+		
+		if(StringUtils.isBlank(userId)){
+			result.setStatus(1);
+			return result;
+		}
+		
 		String grpName;
 		String grpValue;
 		String key = "user:group:" + userId;
@@ -59,7 +66,7 @@ public class GroupInfoHandler implements IHandler {
 
 			result.setStatus(0);
 			result.setGroupDatas(gds);
-			result.setUrlOrigin(req.getUrlOrigin());
+			
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Get Group info error.");
@@ -68,7 +75,7 @@ public class GroupInfoHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 	public static void main(String[] args) throws Exception{

@@ -20,7 +20,6 @@ public class DeviceRegisterHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 
 		DeviceRegisterResponse result = new DeviceRegisterResponse();
 		result.setStatus(-1);
@@ -31,7 +30,7 @@ public class DeviceRegisterHandler implements IHandler {
 		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
 		// String name = HttpUtil.getPostValue(req.getParams(), "deviceName");
 		String regTime = String.valueOf(System.currentTimeMillis());
-
+		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}",mac,sn);
 		if (!isValidSN(sn)) {
 			result.setStatusMsg("SN is invalid!");
 			return result;
@@ -41,7 +40,7 @@ public class DeviceRegisterHandler implements IHandler {
 		try {
 			jedis = DataHelper.getJedis();
 
-			// 1. 邮箱是否注册
+			// 1. 设备MAC是否已被注册
 			String existId = jedis.hget("device:mactoid", mac);
 			if (null != existId) {
 				// result.setStatusMsg("Regist failed! mac exists.");
@@ -99,7 +98,7 @@ public class DeviceRegisterHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 
 	}

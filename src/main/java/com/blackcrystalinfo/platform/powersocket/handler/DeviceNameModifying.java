@@ -26,8 +26,10 @@ public class DeviceNameModifying implements IHandler {
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		String newDeviceName = HttpUtil.getPostValue(req.getParams(), "deviceName");
 		
+		logger.info("DeviceNameModifying begin mac:{}|cookie:{}|newDeviceName:{}",mac,cookie,newDeviceName);
+		
 		if(StringUtils.isBlank(mac)||StringUtils.isBlank(cookie)||StringUtils.isBlank(newDeviceName)){
-			resp.setStatus(1);
+			resp.setStatus(2);
 			return resp;
 		}
 		Jedis jedis = null;
@@ -54,6 +56,7 @@ public class DeviceNameModifying implements IHandler {
 		}finally{
 			DataHelper.returnJedis(jedis);
 		}
+		logger.info("response: {}", resp.getStatus());
 		return resp;
 	}
 	private class DeviceNameModifyingResponse extends ApiResponse{

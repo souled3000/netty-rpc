@@ -30,7 +30,8 @@ public class UserChangePassHandler implements IHandler {
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String passOld = HttpUtil.getPostValue(req.getParams(), "passOld");
 		String passNew = HttpUtil.getPostValue(req.getParams(), "passNew");
-
+		logger.info("UserChangePassHandler begin userId:{}|passOld:{}|passNew:{}",userId,passOld,passNew);
+		
 		if(StringUtils.isBlank(userId)){
 			result.setStatus(3);
 			return result;
@@ -77,7 +78,7 @@ public class UserChangePassHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 
 	}

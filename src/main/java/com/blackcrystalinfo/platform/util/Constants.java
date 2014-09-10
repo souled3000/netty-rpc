@@ -14,6 +14,9 @@ public class Constants extends ConfigurableConstants{
 	public static String REDIS_PASS = getProperty("redis.pass", "");
 	
 	public static String WEBSOCKET_ADDR = getProperty("websocket.addr", "");
+	
+	public static int SERVER_PORT = Integer.valueOf(getProperty("server.port",""));
+	
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}

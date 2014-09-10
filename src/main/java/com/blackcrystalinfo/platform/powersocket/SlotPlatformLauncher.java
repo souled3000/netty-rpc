@@ -12,8 +12,8 @@ import com.blackcrystalinfo.platform.examples.App;
 import com.blackcrystalinfo.platform.exception.HandlerExistedException;
 import com.blackcrystalinfo.platform.util.CometScanner;
 
-public class Main {
-	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+public class SlotPlatformLauncher {
+	private static final Logger logger = LoggerFactory.getLogger(SlotPlatformLauncher.class);
 
 
 	public static void bindHandler() throws HandlerExistedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException{

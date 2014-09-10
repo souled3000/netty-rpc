@@ -25,10 +25,12 @@ public class UpgradeInfoHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
+		logger.info("UpgradeInfoHandler: ");
 
 		UpgradeInfoResponse result = new UpgradeInfoResponse();
-
+		result.setStatus(-1);
+		result.setUrlOrigin(req.getUrlOrigin());
+		
 		String softId;
 		String softInfo;
 		String key = "software:upgrade";
@@ -53,16 +55,14 @@ public class UpgradeInfoHandler implements IHandler {
 
 			result.setStatus(0);
 			result.setUpgradeDatas(uds);
-			result.setUrlOrigin(req.getUrlOrigin());
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Get upgrade info error.");
-			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 

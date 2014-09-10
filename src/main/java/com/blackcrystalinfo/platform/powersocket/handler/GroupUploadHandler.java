@@ -20,7 +20,6 @@ public class GroupUploadHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("GroupUploadHandler");
 
 		GroupUploadResponse result = new GroupUploadResponse();
 		result.setUrlOrigin(req.getUrlOrigin());
@@ -30,7 +29,7 @@ public class GroupUploadHandler implements IHandler {
 		String grpNew = HttpUtil.getPostValue(req.getParams(), "grpNew");
 		String grpValue = HttpUtil.getPostValue(req.getParams(), "grpValue");
 		String table = "user:group:" + userId;
-
+		logger.info("GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}",userId,grpOld,grpNew,grpValue);
 		if (StringUtils.isBlank(userId) || (StringUtils.isBlank(grpOld) && StringUtils.isBlank(grpNew))) {
 			result.setStatus(0);
 		} else {
@@ -64,7 +63,7 @@ public class GroupUploadHandler implements IHandler {
 				DataHelper.returnJedis(jedis);
 			}
 		}
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 

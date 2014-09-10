@@ -19,7 +19,6 @@ public class UserFindPwdStep2Handler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 		UserFindPwdStep2Response resp = new UserFindPwdStep2Response();
 		resp.setStatusMsg("");
 		resp.setUrlOrigin(req.getUrlOrigin());
@@ -27,6 +26,9 @@ public class UserFindPwdStep2Handler implements IHandler {
 		String code = HttpUtil.getPostValue(req.getParams(), "code");
 		String keyCode = new String(userEmail + "-code");
 		String pwd = HttpUtil.getPostValue(req.getParams(), "pwd");
+		
+		logger.info("UserFindPwdStep2Handler begin userEmail:{}|code:{}|keyCode:{}|pwd:{}", userEmail,code,keyCode,pwd);
+		
 		if(StringUtils.isBlank(pwd)){
 			resp.setStatus(4);
 			return resp;
@@ -42,7 +44,7 @@ public class UserFindPwdStep2Handler implements IHandler {
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
-			// 查找验证码
+			// 验证码是否过期
 			if (!jedis.exists(keyCode)) {
 				resp.setStatus(1);
 				return resp;
@@ -79,6 +81,7 @@ public class UserFindPwdStep2Handler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 		resp.setStatus(0);
+		logger.info("response: {}", resp.getStatus());
 		return resp;
 	}
 

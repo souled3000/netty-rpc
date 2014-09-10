@@ -24,12 +24,14 @@ public class UserFindPwdStep1Handler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
 		UserFindPwdStep1Response resp = new UserFindPwdStep1Response();
 		resp.setStatusMsg("");
 		resp.setUrlOrigin(req.getUrlOrigin());
 
 		String destEmailAddr = HttpUtil.getPostValue(req.getParams(), "email");
+		logger.info("UserFindPwdStep1Handler: email:{}", destEmailAddr);
+		
+		
 		
 		if(StringUtils.isBlank(destEmailAddr)){
 			resp.setStatus(2);
@@ -72,6 +74,8 @@ public class UserFindPwdStep1Handler implements IHandler {
 			boolean b = sms.sendTextMail(mailInfo);
 			if(!b){
 				logger.info("sending Email failed!!!");
+				resp.setStatus(3);
+				return resp;
 			}
 			
 		} catch (Exception e) {
@@ -83,6 +87,7 @@ public class UserFindPwdStep1Handler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 		resp.setStatus(0);
+		logger.info("response: {}", resp.getStatus());
 		return resp;
 	}
 

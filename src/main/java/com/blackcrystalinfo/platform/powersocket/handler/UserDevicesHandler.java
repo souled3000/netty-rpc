@@ -25,8 +25,6 @@ public class UserDevicesHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("request: {}", req);
-
 		UserDevicesResponse result = new UserDevicesResponse();
 		result.setStatus(-1);
 		result.setStatusMsg("");
@@ -34,14 +32,16 @@ public class UserDevicesHandler implements IHandler {
 
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
-
+		logger.info("UserDevices begin userId:{}|cookie:{}",userId,cookie);
+		
 		String[] infos = null;
 		try {
 			infos = CookieUtil.decode(cookie);
 
 			String tmpUserId = infos[0];
 			if (!userId.equals(tmpUserId)) {
-				throw new IllegalArgumentException();
+				result.setStatus(1);
+				return result;
 			}
 		} catch (Exception e) {
 			logger.error("Cookie decode error.");
@@ -81,7 +81,7 @@ public class UserDevicesHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 

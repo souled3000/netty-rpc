@@ -27,7 +27,6 @@ public class UserLoginHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		logger.info("UserLoginHandler");
 
 		UserLoginResponse result = new UserLoginResponse();
 		result.setStatus(-1);
@@ -35,12 +34,11 @@ public class UserLoginHandler implements IHandler {
 		result.setUrlOrigin(req.getUrlOrigin());
 
 		String email = HttpUtil.getPostValue(req.getParams(), "email");
-		String passwd = HttpUtil.getPostValue(req.getParams(), "passwd");
+		String pwd = HttpUtil.getPostValue(req.getParams(), "passwd");
 		
-		logger.info("email:{}",email);
-		logger.info("passwd:{}",passwd);
+		logger.info("UserLoginHandler begin email:{}|pwd:{}",email,pwd);
 		
-		if(StringUtils.isBlank(passwd)){
+		if(StringUtils.isBlank(pwd)){
 			result.setStatus(3);
 			return result;
 		}
@@ -49,7 +47,7 @@ public class UserLoginHandler implements IHandler {
 		
 		try {
 			jedis = DataHelper.getJedis();
-
+			email=email.toLowerCase();
 			// 1. 根据Email获取userId
 			String userId = jedis.hget("user:mailtoid", email);
 			if (null == userId) {
@@ -60,7 +58,7 @@ public class UserLoginHandler implements IHandler {
 
 			// 2. encodePwd与passwd加密后的串做比较
 			String encodePwd = jedis.hget("user:shadow", userId);
-			if (!PBKDF2.validate(passwd, encodePwd)) {
+			if (!PBKDF2.validate(pwd, encodePwd)) {
 				result.setStatusMsg("Password error.");
 				result.setStatus(2);
 				return result;
@@ -86,7 +84,7 @@ public class UserLoginHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 

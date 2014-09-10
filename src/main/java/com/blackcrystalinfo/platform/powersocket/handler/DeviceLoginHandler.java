@@ -29,36 +29,38 @@ public class DeviceLoginHandler implements IHandler {
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 
-		try {
-			if (!CookieUtil.verifyDeviceKey(mac, cookie)) {
-				logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
-				result.setStatusMsg("mac not matched cookie");
-				result.setStatus(1);
-				return result;
-			}
-		} catch (Exception e) {
-			logger.error("Cookie decode error.", e);
-			result.setStatus(-1);
-			result.setStatusMsg("Cookie decode error.");
-			return result;
-		}
+		logger.info("DeviceLoginHandler begin mac:{}|cookie:{}", mac, cookie);
+		
 
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
 
-			// 1. 根据Email获取userId
-			String deviceId = jedis.hget("device:mactoid", mac);
-			if (null == deviceId) {
+			// 1. 根据mac获取deviceId
+			String id = jedis.hget("device:mactoid", mac);
+			if (null == id) {
 				result.setStatus(2);
-				result.setStatusMsg("Mac not exists, please regist it.");
+				result.setStatusMsg("Mac does not exist.");
 				return result;
 			}
-
+			try {
+				if (!CookieUtil.verifyDeviceKey(mac, cookie,id)) {
+					logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
+					result.setStatusMsg("mac not matched cookie");
+					result.setStatus(1);
+					return result;
+				}
+			} catch (Exception e) {
+				logger.error("Cookie decode error.", e);
+				result.setStatus(-1);
+				result.setStatusMsg("Cookie decode error.");
+				return result;
+			}
 			// Set<String> users = jedis.smembers("bind:device:" + deviceId);
 			// result.setBindedUsers(new ArrayList<String>(users));
 
-			String proxyKey = CookieUtil.generateKey(deviceId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.generateKey(id, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
+//			String proxyKey = CookieUtil.generateDeviceKey(mac,id);
 			String proxyAddr = CometScanner.take();
 
 			result.setStatus(0);
@@ -75,8 +77,11 @@ public class DeviceLoginHandler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
-
+	public static void main(String[] args) throws Exception{
+		System.out.println(CookieUtil.generateKey("-3", String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC));
+		System.out.println(CookieUtil.generateDeviceKey("A oE/gD6", "-3"));
+	}
 }

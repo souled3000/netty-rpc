@@ -107,6 +107,20 @@ public class CookieUtil {
 		return new String[] { userId, expire };
 	}
 
+	public static String generateKey(String id, String timestamp, String expire) throws NoSuchAlgorithmException {
+		String key = "";
+		String buf = String.format("%s|%s|%s", id, timestamp, expire);
+
+		String md5_buf = String.format("%s|%s|%s|%s", id, timestamp, expire, WEBSOCKET_SALT);
+		byte[] bytes = MessageDigest.getInstance("MD5").digest(md5_buf.getBytes());
+
+		BASE64Encoder encoder = new BASE64Encoder();
+		String md5Str = encoder.encode(bytes);
+
+		key = String.format("%s|%s", buf, md5Str);
+		return key;
+	}
+	
 	public static String generateDeviceKey(String mac, String id) throws NoSuchAlgorithmException, InvalidKeyException {
 		String cookie = "";
 
@@ -141,24 +155,11 @@ public class CookieUtil {
 		return deviceId;
 	}
 
-	public static String generateKey(String id, String timestamp, String expire) throws NoSuchAlgorithmException {
-		String key = "";
-		String buf = String.format("%s|%s|%s", id, timestamp, expire);
 
-		String md5_buf = String.format("%s|%s|%s|%s", id, timestamp, expire, WEBSOCKET_SALT);
-		byte[] bytes = MessageDigest.getInstance("MD5").digest(md5_buf.getBytes());
-
-		BASE64Encoder encoder = new BASE64Encoder();
-		String md5Str = encoder.encode(bytes);
-
-		key = String.format("%s|%s", buf, md5Str);
-		return key;
-	}
-
-	public static boolean verifyDeviceKey(String mac, String cookie) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+	public static boolean verifyDeviceKey(String mac, String cookie,String id) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
 		boolean result = false;
 
-		String id = extractDeviceId(cookie);
+//		String id = extractDeviceId(cookie);
 		if (null != cookie) {
 			cookie = cookie.replace("+", "%2B");
 			if (cookie.equals(generateDeviceKey(mac, id))) {

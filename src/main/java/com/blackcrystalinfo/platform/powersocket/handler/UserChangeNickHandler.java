@@ -26,9 +26,6 @@ public class UserChangeNickHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-
-		logger.info("request: {}", req);
-
 		UserChangeNickResponse result = new UserChangeNickResponse();
 		result.setStatus(-1);
 		result.setStatusMsg("");
@@ -37,6 +34,7 @@ public class UserChangeNickHandler implements IHandler {
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		String nick = HttpUtil.getPostValue(req.getParams(), "nick");
+		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}",userId,cookie,nick);
 
 		// 1. 校验cookie信息
 		String[] infos = null;
@@ -44,11 +42,11 @@ public class UserChangeNickHandler implements IHandler {
 			infos = CookieUtil.decode(cookie);
 
 			if (!userId.equals(infos[0])) {
-				throw new IllegalArgumentException();
+				result.setStatus(1);
+				return result;
 			}
 		} catch (Exception e) {
-			logger.error("Cookie decode error.");
-			result.setStatusMsg("Cookie decode error.");
+			logger.error("",e);
 			return result;
 		}
 
@@ -64,13 +62,12 @@ public class UserChangeNickHandler implements IHandler {
 			}
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("User change nick error");
-			throw new InternalException(e.getMessage());
+			logger.error("",e);
+			return result;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
-
-		logger.info("response: {}", result);
+		logger.info("response: {}", result.getStatus());
 		return result;
 	}
 

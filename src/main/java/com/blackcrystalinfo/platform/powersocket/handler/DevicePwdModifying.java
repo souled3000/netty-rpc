@@ -25,7 +25,7 @@ public class DevicePwdModifying implements IHandler {
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		String newDevicePwd = HttpUtil.getPostValue(req.getParams(), "devicePwd");
-		
+		logger.info("DevicePwdModifying bgein mac:{}|cookie:{}|newDevicePwd:{}",mac,cookie,newDevicePwd);
 		if(StringUtils.isBlank(mac)||StringUtils.isBlank(cookie)||StringUtils.isBlank(newDevicePwd)){
 			resp.setStatus(1);
 			return resp;
@@ -51,6 +51,7 @@ public class DevicePwdModifying implements IHandler {
 		}finally{
 			DataHelper.returnJedis(jedis);
 		}
+		logger.info("response: {}", resp.getStatus());
 		return resp;
 	}
 	private class DevicePwdModifyingResponse extends ApiResponse{

@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -25,13 +27,30 @@ public class CometScanner {
 	private final static float CPU_THRESHOLD = Float.valueOf(Constants.getProperty("cpu.threshold", "0.9"));
 	private final static long MEM_THRESHOLD = Long.valueOf(Constants.getProperty("mem.threshold", "1024"));
 	private final static long HANDLER_THRESHOLD = Long.valueOf(Constants.getProperty("handler.threshold", "65535"));
+	private final static long TICTOK = Long.valueOf(Constants.getProperty("tiktok", "100000"));
 
 	private final static String root = Constants.getProperty("root", "/");
 
 	private final static BlockingQueue<String> q = new LinkedBlockingQueue<String>();
-	private final static Map<String,String> PATH2URL = new HashMap<String,String>();
-	
+	private final static Map<String, String> PATH2URL = new HashMap<String, String>();
+	private final static Map<String, String> IPMAP = new HashMap<String, String>();
+
 	private static ZooKeeper zk = null;
+
+	private final static Pattern p = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+
+	static {
+		try {
+			Properties p = new Properties();
+			p.load(ClassLoader.getSystemResourceAsStream("ip.properties"));
+			for (Object key : p.keySet()) {
+				String v = p.getProperty((String) key);
+				IPMAP.put((String) key, v);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void tiktok() {
 		Timer timer = new Timer();
@@ -39,10 +58,12 @@ public class CometScanner {
 			public void run() {
 				scan();
 			}
-		}, 0, 1000);
+		}, 0, TICTOK);
 	}
 
 	private static boolean assignZk() {
+		if (zk != null)
+			return true;
 		String zookeepers = Constants.getProperty("zookeeper", "");
 
 		logger.info("connect...{} ", zookeepers);
@@ -56,7 +77,7 @@ public class CometScanner {
 			});
 			signal.await();
 			return true;
-		} catch (IOException | InterruptedException e) {
+		} catch (Exception e) {
 			zk = null;
 			logger.error("", e);
 		}
@@ -74,48 +95,45 @@ public class CometScanner {
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
-			if (zk != null)
-				try {
-					zk.close();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+
 		}
 	}
 
 	private static void recurseZnode(ZooKeeper zk, String path) {
-		logger.info("visit znode:{}", path);
 		List<String> l = null;
 		try {
 			l = zk.getChildren(path, new Watcher() {
 				@Override
 				public void process(WatchedEvent event) {
-					
+
 				}
 			});
-		} catch (KeeperException | InterruptedException e) {
+		} catch (Exception e) {
 			logger.error("", e);
 			return;
 		}
 		for (String s : l) {
 			Stat st = new Stat();
+			final String tmpPath = path.equals("/") ? "/" + s : path + "/" + s;
 			try {
-				String data = new String(zk.getData(path.equals("/") ? "/" + s : path + "/" + s, new Watcher(){
+				String data = new String(zk.getData(tmpPath, new Watcher() {
 
 					@Override
 					public void process(WatchedEvent event) {
-						if(event.getType().equals(EventType.NodeDeleted)){
+						if (event.getType().equals(EventType.NodeDeleted)) {
 							String url = PATH2URL.get(event.getPath());
-							if(url != null)
-							q.remove(url);
+							if (url != null){
+								q.remove(url);
+								logger.info("remove from queue url:{}|path:{}",url,tmpPath);
+							}
 						}
 					}
-					
+
 				}, st));
 				String[] items = data.split(",");
 				if (items.length == 5) {
 					String url = items[0];
-					PATH2URL.put(path, url);
+					PATH2URL.put(tmpPath, url);
 					float cpu = Float.valueOf(items[1]);
 					long tm = Long.valueOf(items[2]);
 					long um = Long.valueOf(items[3]);
@@ -123,39 +141,64 @@ public class CometScanner {
 					if (cpu < CPU_THRESHOLD && tm - um > MEM_THRESHOLD && HANDLER_THRESHOLD > h) {
 						if (!q.contains(url)) {
 							q.put(url);
-							System.out.println("------------------------------------" + url);
+							logger.info("adding url:{}|path:{}",url,tmpPath);
 						}
 					} else {
-						if (q.contains(url))
+						if (q.contains(url)){
 							q.remove(url);
+							logger.info("remove url:{}|path:{}",url,tmpPath);
+						}
 					}
 				}
 			} catch (Exception e) {
 				return;
 			}
 
-			int n = st.getNumChildren();
-			logger.info("znode:{} has {} children", path.equals("/") ? "/" + s : path + "/" + s, n);
-			if (n > 0) {
-				recurseZnode(zk, path.equals("/") ? "/" + s : path + "/" + s);
-			} else {
-				return;
-			}
+//			int n = st.getNumChildren();
+//			logger.info("znode:{} has {} children", path.equals("/") ? "/" + s : path + "/" + s, n);
+//			if (n > 0) {
+//				recurseZnode(zk, path.equals("/") ? "/" + s : path + "/" + s);
+//			} else {
+//				return;
+//			}
 		}
 	}
 
 	public static synchronized String take() {
-		String url = Constants.getProperty("websocket.addr", "ws://192.168.2.14:1234/ws");
-		url = q.poll();
-		if(url!=null)
-		q.offer(url);
+		String url = q.poll();
+		if (url != null)
+			q.offer(url);
+		else
+			url = Constants.getProperty("websocket.addr", "");
+		Matcher m = p.matcher(url);
+		if (m.find()) {
+			String key = m.group();
+			if (IPMAP.get(key) != null)
+				url = url.replaceAll("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}", IPMAP.get(key));
+			else
+				logger.error("ip {} has no its mapping ip ", key);
+		}
+		logger.info("return url:{}", url);
 		return url;
+	}
+
+	public static void closing() {
+		if (zk != null)
+			try {
+				zk.close();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 	}
 
 	public static void main(String[] args) throws Exception {
 		CometScanner.tiktok();
 		Thread.sleep(1 * 1000);
-
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				CometScanner.closing();
+			}
+		});
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 
@@ -165,7 +208,5 @@ public class CometScanner {
 				System.out.println("--------------" + url);
 			}
 		}, 0, 3000);
-
 	}
-
 }
