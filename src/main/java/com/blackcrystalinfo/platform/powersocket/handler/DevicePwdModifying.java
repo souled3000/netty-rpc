@@ -19,15 +19,17 @@ public class DevicePwdModifying implements IHandler {
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 		DevicePwdModifyingResponse resp = new DevicePwdModifyingResponse();
-		resp.setStatusMsg("");
+		resp.setStatus(-1);
 		resp.setUrlOrigin(req.getUrlOrigin());
 		
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		String newDevicePwd = HttpUtil.getPostValue(req.getParams(), "devicePwd");
+		
 		logger.info("DevicePwdModifying bgein mac:{}|cookie:{}|newDevicePwd:{}",mac,cookie,newDevicePwd);
 		if(StringUtils.isBlank(mac)||StringUtils.isBlank(cookie)||StringUtils.isBlank(newDevicePwd)){
 			resp.setStatus(1);
+			logger.info("something is null mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus());
 			return resp;
 		}
 		Jedis jedis = null;
@@ -35,7 +37,8 @@ public class DevicePwdModifying implements IHandler {
 			jedis = DataHelper.getJedis();
 			String deviceId = jedis.hget("device:mactoid", mac);
 			if(deviceId==null){
-				resp.setStatus(1);
+				resp.setStatus(2);
+				logger.info("no matching device mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus());
 				return resp;
 			}
 			String[] cookies = CookieUtil.decode(cookie);
@@ -46,12 +49,12 @@ public class DevicePwdModifying implements IHandler {
 		}catch(Exception e){
 			resp.setStatus(-1);
 			DataHelper.returnBrokenJedis(jedis);
-			logger.info("",e);
+			logger.info("mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus(),e);
 			return resp;
 		}finally{
 			DataHelper.returnJedis(jedis);
 		}
-		logger.info("response: {}", resp.getStatus());
+		logger.info("response: mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus());
 		return resp;
 	}
 	private class DevicePwdModifyingResponse extends ApiResponse{

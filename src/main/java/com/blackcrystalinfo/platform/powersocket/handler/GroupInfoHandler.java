@@ -32,6 +32,7 @@ public class GroupInfoHandler implements IHandler {
 	public Object rpc(RpcRequest req) throws InternalException {
 
 		GroupInfoResponse result = new GroupInfoResponse();
+		result.setStatus(-1);
 		result.setUrlOrigin(req.getUrlOrigin());
 		
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
@@ -39,6 +40,7 @@ public class GroupInfoHandler implements IHandler {
 		
 		if(StringUtils.isBlank(userId)){
 			result.setStatus(1);
+			logger.info("userId is null. userId:{}",userId);
 			return result;
 		}
 		
@@ -69,8 +71,8 @@ public class GroupInfoHandler implements IHandler {
 			
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Get Group info error.");
-			throw new InternalException(e.getMessage());
+			logger.error("Get Group info error. userId:{}",userId,e);
+			return result;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}

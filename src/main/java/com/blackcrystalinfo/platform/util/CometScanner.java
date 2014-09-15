@@ -191,7 +191,7 @@ public class CometScanner {
 			}
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main2(String[] args) throws Exception {
 		CometScanner.tiktok();
 		Thread.sleep(1 * 1000);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -208,5 +208,8 @@ public class CometScanner {
 				System.out.println("--------------" + url);
 			}
 		}, 0, 3000);
+	}
+	public static void main(String[] args) {
+		logger.info("{}|{}","yuefei","ych");
 	}
 }

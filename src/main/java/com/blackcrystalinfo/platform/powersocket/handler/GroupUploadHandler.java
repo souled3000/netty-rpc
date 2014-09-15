@@ -21,8 +21,8 @@ public class GroupUploadHandler implements IHandler {
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 
-		GroupUploadResponse result = new GroupUploadResponse();
-		result.setUrlOrigin(req.getUrlOrigin());
+		GroupUploadResponse resp = new GroupUploadResponse();
+		resp.setUrlOrigin(req.getUrlOrigin());
 
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String grpOld = HttpUtil.getPostValue(req.getParams(), "grpOld");
@@ -31,7 +31,8 @@ public class GroupUploadHandler implements IHandler {
 		String table = "user:group:" + userId;
 		logger.info("GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}",userId,grpOld,grpNew,grpValue);
 		if (StringUtils.isBlank(userId) || (StringUtils.isBlank(grpOld) && StringUtils.isBlank(grpNew))) {
-			result.setStatus(0);
+			resp.setStatus(0);
+			logger.info("something is null. userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}",userId,grpOld,grpNew,grpValue,resp.getStatus());
 		} else {
 			Jedis jedis = null;
 			try {
@@ -42,29 +43,29 @@ public class GroupUploadHandler implements IHandler {
 				tx = jedis.multi();
 				if (b) {
 					tx.hdel(table, grpOld);
-					result.setStatus(3);
+					resp.setStatus(3);
 					if (StringUtils.isNotBlank(grpNew)) {
 						tx.hset(table, grpNew, grpValue);
-						result.setStatus(2);
+						resp.setStatus(2);
 					}
 				} else {
 					if (StringUtils.isNotBlank(grpNew)) {
 						tx.hset(table, grpNew, grpValue);
-						result.setStatus(1);
+						resp.setStatus(1);
 					}
 				}
 				tx.exec();
 			} catch (Exception e) {
 				DataHelper.returnBrokenJedis(jedis);
-				result.setStatus(-1);
+				resp.setStatus(-1);
 				logger.error("Upload group info error.", e);
-				return result;
+				return resp;
 			} finally {
 				DataHelper.returnJedis(jedis);
 			}
 		}
-		logger.info("response: {}", result.getStatus());
-		return result;
+		logger.info("response: userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}",userId,grpOld,grpNew,grpValue,resp.getStatus());
+		return resp;
 	}
 
 }

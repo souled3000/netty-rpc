@@ -41,7 +41,7 @@ public class WebsocketInfoHandler implements IHandler {
 			resp.setStatus(-1);
 			return resp;
 		}
-		logger.info("response: {}", resp.getStatus());
+		logger.info("response: status:{}|proxyKey:{}|proxyAddr:{}|heartBeat:{}", resp.getStatus(),resp.getProxyKey(),resp.getProxyAddr(),resp.getHeartBeat());
 		return resp;
 	}
 

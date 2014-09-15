@@ -9,8 +9,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 
 public class HttpUtil {
 
-	public static final String getPostValue(HttpPostRequestDecoder req,
-			String name) {
+	public static final String getPostValue(HttpPostRequestDecoder req, String name) {
 		try {
 			InterfaceHttpData bodyHttpData = req.getBodyHttpData(name);
 			if (null != bodyHttpData) {

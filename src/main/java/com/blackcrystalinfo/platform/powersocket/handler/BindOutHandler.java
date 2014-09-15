@@ -41,31 +41,29 @@ public class BindOutHandler implements IHandler {
 			String id = jedis.hget("device:mactoid", mac);
 			if (null == id) {
 				result.setStatus(2);
-				result.setStatusMsg("Mac does not exist.");
+				logger.info("Mac does not exist. mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus());
 				return result;
 			}
 			try {
 				if (!CookieUtil.verifyDeviceKey(mac, cookie, id)) {
-					logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
-					result.setStatusMsg("mac not matched cookie");
+					logger.info("mac not matched cookie mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus());
 					return result;
 				}
 				deviceId = CookieUtil.extractDeviceId(cookie);
 			} catch (Exception e) {
-				logger.error("Cookie decode error.", e);
-				result.setStatusMsg("Cookie decode error.");
+				logger.error("Cookie decode error.mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus(),e);
 				return result;
 			}
 			long b1 = jedis.srem("bind:device:" + deviceId, userId);
 			long b2 = jedis.srem("bind:user:" + userId, deviceId);
-			if ((jedis.srem("bind:device:" + deviceId, userId)) == 0 || (jedis.srem("bind:user:" + userId, deviceId)) == 0) {
+			if (b1 == 0 || b2 == 0) {
 				result.setStatus(12); // 未绑定
-				result.setStatusMsg("User device not binded!");
+				logger.info("User device not binded! mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus());
 				return result;
 			}
-
+			
 			// send message that is the users are related to the device to comet in format deviceId|userAId,userBId,userCId,etc..
-			Set<String> users = jedis.smembers("bind:device" + deviceId);
+			Set<String> users = jedis.smembers("bind:device:" + deviceId);
 			String strUsers = StringUtils.join(users.toArray(), ",");
 			StringBuilder sb = new StringBuilder();
 			sb.append(deviceId).append("|").append(strUsers);
@@ -74,23 +72,13 @@ public class BindOutHandler implements IHandler {
 			result.setStatus(0);
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Bind out error", e);
+			logger.error("Bind out error. mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus(),e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
+		logger.info("response: mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus());
 		return result;
-	}
-	
-	public static void main(String[] args) throws Exception {
-		if ((f(3,5)) > 0 || (f(6,8)) == 0) {
-		}
-	}
-	
-	public static long f(long a,long b)throws Exception{
-		System.out.println(a+b);
-		return a+b;
 	}
 }

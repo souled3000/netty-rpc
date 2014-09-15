@@ -67,7 +67,7 @@ public class UserChangeNickHandler implements IHandler {
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
-		logger.info("response: {}", result.getStatus());
+		logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}",userId,cookie,nick,result.getStatus());
 		return result;
 	}
 

@@ -28,10 +28,10 @@ public class UserLoginHandler implements IHandler {
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 
-		UserLoginResponse result = new UserLoginResponse();
-		result.setStatus(-1);
-		result.setStatusMsg("");
-		result.setUrlOrigin(req.getUrlOrigin());
+		UserLoginResponse resp = new UserLoginResponse();
+		resp.setStatus(-1);
+		resp.setStatusMsg("");
+		resp.setUrlOrigin(req.getUrlOrigin());
 
 		String email = HttpUtil.getPostValue(req.getParams(), "email");
 		String pwd = HttpUtil.getPostValue(req.getParams(), "passwd");
@@ -39,8 +39,9 @@ public class UserLoginHandler implements IHandler {
 		logger.info("UserLoginHandler begin email:{}|pwd:{}",email,pwd);
 		
 		if(StringUtils.isBlank(pwd)){
-			result.setStatus(3);
-			return result;
+			resp.setStatus(3);
+			logger.info("pwd is null email:{}|pwd:{}|status:{}",email,pwd,resp.getStatus());
+			return resp;
 		}
 		
 		Jedis jedis = null;
@@ -51,17 +52,17 @@ public class UserLoginHandler implements IHandler {
 			// 1. 根据Email获取userId
 			String userId = jedis.hget("user:mailtoid", email);
 			if (null == userId) {
-				result.setStatusMsg("User not exist.");
-				result.setStatus(1);
-				return result;
+				resp.setStatus(1);
+				logger.info("User not exist. email:{}|pwd:{}|status:{}",email,pwd,resp.getStatus());
+				return resp;
 			}
 
 			// 2. encodePwd与passwd加密后的串做比较
 			String encodePwd = jedis.hget("user:shadow", userId);
 			if (!PBKDF2.validate(pwd, encodePwd)) {
-				result.setStatusMsg("Password error.");
-				result.setStatus(2);
-				return result;
+				resp.setStatus(2);
+				logger.info("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",email,pwd,resp.getStatus());
+				return resp;
 			}
 			
 			
@@ -69,23 +70,23 @@ public class UserLoginHandler implements IHandler {
 //			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
 //			String proxyAddr = CometScanner.take();
 //			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);
-			result.setStatus(0);
-			result.setUserId(userId);
+			resp.setStatus(0);
+			resp.setUserId(userId);
 //			result.setHeartBeat(CookieUtil.EXPIRE_SEC);
-			result.setCookie(cookie);
+			resp.setCookie(cookie);
 //			result.setProxyKey(proxyKey);
 //			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("User login error.");
-			throw new InternalException(e.getMessage());
+			logger.error("User login error. email:{}|pwd:{}|status:{}",email,pwd,resp.getStatus(),e);
+			return resp;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
-		return result;
+		logger.info("response: email:{}|pwd:{}|status:{}",email,pwd,resp.getStatus());
+		return resp;
 	}
 
 }

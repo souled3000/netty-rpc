@@ -31,14 +31,17 @@ public class UserFindPwdStep2Handler implements IHandler {
 		
 		if(StringUtils.isBlank(pwd)){
 			resp.setStatus(4);
+			logger.info("pwd is null. userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 			return resp;
 		}
 		if(StringUtils.isBlank(code)){
 			resp.setStatus(5);
+			logger.info("code is null. userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 			return resp;
 		}
 		if(StringUtils.isBlank(userEmail)){
 			resp.setStatus(6);
+			logger.info("userEmail is null. userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 			return resp;
 		}
 		Jedis jedis = null;
@@ -47,6 +50,7 @@ public class UserFindPwdStep2Handler implements IHandler {
 			// 验证码是否过期
 			if (!jedis.exists(keyCode)) {
 				resp.setStatus(1);
+				logger.info("code has been expired. userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 				return resp;
 			}
 			
@@ -56,12 +60,14 @@ public class UserFindPwdStep2Handler implements IHandler {
 			int failTime = Integer.valueOf(strFailTime==null?"0":strFailTime);
 			if(failTime>=3){
 				resp.setStatus(2);
+				logger.info("the times validating beyond three. userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 				return resp;
 			}
 			//验证
 			if(!codeVal.equals(code)){
 				jedis.incr(keyCode+"fail");//累记失败次数
 				resp.setStatus(3);
+				logger.info("validating fail. userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 				return resp;
 			}
 			String userId = jedis.hget("user:mailtoid", userEmail);
@@ -81,7 +87,7 @@ public class UserFindPwdStep2Handler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 		resp.setStatus(0);
-		logger.info("response: {}", resp.getStatus());
+		logger.info("response: userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail,code,keyCode,pwd,resp.getStatus());
 		return resp;
 	}
 

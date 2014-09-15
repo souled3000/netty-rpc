@@ -19,7 +19,7 @@ public class DeviceNameModifying implements IHandler {
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 		DeviceNameModifyingResponse resp = new DeviceNameModifyingResponse();
-		resp.setStatusMsg("");
+		resp.setStatus(-1);
 		resp.setUrlOrigin(req.getUrlOrigin());
 		
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
@@ -30,6 +30,7 @@ public class DeviceNameModifying implements IHandler {
 		
 		if(StringUtils.isBlank(mac)||StringUtils.isBlank(cookie)||StringUtils.isBlank(newDeviceName)){
 			resp.setStatus(2);
+			logger.info("something is null. mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus());
 			return resp;
 		}
 		Jedis jedis = null;
@@ -38,25 +39,26 @@ public class DeviceNameModifying implements IHandler {
 			String deviceId = jedis.hget("device:mactoid", mac);
 			if(deviceId==null){
 				resp.setStatus(1);
+				logger.info("no matching device. mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus());
 				return resp;
 			}
 			String[] cookies = CookieUtil.decode(cookie);
 			String userId = cookies[0];
 
-			String key = "bind:user:"+userId;
+//			String key = "bind:user:"+userId;
 			
 			jedis.hset("device:name:"+userId,deviceId,newDeviceName);
 			
 			resp.setStatus(0);
 		}catch(Exception e){
-			resp.setStatus(-1);
+			
 			DataHelper.returnBrokenJedis(jedis);
-			logger.info("",e);
+			logger.info(" mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus(),e);
 			return resp;
 		}finally{
 			DataHelper.returnJedis(jedis);
 		}
-		logger.info("response: {}", resp.getStatus());
+		logger.info("response:  mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus());
 		return resp;
 	}
 	private class DeviceNameModifyingResponse extends ApiResponse{

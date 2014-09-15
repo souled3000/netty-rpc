@@ -38,6 +38,7 @@ public class UserRegisterHandler implements IHandler {
 		
 		if (StringUtils.isBlank(email)) {
 			result.setStatus(1);
+			logger.info("email is null. email:{}|phone:{}|passwd:{}|status:{}", email,phone,pwd,result.getStatus());
 			return result;
 		}
 		// if(StringUtils.isBlank(phone)){
@@ -46,6 +47,7 @@ public class UserRegisterHandler implements IHandler {
 		// }
 		if (StringUtils.isBlank(pwd)) {
 			result.setStatus(3);
+			logger.info("pwd is null. email:{}|phone:{}|passwd:{}|status:{}", email,phone,pwd,result.getStatus());
 			return result;
 		}
 
@@ -56,7 +58,8 @@ public class UserRegisterHandler implements IHandler {
 			// 1. 邮箱是否注册
 			String existId = jedis.hget("user:mailtoid", email);
 			if (null != existId) {
-				result.setStatusMsg("Regist failed! mail exists.");
+				result.setStatus(4);
+				logger.info("user has been existed. email:{}|phone:{}|passwd:{}|status:{}", email,phone,pwd,result.getStatus());
 				return result;
 			}
 
@@ -102,14 +105,13 @@ public class UserRegisterHandler implements IHandler {
 			tx.exec();
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			String msg = String.format("User regist error, msg: %s", e.getMessage());
-			logger.error(msg);
-			throw new InternalException(msg);
+			logger.error("User regist error, email:{}|phone:{}|passwd:{}|status:{}", email,phone,pwd,result.getStatus(),e);
+			
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
+		logger.info("response: email:{}|phone:{}|passwd:{}|status:{}", email,phone,pwd,result.getStatus());
 		return result;
 
 	}

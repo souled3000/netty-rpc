@@ -28,9 +28,11 @@ public class DeviceRegisterHandler implements IHandler {
 
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
+		String dv = HttpUtil.getPostValue(req.getParams(), "dv");
+		
 		// String name = HttpUtil.getPostValue(req.getParams(), "deviceName");
 		String regTime = String.valueOf(System.currentTimeMillis());
-		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}",mac,sn);
+		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}|bv:{}",mac,sn,dv);
 		if (!isValidSN(sn)) {
 			result.setStatusMsg("SN is invalid!");
 			return result;
@@ -69,6 +71,7 @@ public class DeviceRegisterHandler implements IHandler {
 
 				// 5. 记录设备SN号
 				tx.hset("device:sn", deviceId, sn);
+				
 
 				// 6. 设备注册时间
 				tx.hset("device:regtime", deviceId, regTime);
@@ -76,6 +79,9 @@ public class DeviceRegisterHandler implements IHandler {
 				// 7. 设备名称
 				// tx.hset("device:name", deviceId, name);
 
+				// 8. 设备类型
+				tx.hset("device:dv", deviceId, dv);
+				
 				String cookie = CookieUtil.generateDeviceKey(mac, deviceId);
 				// String timeStamp =
 				// String.valueOf(System.currentTimeMillis());
@@ -92,13 +98,13 @@ public class DeviceRegisterHandler implements IHandler {
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Device regist error.");
-			throw new InternalException(e.getMessage());
+			logger.error("Device regist error mac:{}|sn:{}|bv:{}",mac,sn,dv,e);
+			return result;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
+		logger.info("response:  mac:{}|sn:{}|bv:{}",mac,sn,dv);
 		return result;
 
 	}

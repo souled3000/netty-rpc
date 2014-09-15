@@ -22,10 +22,10 @@ public class UserChangePassHandler implements IHandler {
 	public Object rpc(RpcRequest req) throws InternalException {
 		logger.info("request: {}", req);
 
-		UserChangePassResponse result = new UserChangePassResponse();
-		result.setStatus(-1);
-		result.setStatusMsg("");
-		result.setUrlOrigin(req.getUrlOrigin());
+		UserChangePassResponse resp = new UserChangePassResponse();
+		resp.setStatus(-1);
+		resp.setStatusMsg("");
+		resp.setUrlOrigin(req.getUrlOrigin());
 
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String passOld = HttpUtil.getPostValue(req.getParams(), "passOld");
@@ -33,16 +33,19 @@ public class UserChangePassHandler implements IHandler {
 		logger.info("UserChangePassHandler begin userId:{}|passOld:{}|passNew:{}",userId,passOld,passNew);
 		
 		if(StringUtils.isBlank(userId)){
-			result.setStatus(3);
-			return result;
+			resp.setStatus(3);
+			logger.info("userId is null. userId:{}|passOld:{}|passNew:{}|status:{}",userId,passOld,passNew,resp.getStatus());
+			return resp;
 		}
 		if(StringUtils.isBlank(passOld)){
-			result.setStatus(4);
-			return result;
+			resp.setStatus(4);
+			logger.info("passOld is null. userId:{}|passOld:{}|passNew:{}|status:{}",userId,passOld,passNew,resp.getStatus());
+			return resp;
 		}
 		if(StringUtils.isBlank(passNew)){
-			result.setStatus(5);
-			return result;
+			resp.setStatus(5);
+			logger.info("passNew is null. userId:{}|passOld:{}|passNew:{}|status:{}",userId,passOld,passNew,resp.getStatus());
+			return resp;
 		}
 		
 		Jedis jedis = null;
@@ -52,34 +55,34 @@ public class UserChangePassHandler implements IHandler {
 			// 1. 用户密码
 			String shadow = jedis.hget("user:shadow", userId);
 			if (null == shadow) {
-				result.setStatusMsg("userId not exist.");
-				result.setStatus(1);
-				return result;
+				resp.setStatus(1);
+				logger.info("userId not exist. userId:{}|passOld:{}|passNew:{}|status:{}",userId,passOld,passNew,resp.getStatus());
+				return resp;
 			}
 
 			// 2. 校验密码是否正确
 			if (!PBKDF2.validate(passOld, shadow)) {
-				result.setStatusMsg("Password is incorrect.");
-				result.setStatus(2);
-				return result;
+				resp.setStatus(2);
+				logger.info("Password is incorrect. userId:{}|passOld:{}|passNew:{}|status:{}",userId,passOld,passNew,resp.getStatus());
+				return resp;
 			}
 
 			// 3. 生成新密码
 			String newShadow = PBKDF2.encode(passNew);
 			jedis.hset("user:shadow", userId, newShadow);
 
-			result.setStatus(0);
+			resp.setStatus(0);
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("User change password error");
+			logger.error("User change password error",e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
-		return result;
+		logger.info("response: userId:{}|passOld:{}|passNew:{}|status:{}",userId,passOld,passNew,resp.getStatus());
+		return resp;
 
 	}
 

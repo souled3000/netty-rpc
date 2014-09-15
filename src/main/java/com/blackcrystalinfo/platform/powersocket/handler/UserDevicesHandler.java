@@ -25,10 +25,10 @@ public class UserDevicesHandler implements IHandler {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		UserDevicesResponse result = new UserDevicesResponse();
-		result.setStatus(-1);
-		result.setStatusMsg("");
-		result.setUrlOrigin(req.getUrlOrigin());
+		UserDevicesResponse resp = new UserDevicesResponse();
+		resp.setStatus(-1);
+		resp.setStatusMsg("");
+		resp.setUrlOrigin(req.getUrlOrigin());
 
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
@@ -40,13 +40,13 @@ public class UserDevicesHandler implements IHandler {
 
 			String tmpUserId = infos[0];
 			if (!userId.equals(tmpUserId)) {
-				result.setStatus(1);
-				return result;
+				resp.setStatus(1);
+				logger.info("userId do not match with cookie. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
+				return resp;
 			}
 		} catch (Exception e) {
-			logger.error("Cookie decode error.");
-			result.setStatusMsg("Cookie decode error.");
-			return result;
+			logger.error("Cookie decode error. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus(),e);
+			return resp;
 		}
 
 		Jedis jedis = null;
@@ -71,18 +71,18 @@ public class UserDevicesHandler implements IHandler {
 				bindedDevices.add(devData);
 			}
 
-			result.setStatus(0);
-			result.setBindedDevices(bindedDevices);
+			resp.setStatus(0);
+			resp.setBindedDevices(bindedDevices);
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Get user's device error.");
+			logger.error("Get user's device error. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus(),e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
-		return result;
+		logger.info("response: userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
+		return resp;
 	}
 
 }

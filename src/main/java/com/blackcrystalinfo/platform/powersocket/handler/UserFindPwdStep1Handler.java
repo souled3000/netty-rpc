@@ -31,10 +31,9 @@ public class UserFindPwdStep1Handler implements IHandler {
 		String destEmailAddr = HttpUtil.getPostValue(req.getParams(), "email");
 		logger.info("UserFindPwdStep1Handler: email:{}", destEmailAddr);
 		
-		
-		
 		if(StringUtils.isBlank(destEmailAddr)){
 			resp.setStatus(2);
+			logger.info("email is null : email:{}|status:{}", destEmailAddr,resp.getStatus());
 			return resp;
 		}
 		
@@ -87,7 +86,7 @@ public class UserFindPwdStep1Handler implements IHandler {
 			DataHelper.returnJedis(jedis);
 		}
 		resp.setStatus(0);
-		logger.info("response: {}", resp.getStatus());
+		logger.info("response: email:{}|status:{}", destEmailAddr,resp.getStatus());
 		return resp;
 	}
 

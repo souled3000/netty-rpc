@@ -40,20 +40,17 @@ public class DeviceLoginHandler implements IHandler {
 			String id = jedis.hget("device:mactoid", mac);
 			if (null == id) {
 				result.setStatus(2);
-				result.setStatusMsg("Mac does not exist.");
+				logger.info("Mac does not exist. mac:{}|cookie:{}|status:{}", mac, cookie,result.getStatus());
 				return result;
 			}
 			try {
 				if (!CookieUtil.verifyDeviceKey(mac, cookie,id)) {
-					logger.error("mac={}&cookie={}, not matched!!!", mac, cookie);
-					result.setStatusMsg("mac not matched cookie");
 					result.setStatus(1);
+					logger.info("mac not matched cookie mac:{}|cookie:{}|status:{}", mac, cookie,result.getStatus());
 					return result;
 				}
 			} catch (Exception e) {
-				logger.error("Cookie decode error.", e);
-				result.setStatus(-1);
-				result.setStatusMsg("Cookie decode error.");
+				logger.error("Cookie decode error. mac:{}|cookie:{}|status:{}", mac, cookie,result.getStatus(),3);
 				return result;
 			}
 			// Set<String> users = jedis.smembers("bind:device:" + deviceId);
@@ -71,17 +68,13 @@ public class DeviceLoginHandler implements IHandler {
 		} catch (Exception e) {
 			result.setStatus(-1);
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Device login error", e);
+			logger.error("Device login error  mac:{}|cookie:{}|status:{}", mac, cookie,result.getStatus(),e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response: {}", result.getStatus());
+		logger.info("response: mac:{}|cookie:{}|status:{}", mac, cookie,result.getStatus());
 		return result;
-	}
-	public static void main(String[] args) throws Exception{
-		System.out.println(CookieUtil.generateKey("-3", String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC));
-		System.out.println(CookieUtil.generateDeviceKey("A oE/gD6", "-3"));
 	}
 }
