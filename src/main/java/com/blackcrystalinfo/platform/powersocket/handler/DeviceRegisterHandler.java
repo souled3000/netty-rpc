@@ -6,31 +6,30 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
-import com.blackcrystalinfo.platform.IHandler;
-import com.blackcrystalinfo.platform.RpcRequest;
+import com.alibaba.fastjson.JSONObject;
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceRegisterResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.HttpUtil;
 
-public class DeviceRegisterHandler implements IHandler {
+public class DeviceRegisterHandler extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserLoginHandler.class);
 
 	@Override
-	public Object rpc(RpcRequest req) throws InternalException {
+	public Object rpc(JSONObject req) throws InternalException {
 
 		DeviceRegisterResponse result = new DeviceRegisterResponse();
 		result.setStatus(-1);
 		result.setStatusMsg("");
-		result.setUrlOrigin(req.getUrlOrigin());
+//		result.setUrlOrigin(req.getUrlOrigin());
 
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
-		String dv = HttpUtil.getPostValue(req.getParams(), "dv");
+		String mac = req.getString("mac");
+		String sn = req.getString("sn");
+		String dv = req.getString("dv");
 		
-		// String name = HttpUtil.getPostValue(req.getParams(), "deviceName");
+		// String name = req.getString("deviceName");
 		String regTime = String.valueOf(System.currentTimeMillis());
 		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}|bv:{}",mac,sn,dv);
 		if (!isValidSN(sn)) {

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
@@ -17,7 +18,7 @@ import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
-public class UserFindPwdStep1Handler implements IHandler {
+public class UserFindPwdStep1Handler extends HandlerAdapter  {
 	private static final Logger logger = LoggerFactory.getLogger(UserFindPwdStep1Handler.class);
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));

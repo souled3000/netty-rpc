@@ -11,6 +11,16 @@ public class DeviceData {
 
 	private String pwd;
 	
+	private String dv;
+	
+	public String getDv() {
+		return dv;
+	}
+
+	public void setDv(String dv) {
+		this.dv = dv;
+	}
+
 	public String getPwd() {
 		return pwd;
 	}

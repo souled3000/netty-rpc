@@ -35,7 +35,7 @@ public class SlotPlatformLauncher {
 			port = 8080;
 		}
 		logger.info("Start Port {}", port);
-		CometScanner.tiktok();
+//		CometScanner.tiktok();
 		bindHandler();
 		new App(port).run();
 	}

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
@@ -18,7 +19,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserDevicesRespon
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 
-public class UserDevicesHandler implements IHandler {
+public class UserDevicesHandler extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(UserDevicesHandler.class);
@@ -61,6 +62,7 @@ public class UserDevicesHandler implements IHandler {
 				String mac = jedis.hget("device:mac", id);
 				String name = jedis.hget("device:name:"+userId, id);
 				String pwd = jedis.hget("device:pwd:"+userId, id);
+				String dv = jedis.hget("device:dv", id);
 				// TODO: just for test, delete later
 				name = (null == name ? "default" : name);
 
@@ -68,6 +70,7 @@ public class UserDevicesHandler implements IHandler {
 				devData.setMac(mac);
 				devData.setDeviceName(name);
 				devData.setPwd(pwd);
+				devData.setDv(dv);
 				bindedDevices.add(devData);
 			}
 

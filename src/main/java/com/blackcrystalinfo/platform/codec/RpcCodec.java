@@ -4,7 +4,6 @@ import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
 import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static io.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.DATE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
@@ -21,25 +20,16 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelProgressiveFuture;
-import io.netty.channel.ChannelProgressiveFutureListener;
-import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpChunkedInput;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,12 +43,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.blackcrystalinfo.platform.HandlerManager;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.Constants;
+import com.blackcrystalinfo.platform.util.HttpUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
+import com.blackcrystalinfo.platform.util.cryto.Datagram;
 
 public class RpcCodec extends ChannelInboundHandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(RpcCodec.class);
@@ -123,7 +117,21 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		} else {
 			Object ret = null;
 			try {
-				ret = handler.rpc(new RpcRequest(reqUrl, decoder, headers, ctx.channel().remoteAddress().toString()));
+				RpcRequest rp = new RpcRequest(reqUrl, decoder, headers, ctx.channel().remoteAddress().toString());
+				Datagram resp = HttpUtil.getDatagram(rp);
+				if(resp == null){
+					ret = handler.rpc(rp);
+				}else{
+					ret = handler.rpc(JSONObject.parseObject(resp.getCtn()));
+					resp.setCtn(ByteUtil.writeJSON(ret));
+					try {
+						resp.encapsulate();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					ret = resp;
+				}
 			} catch (InternalException e) {
 				logger.error("Called {} InternalError {}", reqUrl, e);
 				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, SERVICE_UNAVAILABLE));

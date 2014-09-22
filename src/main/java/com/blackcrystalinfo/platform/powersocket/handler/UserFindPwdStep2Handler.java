@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
@@ -14,7 +15,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.pojo.ApiResponse;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 
-public class UserFindPwdStep2Handler implements IHandler {
+public class UserFindPwdStep2Handler extends HandlerAdapter  {
 	private static final Logger logger = LoggerFactory.getLogger(UserFindPwdStep2Handler.class);
 
 	@Override

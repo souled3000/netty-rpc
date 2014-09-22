@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
@@ -14,7 +15,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserChangePassRes
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 
-public class UserChangePassHandler implements IHandler {
+public class UserChangePassHandler extends HandlerAdapter  {
 	private static final Logger logger = LoggerFactory
 			.getLogger(UserChangePassHandler.class);
 

@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
-import com.blackcrystalinfo.platform.IHandler;
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.group.GroupUploadResponse;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 
-public class GroupUploadHandler implements IHandler {
+public class GroupUploadHandler extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(GroupUploadHandler.class);
 

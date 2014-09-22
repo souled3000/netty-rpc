@@ -3,6 +3,7 @@ package com.blackcrystalinfo.platform.powersocket.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
@@ -11,7 +12,7 @@ import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 
-public class WebsocketInfoHandler implements IHandler {
+public class WebsocketInfoHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(WebsocketInfoHandler.class);
 
 	public Object rpc(RpcRequest req) throws InternalException {

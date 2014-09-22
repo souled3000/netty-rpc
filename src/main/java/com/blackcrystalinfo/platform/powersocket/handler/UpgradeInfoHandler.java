@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
-import com.blackcrystalinfo.platform.IHandler;
+import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.upgrade.UpgradeData;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.upgrade.UpgradeInfoResponse;
 
-public class UpgradeInfoHandler implements IHandler {
+public class UpgradeInfoHandler extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(UpgradeInfoHandler.class);
