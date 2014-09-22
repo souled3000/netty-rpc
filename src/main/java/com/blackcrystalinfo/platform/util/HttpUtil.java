@@ -38,12 +38,17 @@ public class HttpUtil {
 		Datagram data = null;
 		try {
 			data = new Datagram(key, ktm, ctp, crc, ctn);
-			data.decapsulation();
+			data.decapsulate();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			return null;
 		}
 		System.out.println("------------------------------------------" + data.getCtn());
 		return data;
+	}
+	
+	public static void main(String[] args) throws Exception{
+		Datagram g = new Datagram(null,null,null,null,null);
+		g.decapsulate();
 	}
 }
