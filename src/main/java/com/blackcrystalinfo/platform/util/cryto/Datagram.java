@@ -116,50 +116,49 @@ public class Datagram {
 		Long lKtmHight = lKtm & 0xff00;
 		lKtmHight >>= 8;
 
-		System.out.println("lKtm:" + lKtm+"|"+Long.toHexString(lKtm));
-		System.out.println("lKtmLow:" + lKtmLow+"|"+Long.toHexString(lKtmLow));
-		System.out.println("lKtmHight:" + lKtmHight+"|"+Long.toHexString(lKtmHight));
+//		System.out.println("lKtm:" + lKtm+"|"+Long.toHexString(lKtm));
+//		System.out.println("lKtmLow:" + lKtmLow+"|"+Long.toHexString(lKtmLow));
+//		System.out.println("lKtmHight:" + lKtmHight+"|"+Long.toHexString(lKtmHight));
 
 		Long key2 = Long.valueOf(CodePool.getCode(lKtmLow), 16);
-		System.out.println("key2:" + key2+"|"+Long.toHexString(key2));
+//		System.out.println("key2:" + key2+"|"+Long.toHexString(key2));
 
-		System.out.println();
+//		System.out.println();
 
 		Long key3 = Long.valueOf(CodePool.getCode(lKtmHight), 16);
 
-		System.out.println("key3:" + key3+"|"+Long.toHexString(key3));
-		System.out.println();
+//		System.out.println("key3:" + key3+"|"+Long.toHexString(key3));
+//		System.out.println();
 
 		key3 <<= 32;
 		Long key4 = key2 + key3;
-		System.out.println("key4:" + key4+"|"+Long.toHexString(key4));
-		System.out.println();
+//		System.out.println("key4:" + key4+"|"+Long.toHexString(key4));
+//		System.out.println();
 		Long keyFinal = null;
 		if (key != null && !"".equals(key)) {
 			byte[] md5Key = MessageDigest.getInstance("MD5").digest(key.getBytes());
 
-			System.out.println("md5: " + ByteUtil.toHex(md5Key));
-			ByteBuffer bb = ByteBuffer.allocate(8);
-			bb.order(ByteOrder.LITTLE_ENDIAN);
+//			System.out.println("md5: " + ByteUtil.toHex(md5Key));
 			byte[] md5KeyLower = new byte[8];
 			System.arraycopy(md5Key, 0, md5KeyLower, 0, 8);
-
+			
+			ByteBuffer bb = ByteBuffer.allocate(8);
+			bb.order(ByteOrder.LITTLE_ENDIAN);
 			bb.put(md5KeyLower);
-
 			Long key1 = bb.getLong(0);
 
-			System.out.println("md5的低八:" + ByteUtil.toHex(md5KeyLower));
-			System.out.println("key1:" + Long.toHexString(key1));
-			System.out.println("key1:" + key1);
+//			System.out.println("md5的低八:" + ByteUtil.toHex(md5KeyLower));
+//			System.out.println("key1:" + Long.toHexString(key1));
+//			System.out.println("key1:" + key1);
 			keyFinal = key1 ^ key4;
 		} else {
 			keyFinal = key4;
 		}
-		System.out.println("keyFinal:" + keyFinal+"|"+Long.toHexString(keyFinal));
+		logger.info("keyFinal:{}|{}" , keyFinal, Long.toHexString(keyFinal));
 		return keyFinal;
 	}
 
-	public void decapsulation() throws Exception {
+	public void decapsulate() throws Exception {
 		Long keyFinal = getFinalKey(key, ktm);
 
 		int intCtp = Integer.parseInt(ctp);
@@ -167,10 +166,10 @@ public class Datagram {
 		switch (intCtp) {
 		case 1:
 			byte[] debase64 = decoder.decodeBuffer(ctn);
-			System.out.println("ctn:" + ctn);
-			System.out.println("base64 ctn:" + ByteUtil.toHex(debase64));
-			System.out.println("keyFinal: " + keyFinal);
-			System.out.println("keyFinal: " + Long.toHexString(keyFinal));
+//			System.out.println("ctn:" + ctn);
+//			System.out.println("base64 ctn:" + ByteUtil.toHex(debase64));
+//			System.out.println("keyFinal: " + keyFinal);
+//			System.out.println("keyFinal: " + Long.toHexString(keyFinal));
 			strCtn = new String(DES.decrypt(debase64, ByteUtil.reverse(ByteUtil.fromHex(Long.toHexString(keyFinal)))), "utf8");
 			break;
 		case 2:
@@ -180,14 +179,13 @@ public class Datagram {
 			System.out.println("What!!");
 			break;
 		}
-		System.out.println("内容：" + strCtn);
+		logger.info("ctn plaintext：{}" , strCtn);
 
 		long c = ByteUtil.crc32(strCtn, crc);
 		if (c == 0) {
 			ctn = strCtn;
 		} else {
 			ctn = strCtn;
-			// throw new Exception("crc failed.");
 		}
 
 	}
