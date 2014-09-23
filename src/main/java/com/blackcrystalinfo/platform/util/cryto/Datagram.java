@@ -84,7 +84,7 @@ public class Datagram {
 		
 		Random r = new Random();
 		int intKtm = r.nextInt(65535);
-		System.out.println("intKtm:"+intKtm);
+		logger.info("intKtm:"+intKtm);
 		ktm = StringUtils.leftPad(Integer.toHexString(intKtm),4,'0');
 //		ctp = String.valueOf(r.nextInt(2) + 1);
 		ctp = String.valueOf(1);
@@ -94,9 +94,9 @@ public class Datagram {
 
 		switch (Integer.valueOf(ctp)) {
 		case 1:
-			logger.info("base64--ctn:{}",ctn);
+//			logger.info("base64--ctn:{}",ctn);
 			ctn = encoder.encode(DES.encrypt(ctn.getBytes(), ByteUtil.reverse(ByteUtil.fromHex(Long.toHexString(keyFinal))))).replaceAll("\\s", "");
-			logger.info("base64--ctn:{}",ctn);
+//			logger.info("base64--ctn:{}",ctn);
 //			ctn = URLEncoder.encode(ctn, "utf8");
 //			logger.info("urlencoder ctn:{}",ctn);
 			break;
@@ -106,7 +106,7 @@ public class Datagram {
 		default:
 			break;
 		}
-		System.out.println("encapsulate: "+this.toString());
+		logger.info("encapsulate: "+this.toString());
 	}
 
 	public Long getFinalKey(String key, String ktm) throws Exception {
@@ -116,29 +116,26 @@ public class Datagram {
 		Long lKtmHight = lKtm & 0xff00;
 		lKtmHight >>= 8;
 
-//		System.out.println("lKtm:" + lKtm+"|"+Long.toHexString(lKtm));
-//		System.out.println("lKtmLow:" + lKtmLow+"|"+Long.toHexString(lKtmLow));
-//		System.out.println("lKtmHight:" + lKtmHight+"|"+Long.toHexString(lKtmHight));
+//		logger.info("lKtm:" + lKtm+"|"+Long.toHexString(lKtm));
+//		logger.info("lKtmLow:" + lKtmLow+"|"+Long.toHexString(lKtmLow));
+//		logger.info("lKtmHight:" + lKtmHight+"|"+Long.toHexString(lKtmHight));
 
 		Long key2 = Long.valueOf(CodePool.getCode(lKtmLow), 16);
-//		System.out.println("key2:" + key2+"|"+Long.toHexString(key2));
+//		logger.info("key2:" + key2+"|"+Long.toHexString(key2));
 
-//		System.out.println();
 
 		Long key3 = Long.valueOf(CodePool.getCode(lKtmHight), 16);
 
-//		System.out.println("key3:" + key3+"|"+Long.toHexString(key3));
-//		System.out.println();
+//		logger.info("key3:" + key3+"|"+Long.toHexString(key3));
 
 		key3 <<= 32;
 		Long key4 = key2 + key3;
-//		System.out.println("key4:" + key4+"|"+Long.toHexString(key4));
-//		System.out.println();
+//		logger.info("key4:" + key4+"|"+Long.toHexString(key4));
 		Long keyFinal = null;
 		if (key != null && !"".equals(key)) {
 			byte[] md5Key = MessageDigest.getInstance("MD5").digest(key.getBytes());
 
-//			System.out.println("md5: " + ByteUtil.toHex(md5Key));
+//			logger.info("md5: " + ByteUtil.toHex(md5Key));
 			byte[] md5KeyLower = new byte[8];
 			System.arraycopy(md5Key, 0, md5KeyLower, 0, 8);
 			
@@ -147,9 +144,9 @@ public class Datagram {
 			bb.put(md5KeyLower);
 			Long key1 = bb.getLong(0);
 
-//			System.out.println("md5的低八:" + ByteUtil.toHex(md5KeyLower));
-//			System.out.println("key1:" + Long.toHexString(key1));
-//			System.out.println("key1:" + key1);
+//			logger.info("md5的低八:" + ByteUtil.toHex(md5KeyLower));
+//			logger.info("key1:" + Long.toHexString(key1));
+//			logger.info("key1:" + key1);
 			keyFinal = key1 ^ key4;
 		} else {
 			keyFinal = key4;
@@ -166,17 +163,17 @@ public class Datagram {
 		switch (intCtp) {
 		case 1:
 			byte[] debase64 = decoder.decodeBuffer(ctn);
-//			System.out.println("ctn:" + ctn);
-//			System.out.println("base64 ctn:" + ByteUtil.toHex(debase64));
-//			System.out.println("keyFinal: " + keyFinal);
-//			System.out.println("keyFinal: " + Long.toHexString(keyFinal));
+//			logger.info("ctn:" + ctn);
+//			logger.info("base64 ctn:" + ByteUtil.toHex(debase64));
+//			logger.info("keyFinal: " + keyFinal);
+//			logger.info("keyFinal: " + Long.toHexString(keyFinal));
 			strCtn = new String(DES.decrypt(debase64, ByteUtil.reverse(ByteUtil.fromHex(Long.toHexString(keyFinal)))), "utf8");
 			break;
 		case 2:
 			strCtn = RC4.HloveyRC4(String.valueOf(decoder.decodeBuffer(ctn)), String.valueOf(keyFinal));
 			break;
 		default:
-			System.out.println("What!!");
+			logger.info("What!!");
 			break;
 		}
 		logger.info("ctn plaintext：{}" , strCtn);
@@ -190,28 +187,4 @@ public class Datagram {
 
 	}
 
-	public static void main(String[] args) throws Exception {
-		Datagram t = new Datagram("0000014891DC189C000010A62E98A3AD", Integer.toHexString(1), "", "", "");
-		long s = t.getFinalKey(t.key, t.ktm);
-		System.out.println(Long.toHexString(s));
-
-		System.out.println("--------------------------------------------------------------------------------");
-		BigInteger bi = new BigInteger("10000");
-		System.out.println(ByteUtil.toHex(bi.toByteArray()));
-		System.out.println(Integer.toHexString(10000));
-
-		BigInteger bi2 = new BigInteger(bi.toByteArray());
-
-		System.out.println(ByteUtil.toHex(bi2.toByteArray()));
-
-		byte[] b = bi.toByteArray();
-		System.out.println(b.length);
-		System.out.println(b[0]);
-		System.out.println(b[1]);
-
-		String k = "{idn:'0123456789'}";
-		
-		System.out.println(URLEncoder.encode("+=", "iso8859-1"));
-
-	}
 }
