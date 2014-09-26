@@ -6,6 +6,7 @@ package com.blackcrystalinfo.platform.util.cryto;
  * 说明：
  */
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -130,5 +131,7 @@ public class ByteUtil {
 		System.out.println(StringUtils.escape(encoder.encode(s.getBytes())));
 		System.out.println(StringUtils.remove(StringUtils.escape(encoder.encode(s.getBytes())), "\\n"));
 		System.out.println(ss.replaceAll("\\s", ""));
+		
+		
 	}
 }

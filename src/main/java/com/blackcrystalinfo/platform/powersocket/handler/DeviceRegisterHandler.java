@@ -53,7 +53,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				// mac);
 				// String proxyAddr = CookieUtil.getWebsocketAddr();
 
-				result.setStatus(0);
+				result.setStatus(1);
 				// result.setDeviceId(existId);
 				result.setCookie(cookie);
 			} else {

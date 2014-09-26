@@ -11,14 +11,15 @@ public class DeviceData {
 
 	private String pwd;
 	
-	private String dv;
+	private String deviceType;
 	
-	public String getDv() {
-		return dv;
+
+	public String getDeviceType() {
+		return deviceType;
 	}
 
-	public void setDv(String dv) {
-		this.dv = dv;
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 
 	public String getPwd() {

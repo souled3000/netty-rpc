@@ -73,12 +73,15 @@ public class BindInHandler extends HandlerAdapter {
 
 			result.setStatus(0);
 			// send message that is the users are related to the device to comet in format deviceId|userAId,userBId,userCId,etc..
-			Set<String> users = jedis.smembers("bind:device:" + deviceId);
-			String strUsers = StringUtils.join(users.toArray(), ",");
-			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(strUsers);
-			jedis.publish("PubDeviceUsers", sb.toString());
+//			Set<String> users = jedis.smembers("bind:device:" + deviceId);
+//			String strUsers = StringUtils.join(users.toArray(), ",");
+//			StringBuilder sb = new StringBuilder();
+//			sb.append(deviceId).append("|").append(strUsers);
+//			jedis.publish("PubDeviceUsers", sb.toString());
 
+			StringBuilder sb = new StringBuilder();
+			sb.append(deviceId).append("|").append(userId).append("|").append("bind");
+			jedis.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Bind in error mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie,result.getStatus(),e);

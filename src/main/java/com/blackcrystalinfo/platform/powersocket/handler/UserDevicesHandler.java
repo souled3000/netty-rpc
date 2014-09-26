@@ -70,7 +70,7 @@ public class UserDevicesHandler extends HandlerAdapter {
 				devData.setMac(mac);
 				devData.setDeviceName(name);
 				devData.setPwd(pwd);
-				devData.setDv(dv);
+				devData.setDeviceType(dv);
 				bindedDevices.add(devData);
 			}
 
