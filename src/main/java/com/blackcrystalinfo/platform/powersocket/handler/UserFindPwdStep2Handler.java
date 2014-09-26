@@ -77,6 +77,8 @@ public class UserFindPwdStep2Handler extends HandlerAdapter  {
 			String newShadow = PBKDF2.encode(pwd);
 			jedis.hset("user:shadow", userId, newShadow);
 
+			jedis.publish("PubModifiedPasswdUser",userId);
+			
 			resp.setStatus(0);
 
 		} catch (Exception e) {

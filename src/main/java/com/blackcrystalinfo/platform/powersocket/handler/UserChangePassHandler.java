@@ -72,6 +72,8 @@ public class UserChangePassHandler extends HandlerAdapter  {
 			String newShadow = PBKDF2.encode(passNew);
 			jedis.hset("user:shadow", userId, newShadow);
 
+			jedis.publish("PubModifiedPasswdUser",userId);
+			
 			resp.setStatus(0);
 
 		} catch (Exception e) {
