@@ -70,7 +70,7 @@ public class BindOutHandler extends HandlerAdapter {
 //			jedis.publish("PubDeviceUsers", sb.toString());
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(userId).append("|").append("unbind");
+			sb.append(deviceId).append("|").append(userId).append("|").append("0");
 			jedis.publish("PubDeviceUsers", sb.toString());
 			
 			result.setStatus(0);

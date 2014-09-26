@@ -80,7 +80,7 @@ public class BindInHandler extends HandlerAdapter {
 //			jedis.publish("PubDeviceUsers", sb.toString());
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(userId).append("|").append("bind");
+			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			jedis.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
