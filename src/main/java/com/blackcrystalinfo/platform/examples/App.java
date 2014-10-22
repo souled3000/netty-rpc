@@ -33,6 +33,7 @@ public class App {
 			b.option(ChannelOption.TCP_NODELAY, true);
 			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new RpcServerInitializer());
 
+			logger.info("start...");
 			Channel ch = b.bind(port).sync().channel();
 			ch.closeFuture().sync();
 		} finally {

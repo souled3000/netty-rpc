@@ -40,7 +40,7 @@ public class HttpUtil {
 			data = new Datagram(key, ktm, ctp, crc, ctn);
 			data.decapsulate();
 		} catch (Exception e1) {
-			e1.printStackTrace();
+//			e1.printStackTrace();
 			return null;
 		}
 		System.out.println("------------------------------------------" + data.getCtn());

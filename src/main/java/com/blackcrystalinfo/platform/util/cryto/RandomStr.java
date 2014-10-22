@@ -17,14 +17,18 @@ public final class RandomStr {
 		}
 		return new String(buf);
 	}
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		long l = System.currentTimeMillis();
+		int x =0;
 		for(int n = 0 ; n++<100000000;){
-			RandomStr.randString(6);
+//			RandomStr.randString(16);
+			x++;
 		}
+		System.out.println(x);
+		System.out.println((System.currentTimeMillis()-l));
 		System.out.println((System.currentTimeMillis()-l)/1000);
 	}
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		for(int n = 0 ; n <255 ; n++){
 			System.out.println(RandomStr.randString(16));
 		}

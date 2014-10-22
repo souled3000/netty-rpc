@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import java.security.MessageDigest;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.ApiResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class DevicePwdModifying extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DevicePwdModifying.class);
@@ -32,6 +35,14 @@ public class DevicePwdModifying extends HandlerAdapter {
 			logger.info("something is null mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus());
 			return resp;
 		}
+		
+		String[] cs = cookie.split("-");
+		
+		if(cs.length!=2){
+			resp.setStatus(3);
+			return resp;
+		}
+		
 		Jedis jedis = null;
 		try{
 			jedis = DataHelper.getJedis();
@@ -43,7 +54,17 @@ public class DevicePwdModifying extends HandlerAdapter {
 			}
 			String[] cookies = CookieUtil.decode(cookie);
 			String userId = cookies[0];
-				
+
+			String shadow = jedis.hget("user:shadow", userId);
+			String csmd5=cs[1];
+			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
+			
+			if(!csmd5.equals(csmd52)){
+				resp.setStatus(7);
+				logger.info("user:shadow don't match user's ID. mac:{}|cookie:{}|status:{} ",mac,cookie,resp.getStatus());
+				return resp;
+			}
+			
 			jedis.hset("device:pwd:"+userId,deviceId,newDevicePwd);
 			resp.setStatus(0);
 		}catch(Exception e){

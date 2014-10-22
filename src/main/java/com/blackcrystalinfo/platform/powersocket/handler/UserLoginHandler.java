@@ -1,8 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-
-import java.util.List;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -11,15 +10,14 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
-import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserLoginResponse;
-import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.PBKDF2;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class UserLoginHandler extends HandlerAdapter {
 
@@ -59,8 +57,8 @@ public class UserLoginHandler extends HandlerAdapter {
 			}
 
 			// 2. encodePwd与passwd加密后的串做比较
-			String encodePwd = jedis.hget("user:shadow", userId);
-			if (!PBKDF2.validate(pwd, encodePwd)) {
+			String shadow = jedis.hget("user:shadow", userId);
+			if (!PBKDF2.validate(pwd, shadow)) {
 				resp.setStatus(2);
 				logger.info("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",email,pwd,resp.getStatus());
 				return resp;
@@ -68,13 +66,16 @@ public class UserLoginHandler extends HandlerAdapter {
 			
 			
 			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
+			
+			String up = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
 //			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
 //			String proxyAddr = CometScanner.take();
 //			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);
 			resp.setStatus(0);
 			resp.setUserId(userId);
 //			result.setHeartBeat(CookieUtil.EXPIRE_SEC);
-			resp.setCookie(cookie);
+			StringBuilder sb = new StringBuilder(cookie+"-"+up);
+			resp.setCookie(sb.toString());
 //			result.setProxyKey(proxyKey);
 //			result.setProxyAddr(proxyAddr);
 
@@ -90,4 +91,13 @@ public class UserLoginHandler extends HandlerAdapter {
 		return resp;
 	}
 
+	public static void main(String[] args) throws Exception{
+		String userId= "32";
+		String shadow = "1000:5b42403231343135303336:8c221506a25e95e82b02720e3957c98b405b40b9c2d0454e3d8a596cb4e9c01688447c9e7582e4c35aaf8c043f608d9e06cc40b1887ede5b35228eb43cc8a3a7";
+		byte[] upmd5 = MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes());
+		System.out.println(ByteUtil.toHex(upmd5));
+		System.out.println(URLEncoder.encode("55E22812C947C5C7BB3E77CEE7652280","iso-8859-1"));
+		System.out.println(URLEncoder.encode("@","iso-8859-1"));
+		
+	}
 }

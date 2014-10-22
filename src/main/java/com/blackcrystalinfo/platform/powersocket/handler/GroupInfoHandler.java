@@ -35,7 +35,7 @@ public class GroupInfoHandler extends HandlerAdapter {
 		result.setUrlOrigin(req.getUrlOrigin());
 		
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
-		logger.info("DeviceRegisterHandler begin userId:{}",userId);
+		logger.info("GroupInfoHandler begin userId:{}",userId);
 		
 		if(StringUtils.isBlank(userId)){
 			result.setStatus(1);

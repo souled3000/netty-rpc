@@ -10,9 +10,8 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceLoginResponse;
-import com.blackcrystalinfo.platform.util.CometScanner;
+import com.blackcrystalinfo.platform.util.CometScannerV2;
 import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.HttpUtil;
 
 public class DeviceLoginHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
@@ -23,7 +22,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 
 		DeviceLoginResponse result = new DeviceLoginResponse();
 		result.setStatus(-1);
-		result.setStatusMsg("");
+//		result.setStatusMsg("");
 //		result.setUrlOrigin(req.getUrlOrigin());
 
 		String mac = req.getString("mac");
@@ -58,7 +57,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 
 			String proxyKey = CookieUtil.generateKey(id, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
 //			String proxyKey = CookieUtil.generateDeviceKey(mac,id);
-			String proxyAddr = CometScanner.take();
+			String proxyAddr = CometScannerV2.take();
 
 			result.setStatus(0);
 			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);

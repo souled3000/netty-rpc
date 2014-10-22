@@ -15,7 +15,7 @@ public class Constants extends ConfigurableConstants{
 	
 	public static String WEBSOCKET_ADDR = getProperty("websocket.addr", "");
 	
-	public static int SERVER_PORT = Integer.valueOf(getProperty("server.port",""));
+	public static int SERVER_PORT = Integer.valueOf(getProperty("server.port","8080"));
 	
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);

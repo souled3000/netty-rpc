@@ -8,13 +8,10 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
-import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserRegisterResponse;
-import com.blackcrystalinfo.platform.util.CometScanner;
-import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 

@@ -24,7 +24,7 @@ public class BindInHandler extends HandlerAdapter {
 
 		BindInResponse result = new BindInResponse();
 		result.setStatus(-1);
-		result.setStatusMsg("");
+//		result.setStatusMsg("");
 //		result.setUrlOrigin(req.getUrlOrigin());
 
 		String mac = req.getString("mac");

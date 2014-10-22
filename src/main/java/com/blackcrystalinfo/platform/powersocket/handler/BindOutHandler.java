@@ -25,7 +25,7 @@ public class BindOutHandler extends HandlerAdapter {
 
 		BindOutResponse result = new BindOutResponse();
 		result.setStatus(-1);
-		result.setStatusMsg("");
+//		result.setStatusMsg("");
 //		result.setUrlOrigin(req.getUrlOrigin());
 
 		String mac = req.getString("mac");

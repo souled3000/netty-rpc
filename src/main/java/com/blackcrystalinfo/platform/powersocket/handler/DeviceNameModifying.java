@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import java.security.MessageDigest;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.ApiResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class DeviceNameModifying extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceNameModifying.class);
@@ -23,7 +26,7 @@ public class DeviceNameModifying extends HandlerAdapter {
 		resp.setUrlOrigin(req.getUrlOrigin());
 		
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");//手机端cookie
 		String newDeviceName = HttpUtil.getPostValue(req.getParams(), "deviceName");
 		
 		logger.info("DeviceNameModifying begin mac:{}|cookie:{}|newDeviceName:{}",mac,cookie,newDeviceName);
@@ -33,6 +36,15 @@ public class DeviceNameModifying extends HandlerAdapter {
 			logger.info("something is null. mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus());
 			return resp;
 		}
+		
+		String[] cs = cookie.split("-");
+		
+		if(cs.length!=2){
+			resp.setStatus(3);
+			logger.info("cookies[] length !=2",mac,cookie,newDeviceName,resp.getStatus());
+			return resp;
+		}
+		
 		Jedis jedis = null;
 		try{
 			jedis = DataHelper.getJedis();
@@ -42,9 +54,19 @@ public class DeviceNameModifying extends HandlerAdapter {
 				logger.info("no matching device. mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus());
 				return resp;
 			}
-			String[] cookies = CookieUtil.decode(cookie);
+			String[] cookies = CookieUtil.decode(cs[0]);
 			String userId = cookies[0];
 
+			String shadow = jedis.hget("user:shadow", userId);
+			String csmd5=cs[1];
+			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
+			
+			if(!csmd5.equals(csmd52)){
+				resp.setStatus(7);
+				logger.info("user:shadow don't match user's ID. mac:{}|cookie:{}|newDeviceName:{}|status:{} ",mac,cookie,newDeviceName,resp.getStatus());
+				return resp;
+			}
+			
 //			String key = "bind:user:"+userId;
 			
 			jedis.hset("device:name:"+userId,deviceId,newDeviceName);

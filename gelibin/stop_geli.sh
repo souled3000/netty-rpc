@@ -1,13 +1,6 @@
 #!/bin/sh
 
-# 作者:李春江
-# 创建时间:2012-10-10
-# 脚本目的:停止独立java进程
-# 修改原因:
-# 修改时间:
-# 修改作者:
-
-PROCESS_NAME="SlotPlatformLauncher"
+PROCESS_NAME="GeLiSrv"
 
 ps -ef|grep $PROCESS_NAME | grep java | grep -v grep | awk '{print $2}' |while read pid
 do

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
+import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
@@ -12,6 +13,7 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceRegisterResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class DeviceRegisterHandler extends HandlerAdapter {
 
@@ -19,10 +21,10 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
-
+		BASE64Decoder decoder = new BASE64Decoder();
 		DeviceRegisterResponse result = new DeviceRegisterResponse();
 		result.setStatus(-1);
-		result.setStatusMsg("");
+//		result.setStatusMsg("");
 //		result.setUrlOrigin(req.getUrlOrigin());
 
 		String mac = req.getString("mac");
@@ -67,6 +69,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 				// 4. 记录MAC地址
 				tx.hset("device:mac", deviceId, mac);
+				tx.hset("device:mac2", deviceId, ByteUtil.toHex(decoder.decodeBuffer(mac.replace(' ', '+'))));
 
 				// 5. 记录设备SN号
 				tx.hset("device:sn", deviceId, sn);
@@ -113,4 +116,10 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		return true;
 	}
 
+	public static void main(String[] args) throws Exception{
+		BASE64Decoder decoder = new BASE64Decoder();
+		byte[] bs = decoder.decodeBuffer("Dgw1DAD6");
+		System.out.println(new String(bs,"utf8"));
+		System.out.println(ByteUtil.toHex(bs));
+	}
 }

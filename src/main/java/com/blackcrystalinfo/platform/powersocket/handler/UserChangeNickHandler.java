@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import java.security.MessageDigest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserChangeNickResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 /**
  * 修改用户昵称
@@ -36,25 +39,29 @@ public class UserChangeNickHandler extends HandlerAdapter  {
 		String nick = HttpUtil.getPostValue(req.getParams(), "nick");
 		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}",userId,cookie,nick);
 
-		// 1. 校验cookie信息
-		String[] infos = null;
-		try {
-			infos = CookieUtil.decode(cookie);
-
-			if (!userId.equals(infos[0])) {
-				result.setStatus(1);
-				return result;
-			}
-		} catch (Exception e) {
-			logger.error("",e);
+		String[] cs = cookie.split("-");
+		
+		if(cs.length!=2){
+			result.setStatus(3);
+			logger.info("UserChangeNick status:{}|cookie:{}",result.getStatus(),cookie);
 			return result;
 		}
-
-		// 2. 修改昵称
+		
 		Jedis jedis = null;
+		// 1. 校验cookie信息
 		try {
 			jedis = DataHelper.getJedis();
 
+			String shadow = jedis.hget("user:shadow", userId);
+			String csmd5=cs[1];
+			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
+			
+			if(!csmd5.equals(csmd52)){
+				result.setStatus(7);
+				logger.info("user:shadow don't match user's ID. cookie:{}|status:{} ",cookie,result.getStatus());
+				return result;
+			}
+			
 			String oldNick = jedis.hget("user:nick", userId);
 			if (!nick.equals(oldNick)) {
 				// 新旧Nick不一致时修改

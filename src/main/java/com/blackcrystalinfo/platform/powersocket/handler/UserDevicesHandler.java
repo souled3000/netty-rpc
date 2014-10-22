@@ -1,5 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceData;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserDevicesResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class UserDevicesHandler extends HandlerAdapter {
 
@@ -35,18 +37,11 @@ public class UserDevicesHandler extends HandlerAdapter {
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		logger.info("UserDevices begin userId:{}|cookie:{}",userId,cookie);
 		
-		String[] infos = null;
-		try {
-			infos = CookieUtil.decode(cookie);
-
-			String tmpUserId = infos[0];
-			if (!userId.equals(tmpUserId)) {
-				resp.setStatus(1);
-				logger.info("userId do not match with cookie. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
-				return resp;
-			}
-		} catch (Exception e) {
-			logger.error("Cookie decode error. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus(),e);
+		String[] cs = cookie.split("-");
+		
+		if(cs.length!=2){
+			resp.setStatus(3);
+			logger.info("UserDevices userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
 			return resp;
 		}
 
@@ -54,6 +49,16 @@ public class UserDevicesHandler extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 
+			String shadow = jedis.hget("user:shadow", userId);
+			String csmd5=cs[1];
+			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
+			
+			if(!csmd5.equals(csmd52)){
+				resp.setStatus(7);
+				logger.info("user:shadow don't match user's ID. cookie:{}|status:{} ",cookie,resp.getStatus());
+				return resp;
+			}
+			
 			Set<String> devIds = jedis.smembers("bind:user:" + userId);
 
 			List<DeviceData> bindedDevices = new ArrayList<DeviceData>();
@@ -79,7 +84,7 @@ public class UserDevicesHandler extends HandlerAdapter {
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Get user's device error. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus(),e);
-			throw new InternalException(e.getMessage());
+			return resp;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
