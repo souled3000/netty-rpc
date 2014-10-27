@@ -22,10 +22,9 @@ import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
  * @author j
  * 
  */
-public class UserChangeNickHandler extends HandlerAdapter  {
+public class UserChangeNickHandler extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserChangeNickHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserChangeNickHandler.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -37,31 +36,31 @@ public class UserChangeNickHandler extends HandlerAdapter  {
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		String nick = HttpUtil.getPostValue(req.getParams(), "nick");
-		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}",userId,cookie,nick);
+		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}", userId, cookie, nick);
 
 		String[] cs = cookie.split("-");
-		
-		if(cs.length!=2){
+
+		if (cs.length != 2) {
 			result.setStatus(3);
-			logger.info("UserChangeNick status:{}|cookie:{}",result.getStatus(),cookie);
+			logger.info("UserChangeNick status:{}|cookie:{}", result.getStatus(), cookie);
 			return result;
 		}
-		
+
 		Jedis jedis = null;
 		// 1. 校验cookie信息
 		try {
 			jedis = DataHelper.getJedis();
 
 			String shadow = jedis.hget("user:shadow", userId);
-			String csmd5=cs[1];
-			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
-			
-			if(!csmd5.equals(csmd52)){
+			String csmd5 = cs[1];
+			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId + shadow).getBytes()));
+
+			if (!csmd5.equals(csmd52)) {
 				result.setStatus(7);
-				logger.info("user:shadow don't match user's ID. cookie:{}|status:{} ",cookie,result.getStatus());
+				logger.info("user:shadow don't match user's ID. cookie:{}|status:{} ", cookie, result.getStatus());
 				return result;
 			}
-			
+
 			String oldNick = jedis.hget("user:nick", userId);
 			if (!nick.equals(oldNick)) {
 				// 新旧Nick不一致时修改
@@ -69,12 +68,12 @@ public class UserChangeNickHandler extends HandlerAdapter  {
 			}
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("",e);
+			logger.error("", e);
 			return result;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
-		logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}",userId,cookie,nick,result.getStatus());
+		logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}", userId, cookie, nick, result.getStatus());
 		return result;
 	}
 

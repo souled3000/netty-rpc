@@ -1,5 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 //		result.setUrlOrigin(req.getUrlOrigin());
 
 		String mac = req.getString("mac");
+		String pid = req.getString("pid");
 		String cookie = req.getString("cookie");
 
 		logger.info("DeviceLoginHandler begin mac:{}|cookie:{}", mac, cookie);
@@ -54,7 +56,9 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			}
 			// Set<String> users = jedis.smembers("bind:device:" + deviceId);
 			// result.setBindedUsers(new ArrayList<String>(users));
-
+			if(StringUtils.isNotBlank(pid))
+			jedis.hset("device:pid", id, pid);
+			
 			String proxyKey = CookieUtil.generateKey(id, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
 //			String proxyKey = CookieUtil.generateDeviceKey(mac,id);
 			String proxyAddr = CometScannerV2.take();

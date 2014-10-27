@@ -1,5 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String mac = req.getString("mac");
 		String sn = req.getString("sn");
 		String dv = req.getString("dv");
+		String pid = req.getString("pid");
 		
 		// String name = req.getString("deviceName");
 		String regTime = String.valueOf(System.currentTimeMillis());
@@ -84,6 +86,10 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				// 8. 设备类型
 				tx.hset("device:dv", deviceId, dv);
 				
+				//保存设备网关
+				if(StringUtils.isNotBlank(pid))
+				tx.hset("device:pid",deviceId,pid);
+				
 				String cookie = CookieUtil.generateDeviceKey(mac, deviceId);
 				// String timeStamp =
 				// String.valueOf(System.currentTimeMillis());
@@ -112,7 +118,6 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 	}
 
 	private boolean isValidSN(String sn) {
-		// TODO:
 		return true;
 	}
 

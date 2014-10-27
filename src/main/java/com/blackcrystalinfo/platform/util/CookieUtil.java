@@ -9,6 +9,8 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
+
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
@@ -61,11 +63,6 @@ public class CookieUtil {
 		cookie = cookie.replace("+", "%2B");
 
 		return cookie;
-	}
-
-	public static void main(String[] args) {
-		String s = "gD BOoD";
-
 	}
 
 	/**
@@ -204,4 +201,29 @@ public class CookieUtil {
 		return str.toLowerCase();
 	}
 
+	
+	public static boolean validateMobileCookie(String cookie,String shadow,String userId){
+		String[] cs = cookie.split("-");
+		if (cs.length != 2) {
+			return false;
+		}
+		String csmd5 = cs[1];
+		try {
+			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId + shadow).getBytes()));
+			if (!csmd5.equals(csmd52)) {
+				return false;
+			}
+		} catch (NoSuchAlgorithmException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static void main(String[] args)throws Exception {
+		String s = "gD BOoD";
+		String x = generateDeviceKey("mac1110","-1092");
+		System.out.println(x);
+		x =generateKey("mac1110", "123241412", "40");
+		System.out.println(x);
+	}
 }

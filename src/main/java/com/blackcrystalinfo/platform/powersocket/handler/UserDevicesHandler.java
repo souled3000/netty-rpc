@@ -1,6 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
-import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
@@ -19,7 +17,6 @@ import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceData;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.user.UserDevicesResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
-import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class UserDevicesHandler extends HandlerAdapter {
 
@@ -37,25 +34,15 @@ public class UserDevicesHandler extends HandlerAdapter {
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		logger.info("UserDevices begin userId:{}|cookie:{}",userId,cookie);
 		
-		String[] cs = cookie.split("-");
-		
-		if(cs.length!=2){
-			resp.setStatus(3);
-			logger.info("UserDevices userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
-			return resp;
-		}
-
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
 
 			String shadow = jedis.hget("user:shadow", userId);
-			String csmd5=cs[1];
-			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
 			
-			if(!csmd5.equals(csmd52)){
+			if(CookieUtil.validateMobileCookie(cookie, shadow, userId)){
 				resp.setStatus(7);
-				logger.info("user:shadow don't match user's ID. cookie:{}|status:{} ",cookie,resp.getStatus());
+				logger.info("user:shadow don't match user's ID. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
 				return resp;
 			}
 			
@@ -65,10 +52,10 @@ public class UserDevicesHandler extends HandlerAdapter {
 			for (String id : devIds) {
 				DeviceData devData = new DeviceData();
 				String mac = jedis.hget("device:mac", id);
-				String name = jedis.hget("device:name:"+userId, id);
+				String name = jedis.hget("device:name", id);
 				String pwd = jedis.hget("device:pwd:"+userId, id);
 				String dv = jedis.hget("device:dv", id);
-				// TODO: just for test, delete later
+				
 				name = (null == name ? "default" : name);
 
 				devData.setDeviceId(id);

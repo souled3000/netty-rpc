@@ -39,6 +39,9 @@ public class DataHelper {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(DataHelper.getJedis());
+		Jedis jedis = DataHelper.getJedis();
+		String s =jedis.hget("device:mac", "xxxx");
+		System.out.println(s==null);
+		
 	}
 }

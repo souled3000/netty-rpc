@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
-import com.blackcrystalinfo.platform.powersocket.dao.pojo.bind.BindOutResponse;
+import com.blackcrystalinfo.platform.powersocket.dao.pojo.bind.UnbindResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 
@@ -23,7 +23,7 @@ public class BindOutHandler extends HandlerAdapter {
 	public Object rpc(JSONObject req) throws InternalException {
 		logger.info("request: {}", req);
 
-		BindOutResponse result = new BindOutResponse();
+		UnbindResponse result = new UnbindResponse();
 		result.setStatus(-1);
 //		result.setStatusMsg("");
 //		result.setUrlOrigin(req.getUrlOrigin());
