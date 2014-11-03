@@ -10,7 +10,7 @@ import com.blackcrystalinfo.platform.HandlerManager;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.examples.App;
 import com.blackcrystalinfo.platform.exception.HandlerExistedException;
-import com.blackcrystalinfo.platform.util.CometScannerV2;
+import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.Constants;
 
 public class SlotPlatformLauncher {
@@ -31,7 +31,7 @@ public class SlotPlatformLauncher {
 		logger.info("Start Port {}", Constants.SERVER_PORT);
 		new Thread(new Runnable(){
 			public void run() {
-				CometScannerV2.scan();
+				CometScanner.tiktok();
 			}
 		}).start();
 		bindHandler();

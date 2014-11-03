@@ -15,15 +15,15 @@ import java.util.regex.Pattern;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CometScannerV2 {
-	private static final Logger logger = LoggerFactory.getLogger(CometScannerV2.class);
+public class CometScannerV3 {
+	private static final Logger logger = LoggerFactory.getLogger(CometScannerV3.class);
 
 	private final static float CPU_THRESHOLD = Float.valueOf(Constants.getProperty("cpu.threshold", "0.9"));
 	private final static long MEM_THRESHOLD = Long.valueOf(Constants.getProperty("mem.threshold", "1024"));
@@ -72,9 +72,9 @@ public class CometScannerV2 {
 
 						// session expired, may be never happending.
 						// close old client and rebuild new client
-						CometScannerV2.closing();
+						CometScannerV3.closing();
 
-						CometScannerV2.assignZk();
+						CometScannerV3.assignZk();
 					}
 				}
 
@@ -90,7 +90,7 @@ public class CometScannerV2 {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			CometScannerV2.closing();
+			CometScannerV3.closing();
 			return assignZk();
 		}
 	}
@@ -113,7 +113,12 @@ public class CometScannerV2 {
 	private static void searching(final ZooKeeper zk, final String path) throws Exception {
 		logger.debug("visit znode:{}", path);
 		List<String> l = null;
-		l = zk.getChildren(path,null);
+		l = zk.getChildren(path, new Watcher() {
+			public void process(WatchedEvent event) {
+				logger.debug("path:{}|type:{}|state:{}", event.getPath(), event.getType().toString(), event.getState().toString());
+				scan();
+			}
+		});
 		StringBuilder sb = new StringBuilder();
 		for (String s : l) {
 			Stat st = new Stat();
@@ -194,31 +199,39 @@ public class CometScannerV2 {
 			}
 	}
 
+	private static void registerWatch(String path) throws Exception{
+		zk.getChildren("/", new Watcher() {
+			public void process(WatchedEvent event) {
+				logger.info("path:{}|type:{}|state:{}", event.getPath(), event.getType().toString(), event.getState().toString());
+				try {
+					registerWatch("/");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	public static void main(String[] args) throws Exception {
-		CometScannerV2.scan();
+		assignZk();
+		registerWatch("/");
+		
 		Thread.sleep(1 * 1000);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				CometScannerV2.closing();
+				CometScannerV3.closing();
 			}
 		});
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				String url = CometScannerV2.take();
-				System.out.printf("size:%s|%s", q.size(), url);
-				System.out.printf(" PATH2URL:%s|%s", PATH2URL.size(), url);
+//				String url = CometScannerV3.take();
+//				System.out.printf("size:%s|%s", q.size(), url);
+//				System.out.printf(" PATH2URL:%s|%s", PATH2URL.size(), url);
 			}
 		}, 0, 10000);
 	}
-	public static void main3(String[] args) {
-		String url = "ws://192.168.2.14:9029/ws";
-		Matcher m = p.matcher(url);
-		if(m.find()){
-			String key = m.group();
-			System.out.println(key);
-			System.out.println(url.replaceAll("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+", "110.192.192.14:7000"));
-		}
-	}
+
 }

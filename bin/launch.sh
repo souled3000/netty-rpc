@@ -15,7 +15,7 @@
 # *************************************************************************
 
 #判断进程是否重复启动
-sh monitor_netty.sh >a
+sh monitor.sh >a
 read PROCESS_ALIVE_STATUS<a
 rm a
 if [ "$PROCESS_ALIVE_STATUS" = "PROCESS_EXIST" ];
@@ -24,7 +24,6 @@ then
         exit 0;
 fi
 #判断进程是否重复启动结束
-
 . "./setEnv.sh"
 
 CLASSPATH="${CLASSPATH}"
@@ -39,6 +38,6 @@ echo "MEM_ARGS=${MEM_ARGS}"
 echo "JAVA_OPTIONS=${JAVA_OPTIONS}"
 
 #启动命令行
-#${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} com.github.com.nettyrpc.powersocket.Main  2>&1 >>  ${APP_HOME}/bin/logs/all.log &
-${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} com.blackcrystalinfo.platform.powersocket.SlotPlatformLauncher 2>&1 >>${APP_HOME}/logs/all.log &
+#${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} ${clz} 2>&1 >>${APP_HOME}/logs/all.log &
+${JAVA_HOME}/bin/java ${MEM_ARGS} ${JAVA_OPTIONS} ${clz} 2>&1 >>/dev/null &
 echo "启动完成,请查看日志"

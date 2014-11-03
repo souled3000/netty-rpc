@@ -13,14 +13,7 @@
 
 echo "*************************************************"
 
-echo "初始化通用环境参数"
-JAVA_HOME="/root/jdk1.7.0_51"
-echo "JAVA_HOME=${JAVA_HOME}"
-
-APP_HOME="/root/netty-rpc"
-export APP_HOME
-echo "APP_HOME=${APP_HOME}"
-
+. "properties"
 LIB_HOME="${APP_HOME}/lib"
 export LIB_HOME
 echo "LIB_HOME=${LIB_HOME}"
@@ -42,7 +35,7 @@ export CLASSPATH
 
 JAVA_OPTIONS="  "
 
-MEM_ARGS="-Xms128m -Xmx1024m"
+MEM_ARGS="-Xms1024m -Xmx1024m"
 
 echo "初始化通用环境参数完成"
 

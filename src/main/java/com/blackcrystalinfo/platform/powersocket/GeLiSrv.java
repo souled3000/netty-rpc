@@ -9,7 +9,7 @@ import com.blackcrystalinfo.platform.HandlerManager;
 import com.blackcrystalinfo.platform.examples.App;
 import com.blackcrystalinfo.platform.exception.HandlerExistedException;
 import com.blackcrystalinfo.platform.powersocket.handler.GeLiWebsocketHandler;
-import com.blackcrystalinfo.platform.util.CometScannerV2;
+import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.Constants;
 
 public class GeLiSrv {
@@ -25,7 +25,8 @@ public class GeLiSrv {
 		Thread t = t = new Thread(new Runnable(){
 			@Override
 			public void run() {
-				CometScannerV2.scan();
+//				CometScannerV2.scan();
+				CometScanner.tiktok();
 			}
 		});
 		t.start();

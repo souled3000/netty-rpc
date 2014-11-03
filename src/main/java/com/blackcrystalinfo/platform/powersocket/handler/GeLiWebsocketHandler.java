@@ -7,7 +7,7 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.ApiResponse;
-import com.blackcrystalinfo.platform.util.CometScannerV2;
+import com.blackcrystalinfo.platform.util.CometScanner;
 
 public class GeLiWebsocketHandler extends HandlerAdapter {
 
@@ -15,10 +15,10 @@ public class GeLiWebsocketHandler extends HandlerAdapter {
 
 	public Object rpc(RpcRequest req) throws InternalException {
 		GeLiUrlResp resp = new GeLiUrlResp();
-		resp.setStatusMsg("");
 		// 1. 校验cookie信息
 		try {
-			resp.setProxyAddr(CometScannerV2.take());
+//			resp.setProxyAddr(CometScannerV2.take());
+			resp.setProxyAddr(CometScanner.take());
 			resp.setStatus(0);
 		} catch (Exception e) {
 			logger.error("System error occurs", e);

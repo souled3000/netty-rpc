@@ -7,12 +7,11 @@
 # 修改时间:
 # 修改作者:
 
-PROCESS_NAME="SlotPlatformLauncher"
-
-ps -ef|grep $PROCESS_NAME | grep java | grep -v grep | awk '{print $2}' |while read pid
+. "properties"
+ps -ef|grep ${clz} | grep java | grep -v grep | awk '{print $2}' |while read pid
 do
-        kill ${pid}
-        declare msg="进程名称:${PROCESS_NAME},PID:${pid}于`date` 成功停止"
+        kill -9 ${pid}
+        msg="进程名称:${clz},PID:${pid}于`date` 成功停止"
         echo $msg
         echo $msg >>../logs/logout.log
         exit 1

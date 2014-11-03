@@ -1,0 +1,9 @@
+#! /bin/sh
+
+export JAVA_HOME="/home/sophia/001/jdk1.6.0_35"
+
+export APP_HOME="/home/sophia/geli"
+		 
+export clz=com.blackcrystalinfo.platform.powersocket.GeLiSrv
+#export clz=com.blackcrystalinfo.platform.powersocket.SlotPlatformLauncher
+

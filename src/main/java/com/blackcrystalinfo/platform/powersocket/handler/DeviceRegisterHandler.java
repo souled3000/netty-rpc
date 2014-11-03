@@ -25,17 +25,17 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		BASE64Decoder decoder = new BASE64Decoder();
 		DeviceRegisterResponse result = new DeviceRegisterResponse();
 		result.setStatus(-1);
-//		result.setStatusMsg("");
-//		result.setUrlOrigin(req.getUrlOrigin());
+		// result.setStatusMsg("");
+		// result.setUrlOrigin(req.getUrlOrigin());
 
 		String mac = req.getString("mac");
 		String sn = req.getString("sn");
 		String dv = req.getString("dv");
 		String pid = req.getString("pid");
-		
-		// String name = req.getString("deviceName");
+
+		String name = req.getString("name");
 		String regTime = String.valueOf(System.currentTimeMillis());
-		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}|bv:{}",mac,sn,dv);
+		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}|bv:{}", mac, sn, dv);
 		if (!isValidSN(sn)) {
 			result.setStatusMsg("SN is invalid!");
 			return result;
@@ -75,21 +75,20 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 				// 5. 记录设备SN号
 				tx.hset("device:sn", deviceId, sn);
-				
 
 				// 6. 设备注册时间
 				tx.hset("device:regtime", deviceId, regTime);
 
 				// 7. 设备名称
-				// tx.hset("device:name", deviceId, name);
+				tx.hset("device:name", deviceId, name);
 
 				// 8. 设备类型
 				tx.hset("device:dv", deviceId, dv);
-				
-				//保存设备网关
-				if(StringUtils.isNotBlank(pid))
-				tx.hset("device:pid",deviceId,pid);
-				
+
+				// 保存设备网关
+				if (StringUtils.isNotBlank(pid))
+					tx.hset("device:pid", deviceId, pid);
+
 				String cookie = CookieUtil.generateDeviceKey(mac, deviceId);
 				// String timeStamp =
 				// String.valueOf(System.currentTimeMillis());
@@ -106,13 +105,13 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
-			logger.error("Device regist error mac:{}|sn:{}|bv:{}",mac,sn,dv,e);
+			logger.error("Device regist error mac:{}|sn:{}|bv:{}", mac, sn, dv, e);
 			return result;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
-		logger.info("response:  mac:{}|sn:{}|bv:{}",mac,sn,dv);
+		logger.info("response:  mac:{}|sn:{}|bv:{}", mac, sn, dv);
 		return result;
 
 	}
@@ -121,10 +120,10 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		return true;
 	}
 
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception {
 		BASE64Decoder decoder = new BASE64Decoder();
 		byte[] bs = decoder.decodeBuffer("Dgw1DAD6");
-		System.out.println(new String(bs,"utf8"));
+		System.out.println(new String(bs, "utf8"));
 		System.out.println(ByteUtil.toHex(bs));
 	}
 }

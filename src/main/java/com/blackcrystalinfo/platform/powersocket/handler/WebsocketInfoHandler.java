@@ -12,7 +12,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.ApiResponse;
-import com.blackcrystalinfo.platform.util.CometScannerV2;
+import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
@@ -54,7 +54,7 @@ public class WebsocketInfoHandler extends HandlerAdapter {
 			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);
 			
 //			resp.setProxyAddr(CookieUtil.WEBSOCKET_ADDR);
-			resp.setProxyAddr(CometScannerV2.take());
+			resp.setProxyAddr(CometScanner.take());
 			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, resp.getProxyAddr());
 			resp.setHeartBeat(heartBeat);
 			resp.setProxyKey(proxyKey);

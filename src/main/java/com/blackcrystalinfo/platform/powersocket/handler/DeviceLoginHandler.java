@@ -11,7 +11,7 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceLoginResponse;
-import com.blackcrystalinfo.platform.util.CometScannerV2;
+import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 
 public class DeviceLoginHandler extends HandlerAdapter {
@@ -61,7 +61,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			
 			String proxyKey = CookieUtil.generateKey(id, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
 //			String proxyKey = CookieUtil.generateDeviceKey(mac,id);
-			String proxyAddr = CometScannerV2.take();
+			String proxyAddr = CometScanner.take();
 
 			result.setStatus(0);
 			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);

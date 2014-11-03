@@ -2,9 +2,11 @@ package com.blackcrystalinfo.platform.util;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
@@ -16,7 +18,6 @@ import java.util.regex.Pattern;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class CometScanner {
 
 	private static ZooKeeper zk = null;
 
-	private final static Pattern p = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+	private final static Pattern p = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+");
 
 	static {
 		try {
@@ -66,7 +67,7 @@ public class CometScanner {
 		if (zk != null && zk.getState().isAlive() && zk.getState().isConnected())
 			return true;
 		String zookeepers = Constants.getProperty("zookeeper", "");
-		logger.info("connect...{} ", zookeepers);
+		logger.debug("connect...{} ", zookeepers);
 		try {
 			final CountDownLatch signal = new CountDownLatch(1);
 			zk = new ZooKeeper(zookeepers, 1000, new Watcher() {
@@ -86,10 +87,10 @@ public class CometScanner {
 
 		try {
 			if (!assignZk()) {
-				logger.info("There is not single one available zookeeper. This turn have to terminate.");
+				logger.debug("There is not single one available zookeeper. This turn have to terminate.");
 				return;
 			}
-			recurseZnode(zk, root);
+			searching(root);
 		} catch (KeeperException e) {
 			logger.error("scan:KeeperException-", e);
 		} catch (InterruptedException e) {
@@ -101,29 +102,15 @@ public class CometScanner {
 		}
 	}
 
-	private static void recurseZnode(ZooKeeper zk, String path) throws Exception {
+	private static void searching(String path) throws Exception {
 		List<String> l = null;
-		l = zk.getChildren(path, new Watcher() {
-			public void process(WatchedEvent event) {
-
-			}
-		});
+		l = zk.getChildren(path, false);
+		Set<String> children = new HashSet<String>();
 		for (String s : l) {
 			Stat st = new Stat();
 			final String tmpPath = path.equals("/") ? "/" + s : path + "/" + s;
-			String data = new String(zk.getData(tmpPath, new Watcher() {
-
-				public void process(WatchedEvent event) {
-					if (event.getType().equals(EventType.NodeDeleted)) {
-						String url = PATH2URL.get(event.getPath());
-						if (url != null) {
-							q.remove(url);
-							logger.info("remove from queue url:{}|path:{}", url, tmpPath);
-						}
-					}
-				}
-
-			}, st));
+			children.add(tmpPath);
+			String data = new String(zk.getData(tmpPath,null, st));
 			String[] items = data.split(",");
 			if (items.length == 5) {
 				String url = items[0];
@@ -135,12 +122,12 @@ public class CometScanner {
 				if (cpu < CPU_THRESHOLD && tm - um > MEM_THRESHOLD && HANDLER_THRESHOLD > h) {
 					if (!q.contains(url)) {
 						q.put(url);
-						logger.info("adding url:{}|path:{}", url, tmpPath);
+						logger.debug("adding url:{}|path:{}", url, tmpPath);
 					}
 				} else {
 					if (q.contains(url)) {
 						q.remove(url);
-						logger.info("remove url:{}|path:{}", url, tmpPath);
+						logger.debug("remove url:{}|path:{}", url, tmpPath);
 					}
 				}
 			}
@@ -152,6 +139,12 @@ public class CometScanner {
 			// } else {
 			// return;
 			// }
+		}
+		Set<String> keys = PATH2URL.keySet();
+		keys.removeAll(children);
+		for(String child : keys){
+			q.remove(PATH2URL.get(child));
+			PATH2URL.remove(child);
 		}
 	}
 
@@ -165,11 +158,11 @@ public class CometScanner {
 		if (m.find()) {
 			String key = m.group();
 			if (IPMAP.get(key) != null)
-				url = url.replaceAll("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}", IPMAP.get(key));
+				url = url.replaceAll("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+", IPMAP.get(key));
 			else
 				logger.error("ip {} has no its mapping ip ", key);
 		}
-		logger.info("return url:{}", url);
+		logger.debug("return url:{}", url);
 		return url;
 	}
 
@@ -198,5 +191,13 @@ public class CometScanner {
 			}
 		}, 0, 3000);
 	}
-
+	
+	public static void main2(String[] args) {
+		Set<String> a = new HashSet<String>();
+		a.add("a");
+		a.add("b");
+		Set<String> b = new HashSet<String>();
+		b.add("a");
+		b.add("c");
+	}
 }
