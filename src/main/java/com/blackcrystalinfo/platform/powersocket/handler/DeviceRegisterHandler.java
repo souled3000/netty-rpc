@@ -10,10 +10,12 @@ import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
+import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceRegisterResponse;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class DeviceRegisterHandler extends HandlerAdapter {
@@ -22,18 +24,36 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
+		String mac = req.getString("mac");
+		String sn = req.getString("sn");
+		String dv = req.getString("dv");
+		String pid = req.getString("pid");
+		String name = req.getString("name");
+		return deal(mac,sn,dv,pid,name);
+	}
+
+	public Object rpc(RpcRequest req) throws InternalException {
+		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
+		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
+		String dv = HttpUtil.getPostValue(req.getParams(), "dv");
+		String pid = HttpUtil.getPostValue(req.getParams(), "pid");
+		String name = HttpUtil.getPostValue(req.getParams(), "name");
+		return deal(mac,sn,dv,pid,name);
+	}
+	
+	private Object deal(String... args)throws InternalException{
 		BASE64Decoder decoder = new BASE64Decoder();
 		DeviceRegisterResponse result = new DeviceRegisterResponse();
 		result.setStatus(-1);
 		// result.setStatusMsg("");
 		// result.setUrlOrigin(req.getUrlOrigin());
 
-		String mac = req.getString("mac");
-		String sn = req.getString("sn");
-		String dv = req.getString("dv");
-		String pid = req.getString("pid");
-
-		String name = req.getString("name");
+		String mac = args[0];
+		String sn = args[1];
+		String dv = args[2];
+		String pid = args[3];
+		String name = args[4];
+		
 		String regTime = String.valueOf(System.currentTimeMillis());
 		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}|bv:{}", mac, sn, dv);
 		if (!isValidSN(sn)) {
@@ -113,9 +133,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 		logger.info("response:  mac:{}|sn:{}|bv:{}", mac, sn, dv);
 		return result;
-
 	}
-
+	
 	private boolean isValidSN(String sn) {
 		return true;
 	}

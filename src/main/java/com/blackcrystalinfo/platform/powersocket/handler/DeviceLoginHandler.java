@@ -8,27 +8,39 @@ import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
+import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceLoginResponse;
 import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.HttpUtil;
 
 public class DeviceLoginHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
-		logger.info("request: {}", req);
-
-		DeviceLoginResponse result = new DeviceLoginResponse();
-		result.setStatus(-1);
-//		result.setStatusMsg("");
-//		result.setUrlOrigin(req.getUrlOrigin());
-
 		String mac = req.getString("mac");
 		String pid = req.getString("pid");
 		String cookie = req.getString("cookie");
+		return deal(mac,pid,cookie);
+	}
+	
+	public Object rpc(RpcRequest req) throws InternalException {
+		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
+		String pid =HttpUtil.getPostValue(req.getParams(), "pid");
+		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		return deal(mac,pid,cookie);
+	}
+	
+	private Object deal(String...args)throws InternalException{
+		DeviceLoginResponse result = new DeviceLoginResponse();
+		result.setStatus(-1);
+
+		String mac = args[0];
+		String pid = args[1];
+		String cookie = args[2];
 
 		logger.info("DeviceLoginHandler begin mac:{}|cookie:{}", mac, cookie);
 		
