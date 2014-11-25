@@ -19,6 +19,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,10 @@ public class CometScanner {
 	private final static Pattern p = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+");
 
 	static {
+		refresh();
+	}
+
+	public static void refresh(){
 		try {
 			Properties p = new Properties();
 			p.load(ClassLoader.getSystemResourceAsStream("ip.properties"));
@@ -53,7 +58,7 @@ public class CometScanner {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public static void tiktok() {
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
@@ -72,7 +77,16 @@ public class CometScanner {
 			final CountDownLatch signal = new CountDownLatch(1);
 			zk = new ZooKeeper(zookeepers, 1000, new Watcher() {
 				public void process(WatchedEvent event) {
+					if(signal.getCount()==1)
 					signal.countDown();
+					
+					if (event.getType().equals(EventType.NodeDeleted)) {
+						String url = PATH2URL.get(event.getPath());
+						if (url != null){
+							q.remove(url);
+						}
+						logger.debug("NodeDeleted");
+					}
 				}
 			});
 			signal.await();
@@ -110,7 +124,7 @@ public class CometScanner {
 			Stat st = new Stat();
 			final String tmpPath = path.equals("/") ? "/" + s : path + "/" + s;
 			children.add(tmpPath);
-			String data = new String(zk.getData(tmpPath,null, st));
+			String data = new String(zk.getData(tmpPath,true, st));
 			String[] items = data.split(",");
 			if (items.length == 5) {
 				String url = items[0];
@@ -140,12 +154,15 @@ public class CometScanner {
 			// return;
 			// }
 		}
-		Set<String> keys = PATH2URL.keySet();
-		keys.removeAll(children);
-		for(String child : keys){
-			q.remove(PATH2URL.get(child));
-			PATH2URL.remove(child);
-		}
+		
+//		Set<String> keys = new HashSet<String>();
+//		keys.addAll(PATH2URL.keySet());
+//		keys.removeAll(children);
+//		System.out.println("要删的元素个数:"+keys.size());
+//		for(String child : keys){
+//			q.remove(PATH2URL.get(child));
+//			PATH2URL.remove(child);
+//		}
 	}
 
 	public static synchronized String take() {
@@ -159,8 +176,10 @@ public class CometScanner {
 			String key = m.group();
 			if (IPMAP.get(key) != null)
 				url = url.replaceAll("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+", IPMAP.get(key));
-			else
+			else{
 				logger.error("ip {} has no its mapping ip ", key);
+				url="";
+			}
 		}
 		logger.debug("return url:{}", url);
 		return url;
@@ -175,7 +194,7 @@ public class CometScanner {
 			}
 	}
 
-	public static void main2(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		CometScanner.tiktok();
 		Thread.sleep(1 * 1000);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -187,12 +206,12 @@ public class CometScanner {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				String url = CometScanner.take();
-				System.out.println("--------------" + url);
+				System.out.printf("url:%s|size:%d\n",url,q.size());
 			}
-		}, 0, 3000);
+		}, 0, 10000);
 	}
 	
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		Set<String> a = new HashSet<String>();
 		a.add("a");
 		a.add("b");

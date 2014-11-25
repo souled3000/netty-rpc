@@ -100,6 +100,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				tx.hset("device:regtime", deviceId, regTime);
 
 				// 7. 设备名称
+				if(StringUtils.isNotBlank(name))
 				tx.hset("device:name", deviceId, name);
 
 				// 8. 设备类型

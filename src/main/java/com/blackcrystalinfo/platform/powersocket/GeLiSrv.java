@@ -22,14 +22,8 @@ public class GeLiSrv {
 
 	public static void main(String[] args) throws Exception {
 		logger.info("Start Port {}", Constants.SERVER_PORT);
-		Thread t = t = new Thread(new Runnable(){
-			@Override
-			public void run() {
-//				CometScannerV2.scan();
-				CometScanner.tiktok();
-			}
-		});
-		t.start();
+		CometScanner.tiktok();
+		Thread.sleep(3000);
 		bindHandler();
 		new App(Constants.SERVER_PORT).run();
 	}

@@ -29,11 +29,8 @@ public class SlotPlatformLauncher {
 
 	public static void main(String[] args) throws Exception {
 		logger.info("Start Port {}", Constants.SERVER_PORT);
-		new Thread(new Runnable(){
-			public void run() {
-				CometScanner.tiktok();
-			}
-		}).start();
+		CometScanner.tiktok();
+		Thread.sleep(3000);
 		bindHandler();
 		new App(Constants.SERVER_PORT).run();
 	}

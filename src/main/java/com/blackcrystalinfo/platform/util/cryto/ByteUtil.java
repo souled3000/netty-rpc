@@ -75,14 +75,6 @@ public class ByteUtil {
 		return bf.array();
 	}
 
-	public static byte[] reverse(byte[] src) {
-		ByteBuffer bb = ByteBuffer.allocate(src.length);
-		bb.order(ByteOrder.LITTLE_ENDIAN);
-		bb.put(src);
-		bb.slice();
-		return ByteUtil.fromHex(Long.toHexString(bb.getLong(0)));
-	}
-
 	public static long crc32(String src, String checksum) {
 		CRC32 crc = new CRC32();
 		crc.update(src.getBytes());
@@ -95,7 +87,7 @@ public class ByteUtil {
 		CRC32 crc = new CRC32();
 		crc.update(src.getBytes());
 		Long checksum = crc.getValue();
-		System.out.println("checksum:"+checksum);
+		System.out.println("checksum:" + checksum);
 		return Long.toHexString(checksum);
 	}
 
@@ -103,8 +95,8 @@ public class ByteUtil {
 		SerializeWriter out = new SerializeWriter();
 		try {
 			JSONSerializer serializer = new JSONSerializer(out);
-//			serializer.config(SerializerFeature.QuoteFieldNames, false);
-//			serializer.config(SerializerFeature.UseSingleQuotes, true);
+			// serializer.config(SerializerFeature.QuoteFieldNames, false);
+			// serializer.config(SerializerFeature.UseSingleQuotes, true);
 			serializer.write(t);
 			return out.toString();
 		} finally {
@@ -118,20 +110,32 @@ public class ByteUtil {
 		System.out.println(ByteUtil.toHex(bb));
 
 		System.out.println(crc("{idn:\"01292838\"}"));
-		
+
 		System.out.println("9bT4cGXR/7/OuPrFTVrVWHZJik4aQyLW310g/TM7s3H35jDLvgkkXq/9HPHPQRVVg5sCQ9Cy7Vxt".length());
-		
+
 		s = "{\"cookie\":\"-5|FjQL3sHhII0BprdPdutBvKLb1vbkIaMBVeLQc2RshKY=\",\"status\":0,\"statusMsg\":\"\"}";
-		
+
 		BASE64Encoder encoder = new BASE64Encoder();
-		
+
 		String ss = encoder.encode(s.getBytes());
 		System.out.println(encoder.encode(s.getBytes()));
 		System.out.println(encoder.encodeBuffer(s.getBytes()));
 		System.out.println(StringUtils.escape(encoder.encode(s.getBytes())));
 		System.out.println(StringUtils.remove(StringUtils.escape(encoder.encode(s.getBytes())), "\\n"));
 		System.out.println(ss.replaceAll("\\s", ""));
-		
-		
+
+		System.out.println();
+
+		byte[] src = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
+		System.out.println(src.length);
+		System.out.println(ByteUtil.reverse(src));
+	}
+
+	public static byte[] reverse(byte[] src) {
+		ByteBuffer bb = ByteBuffer.allocate(src.length);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
+		bb.put(src);
+		bb.slice();
+		return ByteUtil.fromHex(Long.toHexString(bb.getLong(0)));
 	}
 }
