@@ -225,5 +225,10 @@ public class CookieUtil {
 		System.out.println(x);
 		x =generateKey("mac1110", "123241412", "40");
 		System.out.println(x);
+		
+		String cookie="MTYwfDMwMHw5MzUzYThkNTFjMWE3YWE4YTJlZGNmOTU3ZjE4ZjQ4OGMzMGY4YQ==-E109E703F9F78EB053898A7C6E5DAFC1";
+		String shadow="1000:5b42403132383562306239:b187d4da91a3885886c652c1eb4cdf6df7ec282270c63a5b1db6e91a4edcd51a6d88685959819adec5a2b0810a0b3c11f7c5ae8aabffd1663f56eb6eb5660002";
+		String userId="160";
+		System.out.println(CookieUtil.validateMobileCookie(cookie, shadow, userId));
 	}
 }

@@ -40,7 +40,7 @@ public class UserDevicesHandler extends HandlerAdapter {
 
 			String shadow = jedis.hget("user:shadow", userId);
 			
-			if(CookieUtil.validateMobileCookie(cookie, shadow, userId)){
+			if(!CookieUtil.validateMobileCookie(cookie, shadow, userId)){
 				resp.setStatus(7);
 				logger.info("user:shadow don't match user's ID. userId:{}|cookie:{}|status:{}",userId,cookie,resp.getStatus());
 				return resp;
