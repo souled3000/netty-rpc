@@ -13,6 +13,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpResponseStatus.SERVICE_UNAVAILABLE;
+
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -48,7 +49,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.blackcrystalinfo.platform.HandlerManager;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
@@ -56,7 +56,7 @@ import com.blackcrystalinfo.platform.util.cryto.Datagram;
 
 public class RpcCodec extends ChannelInboundHandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(RpcCodec.class);
-	
+
 	private final static String VERSIONFILE = Constants.getProperty("version.file", "");
 
 	@Override
@@ -108,6 +108,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		}
 
 		String reqUrl = req.getUri();
+		logger.info("request(new)--{}", reqUrl);
 		HttpHeaders headers = req.headers();
 		HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(req);
 		IHandler handler = HandlerManager.getHandler(reqUrl);
@@ -116,29 +117,33 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 			return;
 		} else {
 			Object ret = null;
+			Datagram resp = null;
 			try {
 				RpcRequest rp = new RpcRequest(reqUrl, decoder, headers, ctx.channel().remoteAddress().toString());
-				Datagram resp = HttpUtil.getDatagram(rp);
-				if(resp == null){
+				resp = HttpUtil.getDatagram(rp);
+				if (resp == null) {
 					ret = handler.rpc(rp);
-				}else{
+				} else {
+					logger.debug(handler.getClass().toString());
 					ret = handler.rpc(JSONObject.parseObject(resp.getCtn()));
 					resp.setCtn(ByteUtil.writeJSON(ret));
 					try {
 						resp.encapsulate();
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					ret = resp;
 				}
-			} catch (InternalException e) {
+			} catch (Exception e) {
 				logger.error("Called {} InternalError {}", reqUrl, e);
-				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, SERVICE_UNAVAILABLE));
+				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
 			} finally {
 				if (ret != null) {
 					byte[] data = JSON.toJSONBytes(ret, new SerializerFeature[0]);
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(data)));
+				} else {
+					logger.error("Called {}", reqUrl);
+					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, SERVICE_UNAVAILABLE));
 				}
 			}
 		}

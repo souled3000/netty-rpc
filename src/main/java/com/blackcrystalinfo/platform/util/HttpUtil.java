@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 
 import java.io.IOException;
 
+import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.util.cryto.Datagram;
 
@@ -35,6 +36,10 @@ public class HttpUtil {
 		String ctp = HttpUtil.getPostValue(req.getParams(), "ctp");
 		String key = HttpUtil.getPostValue(req.getParams(), "key");
 
+		if(ktm==null&&crc==null&&ctn==null&&ctp==null&&key==null){
+			return null;
+		}
+		
 		Datagram data = null;
 		try {
 			data = new Datagram(key, ktm, ctp, crc, ctn);
@@ -43,12 +48,12 @@ public class HttpUtil {
 //			e1.printStackTrace();
 			return null;
 		}
-		System.out.println("------------------------------------------" + data.getCtn());
 		return data;
 	}
 	
 	public static void main(String[] args) throws Exception{
 		Datagram g = new Datagram(null,null,null,null,null);
 		g.decapsulate();
+		JSONObject.parseObject("mac:\"CFiqNk6cAAA=\",name:\"IOi/meaYr+e9keWFsw==\"}");
 	}
 }

@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.util.cryto;
 
-import java.math.BigInteger;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;

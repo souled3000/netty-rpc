@@ -62,7 +62,10 @@ public class WebsocketInfoHandler extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("System error occurs",e);
 			resp.setStatus(-1);
+			DataHelper.returnBrokenJedis(jedis);
 			return resp;
+		}finally{
+			DataHelper.returnJedis(jedis);
 		}
 		logger.info("response: status:{}|proxyKey:{}|proxyAddr:{}|heartBeat:{}", resp.getStatus(),resp.getProxyKey(),resp.getProxyAddr(),resp.getHeartBeat());
 		return resp;
