@@ -10,6 +10,7 @@ import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
+import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.bind.UnbindResponse;
@@ -21,16 +22,31 @@ public class BindOutHandler extends HandlerAdapter {
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
-		logger.info("request: {}", req);
+		String mac = req.getString("mac");
+		String userId = req.getString("userId");
+		String cookie = req.getString("cookie");
+		return deal(mac, userId, cookie);
+	}
+
+	@Override
+	public Object rpc(RpcRequest req) throws InternalException {
+		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
+		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
+		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		return deal(mac, userId, cookie);
+	}
+	
+	
+	private Object deal(String... args) throws InternalException {
 
 		UnbindResponse result = new UnbindResponse();
 		result.setStatus(-1);
 //		result.setStatusMsg("");
 //		result.setUrlOrigin(req.getUrlOrigin());
 
-		String mac = req.getString("mac");
-		String userId = req.getString("userId");
-		String cookie = req.getString("cookie");
+		String mac = args[0];
+		String userId = args[1];
+		String cookie = args[2];
 		logger.info("BindOutHandler begin  mac:{}|userId:{}|cookie:{}", mac, userId, cookie);
 		String deviceId = "";
 
