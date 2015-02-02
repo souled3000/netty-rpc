@@ -75,7 +75,7 @@ public class DeviceNameModifying extends HandlerAdapter {
 		}catch(Exception e){
 			
 			DataHelper.returnBrokenJedis(jedis);
-			logger.info(" mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus(),e);
+			logger.error(" mac:{}|cookie:{}|newDeviceName:{}|status:{}",mac,cookie,newDeviceName,resp.getStatus(),e);
 			return resp;
 		}finally{
 			DataHelper.returnJedis(jedis);

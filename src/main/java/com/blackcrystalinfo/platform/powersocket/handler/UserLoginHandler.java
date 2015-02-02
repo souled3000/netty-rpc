@@ -65,7 +65,7 @@ public class UserLoginHandler extends HandlerAdapter {
 			}
 			
 			
-			String cookie = CookieUtil.encode(userId, CookieUtil.EXPIRE_SEC);
+			String cookie = CookieUtil.encode4user(userId, CookieUtil.EXPIRE_SEC);
 			
 			String up = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
 //			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis()/1000), CookieUtil.EXPIRE_SEC);

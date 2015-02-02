@@ -49,7 +49,7 @@ public class CookieUtil {
 	 * @return cookie
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static String encode(String userId, String expire) throws NoSuchAlgorithmException {
+	public static String encode4user(String userId, String expire) throws NoSuchAlgorithmException {
 		String cookie = "";
 
 		String sha1Value = encodeSha1(userId, expire);
@@ -220,15 +220,26 @@ public class CookieUtil {
 	}
 	
 	public static void main(String[] args)throws Exception {
-		String s = "gD BOoD";
-		String x = generateDeviceKey("mac1110","-1092");
-		System.out.println(x);
-		x =generateKey("mac1110", "123241412", "40");
-		System.out.println(x);
+//		String s = "gD BOoD";
+//		String x = generateDeviceKey("mac1110","-1092");
+//		System.out.println(x);
+//		x =generateKey("mac1110", "123241412", "40");
+//		System.out.println(x);
 		
-		String cookie="MTYwfDMwMHw5MzUzYThkNTFjMWE3YWE4YTJlZGNmOTU3ZjE4ZjQ4OGMzMGY4YQ==-E109E703F9F78EB053898A7C6E5DAFC1";
-		String shadow="1000:5b42403132383562306239:b187d4da91a3885886c652c1eb4cdf6df7ec282270c63a5b1db6e91a4edcd51a6d88685959819adec5a2b0810a0b3c11f7c5ae8aabffd1663f56eb6eb5660002";
-		String userId="160";
+		/*************************用户cookie测试开始**********************/
+		String cookie="NjR8MzAwfGY0NGE3OTg0OGI1NTY5NDExYWNjZTY1YzM1MjUzYTQwZTJhMjQ3";
+		String shadow="1000:5b42403361333030323434:b3c02405995c1fcf4a6647b69da1a4df48e796181a8574db0aafae0206efc203880fd9a39ca32a4693709754ea23caf16061327ef7e4429dfe5024ed704616c7";
+		String userId="64";
 		System.out.println(CookieUtil.validateMobileCookie(cookie, shadow, userId));
+		
+		cookie = CookieUtil.encode4user(userId, CookieUtil.EXPIRE_SEC);
+		
+		String up = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
+		StringBuilder sb = new StringBuilder(cookie+"-"+up);
+		System.out.println(sb.toString());
+		System.out.println(CookieUtil.validateMobileCookie(sb.toString(), shadow, userId));
+		/*************************用户cookie测试结束**********************/
+		
+		
 	}
 }

@@ -11,18 +11,32 @@ import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
+import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.ApiResponse;
+import com.blackcrystalinfo.platform.util.HttpUtil;
 
 public class DeviceNameChangingHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceNameChangingHandler.class);
 	private BASE64Decoder decoder = new BASE64Decoder();
 
 	public Object rpc(JSONObject req) throws InternalException {
-		Response resp = new Response();
 		String mac = req.getString("mac");
 		String name = req.getString("name");
+		return deal(mac, name);
+	}
+
+	public Object rpc(RpcRequest req) throws InternalException {
+		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
+		String name = HttpUtil.getPostValue(req.getParams(), "name");
+		return deal(mac, name);
+	}
+	
+	public Object deal(String...args) throws InternalException {
+		Response resp = new Response();
+		String mac = args[0];
+		String name = args[1];
 		try {
 			name = new String(decoder.decodeBuffer(name.replace(' ', '+')), "utf8");
 		} catch (UnsupportedEncodingException e) {

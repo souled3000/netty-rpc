@@ -52,6 +52,7 @@ public class CometScanner {
 			p.load(ClassLoader.getSystemResourceAsStream("ip.properties"));
 			for (Object key : p.keySet()) {
 				String v = p.getProperty((String) key);
+				logger.info("{}---{}",key,v);
 				IPMAP.put((String) key, v);
 			}
 		} catch (IOException e) {
@@ -129,19 +130,20 @@ public class CometScanner {
 			if (items.length == 5) {
 				String url = items[0];
 				PATH2URL.put(tmpPath, url);
-				float cpu = Float.valueOf(items[1]);
-				long tm = Long.valueOf(items[2]);
-				long um = Long.valueOf(items[3]);
-				long h = Long.valueOf(items[4]);
+				float cpu = Float.valueOf(items[1]);/**CPU负荷*/
+				long tm = Long.valueOf(items[2]);/**总内存*/
+				long um = Long.valueOf(items[3]);/**已用内存*/
+				long h = Long.valueOf(items[4]);/**已用句柄数*/
 				if (cpu < CPU_THRESHOLD && tm - um > MEM_THRESHOLD && HANDLER_THRESHOLD > h) {
 					if (!q.contains(url)) {
 						q.put(url);
-						logger.debug("adding url:{}|path:{}", url, tmpPath);
+						logger.info("adding url:{}|path:{}", url, tmpPath);
 					}
 				} else {
+					logger.error("ALARM!!! {} < {}CPU_THRESHOLD && {} - {} > {}MEM_THRESHOLD && {}HANDLER_THRESHOLD > {}",cpu,CPU_THRESHOLD,tm,um,MEM_THRESHOLD,HANDLER_THRESHOLD,h);
 					if (q.contains(url)) {
 						q.remove(url);
-						logger.debug("remove url:{}|path:{}", url, tmpPath);
+						logger.info("remove url:{}|path:{}", url, tmpPath);
 					}
 				}
 			}

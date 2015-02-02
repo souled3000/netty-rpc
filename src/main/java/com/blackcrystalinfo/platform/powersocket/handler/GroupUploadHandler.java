@@ -12,6 +12,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.group.GroupUploadResponse;
+import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 
 public class GroupUploadHandler extends HandlerAdapter {
@@ -21,51 +22,70 @@ public class GroupUploadHandler extends HandlerAdapter {
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 
-		GroupUploadResponse resp = new GroupUploadResponse();
-		resp.setUrlOrigin(req.getUrlOrigin());
+		GroupUploadResponse r = new GroupUploadResponse();
+		r.setUrlOrigin(req.getUrlOrigin());
 
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
+		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		String grpOld = HttpUtil.getPostValue(req.getParams(), "grpOld");
 		String grpNew = HttpUtil.getPostValue(req.getParams(), "grpNew");
 		String grpValue = HttpUtil.getPostValue(req.getParams(), "grpValue");
 		String table = "user:group:" + userId;
-		logger.info("GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}",userId,grpOld,grpNew,grpValue);
+		logger.info("GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}", userId, grpOld, grpNew, grpValue);
 		if (StringUtils.isBlank(userId) || (StringUtils.isBlank(grpOld) && StringUtils.isBlank(grpNew))) {
-			resp.setStatus(0);
-			logger.info("something is null. userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}",userId,grpOld,grpNew,grpValue,resp.getStatus());
+			r.setStatus(0);
+			logger.info("something is null. userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}", userId, grpOld, grpNew, grpValue, r.getStatus());
 		} else {
-			Jedis jedis = null;
+			Jedis j = null;
 			try {
-				jedis = DataHelper.getJedis();
+				j = DataHelper.getJedis();
+
+				String email = j.hget("user:email", userId);
+				if (null == email) {
+					r.setStatus(1);
+					return r;
+				}
+
+				try {
+					String shadow = j.hget("user:shadow", userId);
+					if (!CookieUtil.validateMobileCookie(cookie, shadow, userId)) {
+						r.setStatus(3);
+						logger.info("user:shadow don't match user's ID. fId:{}|cookie:{}|status:{}", userId, cookie, r.getStatus());
+						return r;
+					}
+				} catch (Exception e) {
+					logger.error("user:shadow don't match user's ID. fId:{}|cookie:{}|status:{}", userId, cookie, r.getStatus(), e);
+					return r;
+				}
 
 				Transaction tx = null;
-				boolean b = jedis.hexists(table, grpOld);
-				tx = jedis.multi();
+				boolean b = j.hexists(table, grpOld);
+				tx = j.multi();
 				if (b) {
 					tx.hdel(table, grpOld);
-					resp.setStatus(3);
+					r.setStatus(3);
 					if (StringUtils.isNotBlank(grpNew)) {
 						tx.hset(table, grpNew, grpValue);
-						resp.setStatus(2);
+						r.setStatus(2);
 					}
 				} else {
 					if (StringUtils.isNotBlank(grpNew)) {
 						tx.hset(table, grpNew, grpValue);
-						resp.setStatus(1);
+						r.setStatus(1);
 					}
 				}
 				tx.exec();
 			} catch (Exception e) {
-				DataHelper.returnBrokenJedis(jedis);
-				resp.setStatus(-1);
+				DataHelper.returnBrokenJedis(j);
+				r.setStatus(-1);
 				logger.error("Upload group info error.", e);
-				return resp;
+				return r;
 			} finally {
-				DataHelper.returnJedis(jedis);
+				DataHelper.returnJedis(j);
 			}
 		}
-		logger.info("response: userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}",userId,grpOld,grpNew,grpValue,resp.getStatus());
-		return resp;
+		logger.info("response: userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}", userId, grpOld, grpNew, grpValue, r.getStatus());
+		return r;
 	}
 
 }

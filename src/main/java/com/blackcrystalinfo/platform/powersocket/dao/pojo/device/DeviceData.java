@@ -14,6 +14,16 @@ public class DeviceData {
 	private String deviceType;
 	
 
+	private String family;
+	
+	public String getFamily() {
+		return family;
+	}
+
+	public void setFamily(String family) {
+		this.family = family;
+	}
+
 	public String getDeviceType() {
 		return deviceType;
 	}

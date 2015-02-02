@@ -139,6 +139,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
 			} finally {
 				if (ret != null) {
+					logger.info("request:{}|response:{}",JSON.toJSONString(ret));
 					byte[] data = JSON.toJSONBytes(ret, new SerializerFeature[0]);
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(data)));
 				} else {

@@ -17,7 +17,6 @@ import com.blackcrystalinfo.platform.util.HttpUtil;
 public class BindInHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(BindInHandler.class);
 
-	@Override
 	public Object rpc(JSONObject req) throws InternalException {
 		String mac = req.getString("mac");
 		String userId = req.getString("userId");
@@ -25,7 +24,6 @@ public class BindInHandler extends HandlerAdapter {
 		return deal(mac, userId, cookie);
 	}
 
-	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");

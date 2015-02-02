@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
@@ -19,15 +20,28 @@ import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class DevicePwdModifying extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DevicePwdModifying.class);
-	@Override
+	
+	public Object rpc(JSONObject req) throws InternalException {
+		String mac = req.getString("mac");
+		String cookie = req.getString("cookie");
+		String devicePwd = req.getString("devicePwd");
+		return deal(mac, cookie,devicePwd);
+	}
+
 	public Object rpc(RpcRequest req) throws InternalException {
-		DevicePwdModifyingResponse resp = new DevicePwdModifyingResponse();
-		resp.setStatus(-1);
-		resp.setUrlOrigin(req.getUrlOrigin());
-		
 		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
 		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
-		String newDevicePwd = HttpUtil.getPostValue(req.getParams(), "devicePwd");
+		String devicePwd = HttpUtil.getPostValue(req.getParams(), "devicePwd");
+		return deal(mac, cookie,devicePwd);
+	}
+	
+	public Object deal(String...args) throws InternalException {
+		DevicePwdModifyingResponse resp = new DevicePwdModifyingResponse();
+		resp.setStatus(-1);
+		
+		String mac =args[0];
+		String cookie =args[1];
+		String newDevicePwd = args[2];
 		
 		logger.info("DevicePwdModifying bgein mac:{}|cookie:{}|newDevicePwd:{}",mac,cookie,newDevicePwd);
 		if(StringUtils.isBlank(mac)||StringUtils.isBlank(cookie)||StringUtils.isBlank(newDevicePwd)){
@@ -70,7 +84,7 @@ public class DevicePwdModifying extends HandlerAdapter {
 		}catch(Exception e){
 			resp.setStatus(-1);
 			DataHelper.returnBrokenJedis(jedis);
-			logger.info("mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus(),e);
+			logger.error("mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,resp.getStatus(),e);
 			return resp;
 		}finally{
 			DataHelper.returnJedis(jedis);

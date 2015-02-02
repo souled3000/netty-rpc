@@ -20,6 +20,7 @@ import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.group.GroupData;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.group.GroupDevice;
 import com.blackcrystalinfo.platform.powersocket.dao.pojo.group.GroupInfoResponse;
+import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 
 public class GroupInfoHandler extends HandlerAdapter {
@@ -30,29 +31,48 @@ public class GroupInfoHandler extends HandlerAdapter {
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
 
-		GroupInfoResponse result = new GroupInfoResponse();
-		result.setStatus(-1);
-		result.setUrlOrigin(req.getUrlOrigin());
+		GroupInfoResponse r = new GroupInfoResponse();
+		r.setStatus(-1);
 		
 		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
+		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
 		logger.info("GroupInfoHandler begin userId:{}",userId);
 		
 		if(StringUtils.isBlank(userId)){
-			result.setStatus(1);
+			r.setStatus(1);
 			logger.info("userId is null. userId:{}",userId);
-			return result;
+			return r;
 		}
 		
 		String grpName;
 		String grpValue;
 		String key = "user:group:" + userId;
 
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
+			j = DataHelper.getJedis();
 
+			String email = j.hget("user:email", userId);
+			if (null == email) {
+				r.setStatus(1);
+				logger.info("user:shadow don't match user's ID. fId:{}|cookie:{}|status:{}", userId, cookie, r.getStatus());
+				return r;
+			}
+
+			try {
+				String shadow = j.hget("user:shadow", userId);
+				if (!CookieUtil.validateMobileCookie(cookie, shadow, userId)) {
+					r.setStatus(3);
+					logger.info("user:shadow don't match user's ID. fId:{}|cookie:{}|status:{}", userId, cookie, r.getStatus());
+					return r;
+				}
+			} catch (Exception e) {
+				logger.error("user:shadow don't match user's ID. fId:{}|cookie:{}|status:{}", userId, cookie, r.getStatus(), e);
+				return r;
+			}
+			
 			List<GroupData> gds = new ArrayList<GroupData>();
-			Map<String, String> allGrpInfo = jedis.hgetAll(key);
+			Map<String, String> allGrpInfo = j.hgetAll(key);
 
 			Set<Entry<String, String>> entrySet = allGrpInfo.entrySet();
 			for (Entry<String, String> entry : entrySet) {
@@ -65,19 +85,19 @@ public class GroupInfoHandler extends HandlerAdapter {
 				gds.add(gd);
 			}
 
-			result.setStatus(0);
-			result.setGroupDatas(gds);
+			r.setStatus(0);
+			r.setGroupDatas(gds);
 			
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			DataHelper.returnBrokenJedis(j);
 			logger.error("Get Group info error. userId:{}",userId,e);
-			return result;
+			return r;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
-		logger.info("response: {}", result.getStatus());
-		return result;
+		logger.info("response: {}", r.getStatus());
+		return r;
 	}
 	public static void main(String[] args) throws Exception{
 		Jedis jedis = DataHelper.getJedis();
