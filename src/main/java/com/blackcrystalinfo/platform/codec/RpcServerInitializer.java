@@ -15,7 +15,7 @@ public class RpcServerInitializer  extends ChannelInitializer<SocketChannel> {
         ChannelPipeline p = ch.pipeline();
         p.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
         p.addLast("codec-http", new HttpServerCodec());
-        p.addLast("aggregator", new HttpObjectAggregator(1024));
+        p.addLast("aggregator", new HttpObjectAggregator(Integer.MAX_VALUE));
         p.addLast("decoder", new HttpRequestDecoder(1024, 1024, 1024, true));
         p.addLast("handler", new RpcCodec());
     }

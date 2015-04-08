@@ -1,5 +1,8 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,16 +14,18 @@ import sun.misc.BASE64Decoder;
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
+import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.exception.InternalException;
-import com.blackcrystalinfo.platform.powersocket.dao.DataHelper;
-import com.blackcrystalinfo.platform.powersocket.dao.pojo.device.DeviceRegisterResponse;
+import com.blackcrystalinfo.platform.powersocket.api.UserLoginApi;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
+@Path(path="/api/device/register")
 public class DeviceRegisterHandler extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserLoginHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserLoginApi.class);
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
@@ -43,8 +48,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 	
 	private Object deal(String... args)throws InternalException{
 		BASE64Decoder decoder = new BASE64Decoder();
-		DeviceRegisterResponse result = new DeviceRegisterResponse();
-		result.setStatus(-1);
+		Map<Object,Object> r = new HashMap<Object,Object>();
+		r.put("status",-1);
 		// result.setStatusMsg("");
 		// result.setUrlOrigin(req.getUrlOrigin());
 
@@ -57,8 +62,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String regTime = String.valueOf(System.currentTimeMillis());
 		logger.info("DeviceRegisterHandler begin mac:{}|sn:{}|bv:{}", mac, sn, dv);
 		if (!isValidSN(sn)) {
-			result.setStatusMsg("SN is invalid!");
-			return result;
+			return r;
 		}
 
 		Jedis jedis = null;
@@ -77,9 +81,9 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				// mac);
 				// String proxyAddr = CookieUtil.getWebsocketAddr();
 
-				result.setStatus(1);
+				r.put("status",1);
 				// result.setDeviceId(existId);
-				result.setCookie(cookie);
+				r.put("cookie",cookie);
 			} else {
 				// 2. 生成设备ID
 				String deviceId = String.valueOf(jedis.decr("device:nextid"));
@@ -117,23 +121,22 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				// mac);
 				// String proxyAddr = CookieUtil.getWebsocketAddr();
 
-				result.setStatus(0);
 				// result.setDeviceId(deviceId);
-				result.setCookie(cookie);
-
+				r.put("cookie",cookie);
 				tx.exec();
 			}
 
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("Device regist error mac:{}|sn:{}|bv:{}", mac, sn, dv, e);
-			return result;
+			return r;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
 		logger.info("response:  mac:{}|sn:{}|bv:{}", mac, sn, dv);
-		return result;
+		r.put("status", 0);
+		return r;
 	}
 	
 	private boolean isValidSN(String sn) {

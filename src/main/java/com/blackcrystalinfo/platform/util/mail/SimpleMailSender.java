@@ -15,17 +15,25 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.blackcrystalinfo.platform.powersocket.api.BindApi;
+import com.blackcrystalinfo.platform.util.Constants;
+
 /**
  * 简单邮件（不带附件的邮件）发送器
  */
 public class SimpleMailSender {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SimpleMailSender.class);
 	/**
 	 * 以文本格式发送邮件
 	 * 
 	 * @param mailInfo
 	 *            待发送的邮件的信息
 	 */
-	public boolean sendTextMail(MailSenderInfo mailInfo) {
+	public static boolean sendTextMail(MailSenderInfo mailInfo) {
 		// 判断是否需要身份认证
 		MyAuthenticator authenticator = null;
 		Properties pro = mailInfo.getProperties();
@@ -56,7 +64,7 @@ public class SimpleMailSender {
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
-			ex.printStackTrace();
+			logger.info("发txt邮件失败了：",ex);
 		}
 		return false;
 	}
@@ -105,8 +113,32 @@ public class SimpleMailSender {
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
-			ex.printStackTrace();
+			logger.info("发html邮件失败了：",ex);
 		}
 		return false;
+	}
+	public static void main(String[] args) {
+		
+		String emailAddr = Constants.getProperty("email.user", "");
+		String emailPwd = Constants.getProperty("email.pwd", "");
+		String mailHost = Constants.getProperty("mail.server.host", "");
+		String mailPost = Constants.getProperty("mail.server.port", "");
+		
+		String protocol = Constants.SERVERPROTOCOL;
+		String ip = Constants.SERVERIP;
+		String port = Constants.SERVERPORT;
+		MailSenderInfo mailInfo = new MailSenderInfo();
+		mailInfo.setMailServerHost(mailHost);
+		mailInfo.setMailServerPort(mailPost);
+		mailInfo.setValidate(true);
+		mailInfo.setUserName(emailAddr);
+		mailInfo.setPassword(emailPwd);// 您的邮箱密码
+		mailInfo.setFromAddress(emailAddr);
+//		mailInfo.setToAddress("2683641128@qq.com");
+		mailInfo.setToAddress("24841337@qq.com");
+		mailInfo.setSubject("用户注册确认");
+		mailInfo.setContent("<a href='"+protocol+ "//"+ip+":"+port+"/cfm?v=" + 111+"'>激活</a>");
+		boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
+		System.out.println(b);
 	}
 }

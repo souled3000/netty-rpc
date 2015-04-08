@@ -6,18 +6,18 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blackcrystalinfo.platform.App;
 import com.blackcrystalinfo.platform.HandlerManager;
 import com.blackcrystalinfo.platform.IHandler;
-import com.blackcrystalinfo.platform.examples.App;
 import com.blackcrystalinfo.platform.exception.HandlerExistedException;
 
 public class LocalLauncher {
-	private static final Logger logger = LoggerFactory.getLogger(SlotPlatformLauncher.class);
+	private static final Logger logger = LoggerFactory.getLogger(SlotServer.class);
 
 
 	public static void bindHandler() throws HandlerExistedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException{
 		Properties p = new Properties();
-		p.load(ClassLoader.getSystemResourceAsStream("mapping.properties"));
+		p.load(ClassLoader.getSystemResourceAsStream("api.properties"));
 		for(Object key : p.keySet()){
 			String className = p.getProperty((String)key);
 			@SuppressWarnings("unchecked")

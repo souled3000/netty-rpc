@@ -6,10 +6,11 @@ package com.blackcrystalinfo.platform.util.cryto;
  * 说明：
  */
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.CRC32;
 
 import org.apache.commons.lang.StringUtils;
@@ -129,6 +130,10 @@ public class ByteUtil {
 		byte[] src = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
 		System.out.println(src.length);
 		System.out.println(ByteUtil.reverse(src));
+		
+		Map m = new HashMap();
+		m.put("status", 1);
+		System.out.println(writeJSON(m));
 	}
 
 	public static byte[] reverse(byte[] src) {

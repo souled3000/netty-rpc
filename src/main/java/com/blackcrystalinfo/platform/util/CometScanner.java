@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
@@ -18,8 +19,8 @@ import java.util.regex.Pattern;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class CometScanner {
 	private final static String root = Constants.getProperty("root", "/");
 
 	private final static BlockingQueue<String> q = new LinkedBlockingQueue<String>();
-	private final static Map<String, String> PATH2URL = new HashMap<String, String>();
+	private final static Map<String, String> PATH2URL = new ConcurrentHashMap<String, String>();
 	private final static Map<String, String> IPMAP = new HashMap<String, String>();
 
 	private static ZooKeeper zk = null;
@@ -46,20 +47,20 @@ public class CometScanner {
 		refresh();
 	}
 
-	public static void refresh(){
+	public static void refresh() {
 		try {
 			Properties p = new Properties();
 			p.load(ClassLoader.getSystemResourceAsStream("ip.properties"));
 			for (Object key : p.keySet()) {
 				String v = p.getProperty((String) key);
-				logger.info("{}---{}",key,v);
+				logger.info("{}---{}", key, v);
 				IPMAP.put((String) key, v);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void tiktok() {
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
@@ -76,16 +77,16 @@ public class CometScanner {
 		logger.debug("connect...{} ", zookeepers);
 		try {
 			final CountDownLatch signal = new CountDownLatch(1);
-			zk = new ZooKeeper(zookeepers, 1000, new Watcher() {
+			zk = new ZooKeeper(zookeepers, 5000, new Watcher() {
 				public void process(WatchedEvent event) {
-					if(signal.getCount()==1)
-					signal.countDown();
-					
+					if (signal.getCount() == 1)
+						signal.countDown();
 					if (event.getType().equals(EventType.NodeDeleted)) {
 						String url = PATH2URL.get(event.getPath());
-						if (url != null){
+						if (url != null) {
 							q.remove(url);
 						}
+						PATH2URL.remove(url);
 						logger.debug("NodeDeleted");
 					}
 				}
@@ -120,51 +121,62 @@ public class CometScanner {
 	private static void searching(String path) throws Exception {
 		List<String> l = null;
 		l = zk.getChildren(path, false);
-		Set<String> children = new HashSet<String>();
+		Set<String> curPaths = new HashSet<String>();
 		for (String s : l) {
 			Stat st = new Stat();
 			final String tmpPath = path.equals("/") ? "/" + s : path + "/" + s;
-			children.add(tmpPath);
-			String data = new String(zk.getData(tmpPath,true, st));
+			curPaths.add(tmpPath);
+			String data = new String(zk.getData(tmpPath, true, st));
 			String[] items = data.split(",");
 			if (items.length == 5) {
 				String url = items[0];
 				PATH2URL.put(tmpPath, url);
-				float cpu = Float.valueOf(items[1]);/**CPU负荷*/
-				long tm = Long.valueOf(items[2]);/**总内存*/
-				long um = Long.valueOf(items[3]);/**已用内存*/
-				long h = Long.valueOf(items[4]);/**已用句柄数*/
+				float cpu = Float.valueOf(items[1]);
+				/** CPU负荷 */
+				long tm = Long.valueOf(items[2]);
+				/** 总内存 */
+				long um = Long.valueOf(items[3]);
+				/** 已用内存 */
+				long h = Long.valueOf(items[4]);
+				/** 已用句柄数 */
 				if (cpu < CPU_THRESHOLD && tm - um > MEM_THRESHOLD && HANDLER_THRESHOLD > h) {
-					if (!q.contains(url)) {
-						q.put(url);
-						logger.info("adding url:{}|path:{}", url, tmpPath);
+					Matcher m = p.matcher(url);
+					if (m.find()) {
+						String key = m.group();
+						if (!q.contains(url)) {
+							if (IPMAP.containsKey(key)) {
+								q.put(url);
+								logger.debug("adding url:{}|path:{} to q", url, tmpPath);
+							} else
+								logger.debug("not adding url:{}|path:{} to q, beacause of absent of url in IPMAP", url, tmpPath);
+						}else
+							logger.debug("not adding url:{}|path:{} to q, the url has been exsisted in q", url, tmpPath);
 					}
 				} else {
-					logger.error("ALARM!!! {} < {}CPU_THRESHOLD && {} - {} > {}MEM_THRESHOLD && {}HANDLER_THRESHOLD > {}",cpu,CPU_THRESHOLD,tm,um,MEM_THRESHOLD,HANDLER_THRESHOLD,h);
+					logger.error("ALARM!!! {} < {}CPU_THRESHOLD && {} - {} > {}MEM_THRESHOLD && {}HANDLER_THRESHOLD > {}", cpu, CPU_THRESHOLD, tm, um, MEM_THRESHOLD, HANDLER_THRESHOLD, h);
 					if (q.contains(url)) {
 						q.remove(url);
 						logger.info("remove url:{}|path:{}", url, tmpPath);
 					}
 				}
 			}
+		}
 
-			// int n = st.getNumChildren();
-			// logger.info("znode:{} has {} children", path.equals("/") ? "/" + s : path + "/" + s, n);
-			// if (n > 0) {
-			// recurseZnode(zk, path.equals("/") ? "/" + s : path + "/" + s);
-			// } else {
-			// return;
-			// }
+		for (String tmp : PATH2URL.keySet()) {
+			if (!curPaths.contains(tmp)) {
+				PATH2URL.remove(tmp);
+			}
+		}
+		Map<String,String> tmpMap = new HashMap<String,String>();
+		for(String k : PATH2URL.keySet()){
+			tmpMap.put(PATH2URL.get(k), k);
+		}
+		for(String k : q){
+			if(tmpMap.get(k)==null){
+				q.remove(k);
+			}
 		}
 		
-//		Set<String> keys = new HashSet<String>();
-//		keys.addAll(PATH2URL.keySet());
-//		keys.removeAll(children);
-//		System.out.println("要删的元素个数:"+keys.size());
-//		for(String child : keys){
-//			q.remove(PATH2URL.get(child));
-//			PATH2URL.remove(child);
-//		}
 	}
 
 	public static synchronized String take() {
@@ -178,9 +190,9 @@ public class CometScanner {
 			String key = m.group();
 			if (IPMAP.get(key) != null)
 				url = url.replaceAll("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+", IPMAP.get(key));
-			else{
+			else {
 				logger.error("ip {} has no its mapping ip ", key);
-				url="";
+				url = "";
 			}
 		}
 		logger.debug("return url:{}", url);
@@ -208,11 +220,11 @@ public class CometScanner {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				String url = CometScanner.take();
-				System.out.printf("url:%s|size:%d\n",url,q.size());
+				System.out.printf("url:%s|qsize:%d|path2urlsize:%d\n", url, q.size(),PATH2URL.size());
 			}
 		}, 0, 10000);
 	}
-	
+
 	public static void main2(String[] args) {
 		Set<String> a = new HashSet<String>();
 		a.add("a");
@@ -221,7 +233,7 @@ public class CometScanner {
 		b.add("a");
 		b.add("c");
 		float f = Float.valueOf("NaN");
-		System.out.println(f<CPU_THRESHOLD);
+		System.out.println(f < CPU_THRESHOLD);
 		System.out.println(Float.valueOf("NaN"));
 	}
 }

@@ -1,6 +1,6 @@
 package com.blackcrystalinfo.platform;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.blackcrystalinfo.platform.exception.HandlerExistedException;
@@ -11,7 +11,7 @@ import com.blackcrystalinfo.platform.exception.HandlerExistedException;
  *
  */
 public class HandlerManager {
-	private static Map<String, IHandler> handlers = new HashMap<String, IHandler>();
+	private static Map<String, IHandler> handlers = new LinkedHashMap<String, IHandler>();
 	
 	/**
 	 * 注册API

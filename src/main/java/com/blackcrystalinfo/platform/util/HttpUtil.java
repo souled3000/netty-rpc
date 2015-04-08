@@ -14,6 +14,7 @@ import com.blackcrystalinfo.platform.util.cryto.Datagram;
 public class HttpUtil {
 
 	public static final String getPostValue(HttpPostRequestDecoder req, String name) {
+		if(req==null) return "";
 		try {
 			InterfaceHttpData bodyHttpData = req.getBodyHttpData(name);
 			if (null != bodyHttpData) {
@@ -23,6 +24,8 @@ public class HttpUtil {
 		} catch (NotEnoughDataDecoderException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e){
 			e.printStackTrace();
 		}
 		return "";

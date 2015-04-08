@@ -13,7 +13,7 @@
 
 echo "*************************************************"
 
-. "properties"
+. "./properties"
 LIB_HOME="${APP_HOME}/lib"
 export LIB_HOME
 echo "LIB_HOME=${LIB_HOME}"

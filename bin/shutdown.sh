@@ -7,7 +7,7 @@
 # 修改时间:
 # 修改作者:
 
-. "properties"
+. "./properties"
 ps -ef|grep ${clz} | grep java | grep -v grep | awk '{print $2}' |while read pid
 do
         kill -9 ${pid}
