@@ -215,8 +215,8 @@ public class CookieUtil {
 		if (cs.length != 2) {
 			return false;
 		}
-		String csmd5 = cs[2];
 		try {
+			String csmd5 = cs[1];
 			String[] cookies = CookieUtil.decode(cs[0]);
 			String userId = cookies[0];
 			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId + shadow).getBytes()));

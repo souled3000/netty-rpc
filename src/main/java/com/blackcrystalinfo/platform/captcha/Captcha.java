@@ -45,7 +45,7 @@ public final class Captcha {
 
 			wordToImage = new ComposedWordToImage(fontGenerator, backgroundGenerator, textPaster);
 			
-			expire = Constants.CAPTCHA_EXPIRE;
+			expire = Integer.parseInt(p.getProperty("expire"));
 			validity = Boolean.parseBoolean(p.getProperty("validity","false"));
 		} catch (IOException e) {
 			e.printStackTrace();

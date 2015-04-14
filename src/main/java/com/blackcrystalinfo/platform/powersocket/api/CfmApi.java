@@ -53,7 +53,7 @@ public class CfmApi extends HandlerAdapter {
 				userId = String.valueOf(intUserId - intUserId % 16);
 			}
 			
-			j.hset("user:mailtoid", email, sequences);
+			j.hset("user:mailtoid", email, userId);
 			j.hset("user:email", userId, email);
 			j.del(sequences+"email");
 			
