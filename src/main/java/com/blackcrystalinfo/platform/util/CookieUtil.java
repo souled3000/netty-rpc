@@ -73,7 +73,7 @@ public class CookieUtil {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 */
-	public static String[] decode(String cookie) throws NoSuchAlgorithmException, IOException{
+	private static String[] decodeUserCookie(String cookie) throws NoSuchAlgorithmException, IOException{
 
 		cookie = cookie.replace("%2B", "+");
 
@@ -105,7 +105,7 @@ public class CookieUtil {
 
 	public static String gotUserIdFromCookie(String cookie) throws Exception{
 		String[] cs = cookie.split("-");
-		String[] cookies = CookieUtil.decode(cs[0]);
+		String[] cookies = CookieUtil.decodeUserCookie(cs[0]);
 		String userId = cookies[0];
 		return userId;
 	}
@@ -217,7 +217,7 @@ public class CookieUtil {
 				return false;
 			}
 			String csmd5 = cs[1];
-			String[] cookies = CookieUtil.decode(cs[0]);
+			String[] cookies = CookieUtil.decodeUserCookie(cs[0]);
 			String userId = cookies[0];
 			String csmd52 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId + shadow).getBytes()));
 			if (!csmd5.equals(csmd52)) {
