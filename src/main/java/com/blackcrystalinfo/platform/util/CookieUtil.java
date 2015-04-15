@@ -211,11 +211,11 @@ public class CookieUtil {
 
 	
 	public static boolean validateMobileCookie(String cookie,String shadow){
-		String[] cs = cookie.split("-");
-		if (cs.length != 2) {
-			return false;
-		}
 		try {
+			String[] cs = cookie.split("-");
+			if (cs.length != 2) {
+				return false;
+			}
 			String csmd5 = cs[1];
 			String[] cookies = CookieUtil.decode(cs[0]);
 			String userId = cookies[0];
@@ -224,6 +224,7 @@ public class CookieUtil {
 				return false;
 			}
 		} catch (Exception e) {
+			logger.error("",e);
 			return false;
 		}
 		return true;

@@ -67,8 +67,7 @@ public class DevicePwdModifying extends HandlerAdapter {
 				logger.info("no matching device mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,r.get("status"));
 				return r;
 			}
-			String[] cookies = CookieUtil.decode(cookie);
-			String userId = cookies[0];
+			String userId = CookieUtil.gotUserIdFromCookie(cookie);
 
 			String shadow = jedis.hget("user:shadow", userId);
 			String csmd5=cs[1];
