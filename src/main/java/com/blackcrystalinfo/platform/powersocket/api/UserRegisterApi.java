@@ -26,7 +26,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.PBKDF2;
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
@@ -44,10 +44,10 @@ public class UserRegisterApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String email = HttpUtil.getPostValue(req.getParams(), "email");
-		String phone = HttpUtil.getPostValue(req.getParams(), "phone");
-		String pwd = HttpUtil.getPostValue(req.getParams(), "passwd");
-		String nick = HttpUtil.getPostValue(req.getParams(), "nick");
+		String email = req.getParameter( "email");
+		String phone = req.getParameter( "phone");
+		String pwd = req.getParameter( "passwd");
+		String nick = req.getParameter( "nick");
 
 		logger.debug("UserRegisterHandler begin email:{}|phone:{}|passwd:{}", email, phone, pwd);
 

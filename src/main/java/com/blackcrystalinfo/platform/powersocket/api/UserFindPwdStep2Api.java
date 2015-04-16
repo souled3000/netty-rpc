@@ -23,7 +23,7 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.PBKDF2;
 @Path(path="/step2")
 public class UserFindPwdStep2Api extends HandlerAdapter  {
@@ -34,10 +34,10 @@ public class UserFindPwdStep2Api extends HandlerAdapter  {
 		Map<Object,Object> r = new HashMap<Object,Object>();
 		r.put(status, SYSERROR.toString());
 		
-		String userEmail = HttpUtil.getPostValue(req.getParams(), "email");
-		String code = HttpUtil.getPostValue(req.getParams(), "code");
+		String userEmail = req.getParameter( "email");
+		String code = req.getParameter( "code");
 		String keyCode = new String(userEmail + "-code");
-		String pwd = HttpUtil.getPostValue(req.getParams(), "pwd");
+		String pwd = req.getParameter( "pwd");
 		
 		logger.info("UserFindPwdStep2Handler begin userEmail:{}|code:{}|keyCode:{}|pwd:{}", userEmail,code,keyCode,pwd);
 		

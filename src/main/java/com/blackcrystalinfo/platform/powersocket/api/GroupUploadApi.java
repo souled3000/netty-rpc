@@ -22,7 +22,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/gu")
 public class GroupUploadApi extends HandlerAdapter {
 
@@ -33,11 +33,11 @@ public class GroupUploadApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = req.getParameter( "cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String grpOld = HttpUtil.getPostValue(req.getParams(), "grpOld");
-		String grpNew = HttpUtil.getPostValue(req.getParams(), "grpNew");
-		String grpValue = HttpUtil.getPostValue(req.getParams(), "grpValue");
+		String grpOld = req.getParameter( "grpOld");
+		String grpNew = req.getParameter( "grpNew");
+		String grpValue = req.getParameter( "grpValue");
 		String table = "user:group:" + userId;
 		logger.info("GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}", userId, grpOld, grpNew, grpValue);
 		if (StringUtils.isBlank(userId) || (StringUtils.isBlank(grpOld) && StringUtils.isBlank(grpNew))) {

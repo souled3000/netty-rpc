@@ -22,15 +22,15 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/sepia")
 public class SepiaApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(SepiaApi.class);
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		String cookie = req.getHeaders().get(HttpHeaders.Names.COOKIE);
-		String sepia = HttpUtil.getPostValue(req.getParams(), "sepia");
-		String code = HttpUtil.getPostValue(req.getParams(), "code");
+		String sepia = req.getParameter( "sepia");
+		String code = req.getParameter( "code");
 		logger.info("sepia:{}|{}|{}",cookie,sepia,code);
 		Jedis j = DataHelper.getJedis();
 		Map ret = new HashMap();

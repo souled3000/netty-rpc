@@ -37,7 +37,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.blackcrystalinfo.platform.HandlerManager;
 import com.blackcrystalinfo.platform.IHandler;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 import com.blackcrystalinfo.platform.util.cryto.Datagram;
 
@@ -68,6 +67,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	public static final int HTTP_CACHE_SECONDS = 60;
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
 		if (!req.getDecoderResult().isSuccess() || req.getUri().equals("/bad-request") || (req.getMethod() != HttpMethod.POST && !req.getUri().equals("/octopus.jpg") && !req.getUri().equals("/pic") && !req.getUri().startsWith("/cfm"))) {
 			sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
@@ -103,7 +103,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 				rp = new RpcRequest(reqUrl, decoder, headers, ctx.channel().remoteAddress().toString());
 
 				logger.info("{} - {}", reqUrl, rp.toString());
-				reqDatagram = HttpUtil.getDatagram(rp);
+				reqDatagram = rp.getDatagram();
 				if (reqDatagram == null) {
 					if (validateHandler != null) {
 						Map<?, ?> m = (Map<?, ?>) validateHandler.rpc(rp);

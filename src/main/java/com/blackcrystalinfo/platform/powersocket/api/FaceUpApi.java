@@ -19,15 +19,15 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/faceup")
 public class FaceUpApi extends HandlerAdapter {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object rpc(RpcRequest req) throws Exception {
 		Map r = new HashMap();
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
-		String nick = HttpUtil.getPostValue(req.getParams(), "nick");
+		String cookie = req.getParameter( "cookie");
+		String nick = req.getParameter( "nick");
 		String id = CookieUtil.gotUserIdFromCookie(cookie);
 		MixedFileUpload pic  = (MixedFileUpload)req.getParams().getBodyHttpData("pic");
 		if (pic != null && pic.get() != null) {

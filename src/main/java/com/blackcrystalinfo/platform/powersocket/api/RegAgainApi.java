@@ -19,7 +19,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 /**
@@ -34,7 +34,7 @@ public class RegAgainApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String uuid = HttpUtil.getPostValue(req.getParams(), "uid");
+		String uuid = req.getParameter( "uid");
 		Jedis j = null;
 		try {
 			j=DataHelper.getJedis();

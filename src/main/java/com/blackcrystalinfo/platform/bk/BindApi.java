@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.powersocket.api;
+package com.blackcrystalinfo.platform.bk;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0003;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0004;
@@ -20,7 +20,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 /**
  * 添加设备到家庭
  * 
@@ -38,8 +38,8 @@ public class BindApi extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws Exception {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String mac = req.getParameter( "mac");
+		String cookie = req.getParameter( "cookie");
 		return deal(mac,cookie);
 	}
 
@@ -50,9 +50,9 @@ public class BindApi extends HandlerAdapter {
 
 		String mac = args[0];
 		String cookie = args[1];
-		String family = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		
-		logger.info("begin BindHandler  fId:{}|mac:{}|cookie:{}", family, mac, cookie);
+		logger.info("begin BindHandler  fId:{}|mac:{}|cookie:{}", userId, mac, cookie);
 
 		String deviceId = "";
 
@@ -63,28 +63,28 @@ public class BindApi extends HandlerAdapter {
 			deviceId = j.hget("device:mactoid", mac);
 			if (null == deviceId) {
 				r.put(status, C0003);
-				logger.info("There isn't this device. mac:{}|cookie:{}|status:{}", mac, family, cookie, r.get("status"));
+				logger.info("There isn't this device. mac:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"));
 				return r;
 			}
 
-			long b1 = j.zadd(family + "d",(double) l, deviceId);// d:device;设备加入家庭;<fid+'d'>家庭设备组的key
+			long b1 = j.zadd(userId + "d",(double) l, deviceId);// d:device;设备加入家庭;<fid+'d'>家庭设备组的key
 			if (b1 == 0) {
 				r.put(status, C0004.toString()); // 重复绑定
-				logger.info("The device has been binded! mac:{}|cookie:{}|status:{}", mac, family, cookie, r.get("status"));
+				logger.info("The device has been binded! mac:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"));
 				return r;
 			} else {
-				j.zadd(family + "u",(double) l, family);// u:user;<fid+'u'>家庭用户组的key
+				j.zadd(userId + "u",(double) l, userId);// u:user;<fid+'u'>家庭用户组的key
 				// 保存用户所属家庭
-				j.zadd(family, (double) l, family);//户主添加自己到家庭
-				j.zadd(deviceId, (double) l, family);
+				j.zadd(userId, (double) l, userId);//户主添加自己到家庭
+				j.zadd(deviceId, (double) l, userId);
 			}
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(family).append("|").append("1");
+			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			j.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
-			logger.error("Bind in error mac:{}|cookie:{}|status:{}", mac, family, cookie, r.get("status"), e);
+			logger.error("Bind in error mac:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

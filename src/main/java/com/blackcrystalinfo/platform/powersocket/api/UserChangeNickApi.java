@@ -20,7 +20,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 
 /**
  * 修改用户昵称
@@ -38,9 +38,9 @@ public class UserChangeNickApi extends HandlerAdapter {
 		Map<Object,Object> r = new HashMap<Object,Object>();
 		r.put(status, SYSERROR.toString());
 
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = req.getParameter( "cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String nick = HttpUtil.getPostValue(req.getParams(), "nick");
+		String nick = req.getParameter( "nick");
 		
 		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}", userId, cookie, nick);
 

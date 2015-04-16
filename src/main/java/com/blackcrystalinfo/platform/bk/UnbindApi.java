@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.powersocket.api;
+package com.blackcrystalinfo.platform.bk;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0003;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0005;
@@ -21,7 +21,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/unbind")
 public class UnbindApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UnbindApi.class);
@@ -33,8 +33,8 @@ public class UnbindApi extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws Exception {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String mac = req.getParameter( "mac");
+		String cookie = req.getParameter( "cookie");
 		return deal(mac, cookie);
 	}
 	

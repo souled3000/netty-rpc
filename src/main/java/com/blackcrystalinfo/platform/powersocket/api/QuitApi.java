@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/quit")
 public class QuitApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(QuitApi.class);
@@ -26,31 +27,38 @@ public class QuitApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = req.getParameter( "cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String fid = HttpUtil.getPostValue(req.getParams(), "fid");
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-			if(StringUtils.isBlank(fid)){
-				r.put(status, ErrorCode.C0029);
-				return r;
-			}
-			long x = j.zrem(userId, fid);
-			long y = j.zrem(fid + "u", userId);
+			String fId = j.hget("user:family", userId);
 			
-			if(x==0&&y>0){
-				r.put(status, ErrorCode.C001A);
+			if(StringUtils.isBlank(fId)){
+				r.put(status, ErrorCode.C0029);
+				logger.debug("要退出的人:{},家庭:{}",userId,fId);
 				return r;
 			}
-			if(y==0&&x>0){
-				r.put(status, ErrorCode.C001B);
+			
+			if(StringUtils.equals(fId, userId)){
+				r.put(status, "0020");
 				return r;
 			}
-			if(y==0&&x==0){
-				r.put(status, ErrorCode.C001C);
-				return r;
+			
+			j.hdel("user:fmaily", userId);
+			j.srem("family:"+fId, userId);
+			
+			Set<String>members = j.smembers("family:"+fId);
+			for(String m : members){
+				Set<String> devices = j.smembers("u:"+m+":devices");
+				for(String o : devices){
+					StringBuilder sb = new StringBuilder();
+					//将uid与oper下的所有设备做关联
+					sb.append(o).append("|").append(userId).append("|").append("0");
+					j.publish("PubDeviceUsers", sb.toString());
+				}
 			}
+			
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			return r;

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+import com.alibaba.fastjson.JSONObject;
+
 public class Datagram {
 	private static final Logger logger = LoggerFactory.getLogger(Datagram.class);
 	private BASE64Decoder decoder = new BASE64Decoder();
@@ -184,5 +186,9 @@ public class Datagram {
 		}
 
 	}
-
+	public static void main(String[] args) throws Exception{
+		Datagram g = new Datagram(null,null,null,null,null);
+		g.decapsulate();
+		JSONObject.parseObject("mac:\"CFiqNk6cAAA=\",name:\"IOi/meaYr+e9keWFsw==\"}");
+	}
 }

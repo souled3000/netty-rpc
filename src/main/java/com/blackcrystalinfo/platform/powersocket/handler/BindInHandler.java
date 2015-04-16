@@ -15,7 +15,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 
 @Path(path="/api/bind/in")
 public class BindInHandler extends HandlerAdapter {
@@ -29,9 +29,9 @@ public class BindInHandler extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String userId = HttpUtil.getPostValue(req.getParams(), "userId");
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String mac = req.getParameter( "mac");
+		String userId = req.getParameter( "userId");
+		String cookie = req.getParameter( "cookie");
 		return deal(mac, userId, cookie);
 	}
 

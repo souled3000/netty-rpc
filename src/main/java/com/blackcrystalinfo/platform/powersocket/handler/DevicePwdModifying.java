@@ -16,7 +16,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class DevicePwdModifying extends HandlerAdapter {
@@ -30,9 +30,9 @@ public class DevicePwdModifying extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
-		String devicePwd = HttpUtil.getPostValue(req.getParams(), "devicePwd");
+		String mac = req.getParameter( "mac");
+		String cookie = req.getParameter( "cookie");
+		String devicePwd = req.getParameter( "devicePwd");
 		return deal(mac, cookie,devicePwd);
 	}
 	

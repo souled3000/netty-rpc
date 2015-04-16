@@ -24,7 +24,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.PBKDF2;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 @Path(path="/login")
@@ -38,8 +38,8 @@ public class UserLoginApi extends HandlerAdapter {
 		Map<Object,Object> r = new HashMap<Object,Object>();
 		r.put(status, SYSERROR.toString());
 
-		String email = HttpUtil.getPostValue(req.getParams(), "email");
-		String pwd = HttpUtil.getPostValue(req.getParams(), "passwd");
+		String email = req.getParameter( "email");
+		String pwd = req.getParameter( "passwd");
 		
 		logger.debug("UserLoginHandler begin email:{}|pwd:{}",email,pwd);
 		

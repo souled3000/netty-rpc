@@ -1,5 +1,6 @@
-package com.blackcrystalinfo.platform.powersocket.api;
+package com.blackcrystalinfo.platform.bk;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0008;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -31,35 +32,38 @@ public class DemissionApi extends HandlerAdapter{
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String userId = req.getParameter( "uId");
+		String uId = req.getParameter( "uId");
 		String cookie = req.getParameter( "cookie");
 		String family = CookieUtil.gotUserIdFromCookie(cookie);
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
 
-			String userEmail = j.hget("user:email", userId);
+			String userEmail = j.hget("user:email", uId);
 			if (null == userEmail) {
 				r.put(status, C0006.toString());
 				return r;
 			}
 
-			j.hdel("user:fmaily", userId);
-			j.srem("family:"+family, userId);
-			
-			Set<String>members = j.smembers("family:"+family);
-			for(String m : members){
-				Set<String> devices = j.smembers("u:"+m+":devices");
-				for(String o : devices){
-					StringBuilder sb = new StringBuilder();
-					//将uid与oper下的所有设备做关联
-					sb.append(o).append("|").append(userId).append("|").append("0");
-					j.publish("PubDeviceUsers", sb.toString());
-				}
+			long b1 = j.zrem(family + "u", uId);// u:user;用户移出家庭;<fid+'u'>家庭用户组的key
+			if (b1 == 0) {
+				r.put(status, C0008.toString()); // 家庭不存在此成员
+				return r;
+			} else {
+				j.zrem(uId, family);
+			}
+
+			//获取家庭所有设备
+			Set<String> devices = j.zrange(family+"d",0,-1);
+			for(String o : devices){
+				StringBuilder sb = new StringBuilder();
+				//将uid与family下的所有设备切断关联
+				sb.append(o).append("|").append(uId).append("|").append("0");
+				j.publish("PubDeviceUsers", sb.toString());
 			}
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
-			logger.error("Bind in error uId:{}|cookie:{}|status:{}", userId, family, cookie, r.get("status"), e);
+			logger.error("Bind in error uId:{}|cookie:{}|status:{}", uId, family, cookie, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

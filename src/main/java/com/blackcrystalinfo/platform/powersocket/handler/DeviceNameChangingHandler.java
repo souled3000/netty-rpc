@@ -17,7 +17,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/api/device/changingname")
 public class DeviceNameChangingHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceNameChangingHandler.class);
@@ -30,8 +30,8 @@ public class DeviceNameChangingHandler extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String name = HttpUtil.getPostValue(req.getParams(), "name");
+		String mac = req.getParameter( "mac");
+		String name = req.getParameter( "name");
 		return deal(mac, name);
 	}
 	

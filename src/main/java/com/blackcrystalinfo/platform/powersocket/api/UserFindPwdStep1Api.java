@@ -24,7 +24,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
@@ -39,9 +39,9 @@ public class UserFindPwdStep1Api extends HandlerAdapter  {
 		Map<Object,Object> r = new HashMap<Object,Object>();
 		r.put(status, SYSERROR.toString());
 		
-//		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+//		String cookie = req.getParameter( "cookie");
 //		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String destEmailAddr = HttpUtil.getPostValue(req.getParams(), "email");
+		String destEmailAddr = req.getParameter( "email");
 		logger.info("UserFindPwdStep1Handler: email:{}", destEmailAddr);
 		
 		if(StringUtils.isBlank(destEmailAddr)){

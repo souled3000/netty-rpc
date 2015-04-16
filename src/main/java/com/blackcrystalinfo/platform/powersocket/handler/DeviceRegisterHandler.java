@@ -19,7 +19,7 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.api.UserLoginApi;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 @Path(path="/api/device/register")
@@ -38,11 +38,11 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String sn = HttpUtil.getPostValue(req.getParams(), "sn");
-		String dv = HttpUtil.getPostValue(req.getParams(), "dv");
-		String pid = HttpUtil.getPostValue(req.getParams(), "pid");
-		String name = HttpUtil.getPostValue(req.getParams(), "name");
+		String mac = req.getParameter( "mac");
+		String sn = req.getParameter( "sn");
+		String dv = req.getParameter( "dv");
+		String pid = req.getParameter( "pid");
+		String name = req.getParameter( "name");
 		return deal(mac,sn,dv,pid,name);
 	}
 	

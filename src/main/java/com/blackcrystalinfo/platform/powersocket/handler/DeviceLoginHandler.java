@@ -17,7 +17,7 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/api/device/login")
 public class DeviceLoginHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
@@ -31,9 +31,9 @@ public class DeviceLoginHandler extends HandlerAdapter {
 	}
 	
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = HttpUtil.getPostValue(req.getParams(), "mac");
-		String pid =HttpUtil.getPostValue(req.getParams(), "pid");
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String mac = req.getParameter( "mac");
+		String pid =req.getParameter( "pid");
+		String cookie = req.getParameter( "cookie");
 		return deal(mac,pid,cookie);
 	}
 	

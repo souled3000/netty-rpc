@@ -23,7 +23,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/gd")
 public class GroupDownloadApi extends HandlerAdapter {
 
@@ -35,7 +35,7 @@ public class GroupDownloadApi extends HandlerAdapter {
 		Map<Object,Object> r = new HashMap<Object,Object>();
 		r.put(status, SYSERROR.toString());
 		
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = req.getParameter( "cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 
 		String grpName;

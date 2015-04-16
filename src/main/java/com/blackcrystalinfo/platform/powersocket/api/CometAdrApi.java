@@ -19,7 +19,7 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/cometadr")
 public class CometAdrApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CometAdrApi.class);
@@ -27,7 +27,7 @@ public class CometAdrApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws InternalException {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = req.getParameter( "cookie");
 
 		logger.info("WebsocketInfoHandler begin cookie:{}", cookie);
 

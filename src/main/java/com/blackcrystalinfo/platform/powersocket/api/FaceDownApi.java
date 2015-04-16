@@ -18,12 +18,12 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.HttpUtil;
+
 @Path(path="/mobile/facedown")
 public class FaceDownApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Long l = System.currentTimeMillis();
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String cookie = req.getParameter( "cookie");
 		String id = CookieUtil.gotUserIdFromCookie(cookie);
 		File f = new File(Constants.PIC_PATH + File.separator + id);
 		FullHttpResponse res = null;

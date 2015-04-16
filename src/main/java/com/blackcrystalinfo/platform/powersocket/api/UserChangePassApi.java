@@ -7,6 +7,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
+import io.netty.handler.codec.http.HttpHeaders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,6 @@ import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.HttpUtil;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 @Path(path="/mobile/cp")
 public class UserChangePassApi extends HandlerAdapter {
@@ -36,10 +36,11 @@ public class UserChangePassApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String cookie = HttpUtil.getPostValue(req.getParams(), "cookie");
+		String key = req.getHeaders().get(HttpHeaders.Names.COOKIE);
+		String cookie = req.getParameter( "cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String passOld = HttpUtil.getPostValue(req.getParams(), "passOld");
-		String passNew = HttpUtil.getPostValue(req.getParams(), "passNew");
+		String passOld = req.getParameter( "passOld");
+		String passNew = req.getParameter( "passNew");
 		logger.info("UserChangePassHandler begin userId:{}|passOld:{}|passNew:{}", userId, passOld, passNew);
 
 		if (StringUtils.isBlank(passOld)) {
@@ -57,7 +58,7 @@ public class UserChangePassApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			String flag = j.get("B0010" + cookie);
+			String flag = j.get("B0010" + key);
 			if(Captcha.validity)
 				if (flag == null || !flag.equals("succ")) {
 					r.put(status, C0027.toString());
