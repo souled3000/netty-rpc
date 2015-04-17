@@ -41,6 +41,7 @@ public class QuitApi extends HandlerAdapter {
 			}
 			
 			if(StringUtils.equals(fId, userId)){
+				logger.debug("要退出的人:{},家庭:{}",userId,fId);
 				r.put(status, "0020");
 				return r;
 			}
