@@ -44,6 +44,7 @@ public class OctopusApi extends HandlerAdapter {
 		res.headers().set(HttpHeaders.Names.CONTENT_TYPE, "image/jpeg");
 		
 		res.headers().set(HttpHeaders.Names.SET_COOKIE,cookie);
+		res.headers().set("urlOrigin","/octopus.jpg");
 		setContentLength(res, res.content().readableBytes());
 		
 		Jedis j = DataHelper.getJedis();
