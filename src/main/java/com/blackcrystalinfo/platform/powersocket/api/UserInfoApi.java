@@ -44,7 +44,11 @@ public class UserInfoApi extends HandlerAdapter {
 			jedis = DataHelper.getJedis();
 
 			String nick = jedis.hget("user:nick", userId);
-			String email = jedis.hget("user:email", userId);
+			String email = "";
+			String isAvailable = jedis.hget("user:emailavailable", userId); // 标记邮件是否激活
+			if ("true".equalsIgnoreCase(isAvailable)) {
+				email = jedis.hget("user:email", userId);
+			}
 			String mobile = jedis.hget("user:phone", userId);
 
 			r.put("nick", nick);
