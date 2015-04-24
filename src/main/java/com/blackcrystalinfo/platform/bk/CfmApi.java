@@ -1,4 +1,5 @@
-package com.blackcrystalinfo.platform.powersocket.api;
+package com.blackcrystalinfo.platform.bk;
+
 
 import static io.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -41,11 +42,40 @@ public class CfmApi extends HandlerAdapter {
 		try {
 			j= DataHelper.getJedis();
 			
-			String email = j.hget("user:email",sequences);
+			String email = j.get(sequences+"email");
 			if(StringUtils.isBlank(email)){
 				return fail();
 			}
-			j.hset("user:emailavailable", sequences, "true");
+			
+			String userId = String.valueOf(j.incrBy("user:nextid", 16));
+			long intUserId = Long.parseLong(userId);
+			if (intUserId % 16 > 0) {
+				logger.info("userId can not modulo 16", userId);
+				userId = String.valueOf(intUserId - intUserId % 16);
+			}
+			
+			j.hset("user:mailtoid", email, userId);
+			j.hset("user:email", userId, email);
+			j.del(sequences+"email");
+			
+			String phone = j.get(sequences+"phone");
+			if (StringUtils.isNotBlank(phone)){
+				j.hset("user:phone", userId, phone);
+				j.del(sequences+"phone");
+			}
+			
+			String nick = j.get(sequences+"nick");
+			if (StringUtils.isNotBlank(nick)){
+				j.hset("user:nick", userId, nick);
+				j.del(sequences+"nick");
+			}
+			
+			String shadow = j.get(sequences+"shadow");
+			if (StringUtils.isNotBlank(shadow)){
+				j.hset("user:shadow", userId, shadow);
+				j.del(sequences+"shadow");
+			}
+			
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			return fail();

@@ -18,6 +18,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.Utils;
 
 /**
  * 
@@ -32,8 +33,7 @@ public class DemissionApi extends HandlerAdapter{
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 		String userId = req.getParameter( "uId");
-		String cookie = req.getParameter( "cookie");
-		String family = CookieUtil.gotUserIdFromCookie(cookie);
+		String family = CookieUtil.gotUserIdFromCookie(req.getParameter( "cookie"));
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
@@ -57,9 +57,10 @@ public class DemissionApi extends HandlerAdapter{
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",2, Integer.parseInt(userId), ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
-			logger.error("Bind in error uId:{}|cookie:{}|status:{}", userId, family, cookie, r.get("status"), e);
+			logger.error("Bind in error uId:{}|family:{}|status:{}", userId, family, family, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

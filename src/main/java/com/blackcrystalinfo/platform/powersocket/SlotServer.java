@@ -30,7 +30,7 @@ public class SlotServer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		CometScanner.tiktok();
+//		CometScanner.tiktok();
 		Thread.sleep(3000);
 		bindHandler();
 		new App(Constants.SERVER_PORT).run();

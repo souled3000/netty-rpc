@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.powersocket.api;
+package com.blackcrystalinfo.platform.bk;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0011;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0022;
@@ -26,6 +26,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
+
 import com.blackcrystalinfo.platform.util.PBKDF2;
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
@@ -80,24 +81,33 @@ public class UserRegisterApi extends HandlerAdapter {
 				logger.debug("user has been existed. email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, r.get(status));
 				return r;
 			}
-			String userId = String.valueOf(j.incrBy("user:nextid", 16));
-			long intUserId = Long.parseLong(userId);
-			if (intUserId % 16 > 0) {
-				logger.info("userId can not modulo 16", userId);
-				userId = String.valueOf(intUserId - intUserId % 16);
-			}
-			
-			j.hset("user:mailtoid", email, userId);
-			j.hset("user:email", userId, email);
-			
-			j.hset("user:phone", userId, phone);
-			j.hset("user:nick", userId, nick);
-			String shadow = PBKDF2.encode(pwd);
-			j.hset("user:shadow", userId, shadow);
-			
+
 			// 2. 生成uuid
+
+			String uuid = UUID.randomUUID().toString();
 			
-			r.put("uid", userId);
+			r.put("uId", uuid);
+//			Transaction tx = j.multi();
+
+			// 3. 记录<邮箱，用户Id>
+//			tx.hset("user:mailtoid", email, userId);
+			j.setex(uuid+"email", Constants.USRCFMEXPIRE, email);
+
+			// 4. 记录<用户Id，邮箱>
+//			tx.hset("user:email", userId, email);
+
+			// 5. 记录<用户Id，电话号码>
+			if (StringUtils.isNotBlank(phone))
+//				tx.hset("user:phone", userId, phone);
+			j.setex(uuid+"phone", Constants.USRCFMEXPIRE, phone);
+
+			// 6. 记录<用户Id，密码>
+			String shadow = PBKDF2.encode(pwd);
+//			tx.hset("user:shadow", userId, shadow);
+			j.setex(uuid+"shadow", Constants.USRCFMEXPIRE, shadow);
+			
+			if(StringUtils.isNotBlank(nick))
+			j.setex(uuid+"nick", Constants.USRCFMEXPIRE, nick);
 			
 			String emailAddr = Constants.getProperty("email.user", "");
 			String emailPwd = Constants.getProperty("email.pwd", "");
@@ -117,7 +127,7 @@ public class UserRegisterApi extends HandlerAdapter {
 			mailInfo.setFromAddress(emailAddr);//source
 			mailInfo.setToAddress(email);//target
 			mailInfo.setSubject("用户注册确认");
-			mailInfo.setContent("<a href='"+protocol+ "//"+ip+":"+port+"/cfm?v=" + userId+"'>激活</a>");
+			mailInfo.setContent("<a href='"+protocol+ "//"+ip+":"+port+"/cfm?v=" + uuid+"'>激活</a>");
 			boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
 			if(!b){
 				logger.info("sending Email failed!!!|{}",email);

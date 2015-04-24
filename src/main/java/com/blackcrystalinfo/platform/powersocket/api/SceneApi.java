@@ -72,5 +72,4 @@ public class SceneApi extends HandlerAdapter {
 		r.put(status, SUCCESS.toString());
 		return r;
 	}
-
 }

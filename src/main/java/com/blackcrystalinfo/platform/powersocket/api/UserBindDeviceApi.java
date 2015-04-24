@@ -20,6 +20,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.Utils;
 
 /**
  * 添加设备到家庭
@@ -65,6 +66,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 				return r;
 			}
 
+			String mac2 = j.hget("device:mac2", deviceId);
 			String owner = j.hget("device:owner",deviceId);
 			if (owner != null) {
 				r.put(status, C0004.toString());
@@ -78,6 +80,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			StringBuilder sb = new StringBuilder();
 			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			j.publish("PubDeviceUsers", sb.toString());
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",7, mac2, ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId,r.get("status"), e);

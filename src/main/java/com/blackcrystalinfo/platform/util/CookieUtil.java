@@ -231,46 +231,6 @@ public class CookieUtil {
 	}
 	
 	public static void main(String[] args)throws Exception {
-//		String s = "gD BOoD";
-//		String x = generateDeviceKey("mac1110","-1092");
-//		System.out.println(x);
-//		x =generateKey("mac1110", "123241412", "40");
-//		System.out.println(x);
-		
-		/*************************用户cookie测试开始**********************/
-		String cookie="NjR8MzAwfGY0NGE3OTg0OGI1NTY5NDExYWNjZTY1YzM1MjUzYTQwZTJhMjQ3";
-		String shadow="1000:5b42403361333030323434:b3c02405995c1fcf4a6647b69da1a4df48e796181a8574db0aafae0206efc203880fd9a39ca32a4693709754ea23caf16061327ef7e4429dfe5024ed704616c7";
-		String userId="64";
-//		System.out.println(CookieUtil.validateMobileCookie(cookie, shadow));
-		
-//		cookie = CookieUtil.encode4user(userId, CookieUtil.EXPIRE_SEC,shadow);
-		
-//		System.out.println(cookie);
-//		System.out.println(CookieUtil.validateMobileCookie(cookie, shadow));
-		/*************************用户cookie测试结束**********************/
-		
-		
-		/*************************设备cookie验证***********************/
-		String mac = "mskqMMCjjNE=";
-		cookie= "-1439|wbWGbJOIJd73kTwd7vG92puQVkwl1HTJ1li+onN6k3I=";
-		String id = "-1439";
-		boolean b = CookieUtil.verifyDeviceKey(mac, cookie,id);
-		System.out.println("设备验证结果"+b);
-		/*************************设备cookie验证结束***********************/
-		String s = "/mobile/something";
-		System.out.println(s.substring(0, s.lastIndexOf("/")));
-		
-		
-		byte[] bs = new byte[6];
-		bs[0]=68;
-		bs[1]=68;
-		bs[2]=68;
-		bs[3]=0;
-		bs[4]=0;
-		bs[5]=0;
-		String ss = new String(bs);
-		logger.info("mac not matched cookie mac:{}|"+ss, ss);
-		System.out.println(ss);
-		
+		System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
 	}
 }

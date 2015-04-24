@@ -19,6 +19,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
+import com.blackcrystalinfo.platform.util.Utils;
 
 @Path(path="/mobile/quit")
 public class QuitApi extends HandlerAdapter {
@@ -27,27 +28,26 @@ public class QuitApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = req.getParameter( "cookie");
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String uId = CookieUtil.gotUserIdFromCookie(req.getParameter( "cookie"));
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-			String fId = j.hget("user:family", userId);
+			String fId = j.hget("user:family", uId);
 			
 			if(StringUtils.isBlank(fId)){
 				r.put(status, ErrorCode.C0029);
-				logger.debug("要退出的人:{},家庭:{}",userId,fId);
+				logger.debug("要退出的人:{},家庭:{}",uId,fId);
 				return r;
 			}
 			
-			if(StringUtils.equals(fId, userId)){
-				logger.debug("要退出的人:{},家庭:{}",userId,fId);
+			if(StringUtils.equals(fId, uId)){
+				logger.debug("要退出的人:{},家庭:{}",uId,fId);
 				r.put(status, "0020");
 				return r;
 			}
 			
-			j.hdel("user:fmaily", userId);
-			j.srem("family:"+fId, userId);
+			j.hdel("user:fmaily", uId);
+			j.srem("family:"+fId, uId);
 			
 			Set<String>members = j.smembers("family:"+fId);
 			for(String m : members){
@@ -55,11 +55,11 @@ public class QuitApi extends HandlerAdapter {
 				for(String o : devices){
 					StringBuilder sb = new StringBuilder();
 					//将uid与oper下的所有设备做关联
-					sb.append(o).append("|").append(userId).append("|").append("0");
+					sb.append(o).append("|").append(uId).append("|").append("0");
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
-			
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId+"|",3, Integer.parseInt(uId), ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			return r;

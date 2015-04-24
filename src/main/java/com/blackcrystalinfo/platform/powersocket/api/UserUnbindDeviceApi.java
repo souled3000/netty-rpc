@@ -21,6 +21,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.Utils;
 
 @Path(path="/mobile/unbind")
 public class UserUnbindDeviceApi extends HandlerAdapter {
@@ -55,7 +56,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 				r.put(status, C0003.toString());
 				return r;
 			}
-
+			String mac2 = j.hget("device:mac2", deviceId);
 			String owner = j.hget("device:owner", deviceId);
 			if(owner==null||!StringUtils.equals(owner, userId)){
 				r.put(status, C0005.toString());
@@ -68,6 +69,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			StringBuilder sb = new StringBuilder();
 			sb.append(deviceId).append("|").append(userId).append("|").append("0");
 			j.publish("PubDeviceUsers", sb.toString());
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",8, mac2, ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			logger.error("",e);

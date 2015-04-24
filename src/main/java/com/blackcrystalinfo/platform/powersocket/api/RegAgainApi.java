@@ -7,7 +7,6 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
-
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 /**
@@ -38,18 +36,7 @@ public class RegAgainApi extends HandlerAdapter {
 		Jedis j = null;
 		try {
 			j=DataHelper.getJedis();
-			String email = j.get(uuid+"mail");
-			if(StringUtils.isBlank(email)){
-				r.put(status, ErrorCode.C0028);
-				return r;
-			}
-			j.setex(uuid+"mail", Constants.USRCFMEXPIRE, email);
-
-			j.setex(uuid+"phone", Constants.USRCFMEXPIRE, j.get(uuid+"phone"));
-
-			j.setex(uuid+"shadow", Constants.USRCFMEXPIRE, j.get(uuid+"shadow"));
-			
-			j.setex(uuid+"nick", Constants.USRCFMEXPIRE, j.get(uuid+"shadow"));
+			String email = j.hget("user:email",uuid);
 			
 			String emailAddr = Constants.getProperty("email.user", "");
 			String emailPwd = Constants.getProperty("email.pwd", "");

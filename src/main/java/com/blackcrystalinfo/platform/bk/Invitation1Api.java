@@ -22,8 +22,8 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Path(path="/mobile/invitation")
-public class InvitationApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(InvitationApi.class);
+public class Invitation1Api extends HandlerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(Invitation1Api.class);
 	public Object rpc(RpcRequest req) throws Exception {
 		long l = System.currentTimeMillis();
 		Map<Object,Object> r = new HashMap<Object,Object>();
