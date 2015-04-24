@@ -51,6 +51,7 @@ public enum ErrorCode {
 	C0027("0027")/**验证码失败*/,
 	C0028("0028")/**用户注册确认已过期*/,
 	C0029("0029")/**家庭Id为空*/,
+	C002A("002A")/**邮件地址为空*/,
 	;
 	public String getCode() {
 		return code;
