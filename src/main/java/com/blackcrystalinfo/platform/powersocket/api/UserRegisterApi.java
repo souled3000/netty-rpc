@@ -117,7 +117,19 @@ public class UserRegisterApi extends HandlerAdapter {
 			mailInfo.setFromAddress(emailAddr);//source
 			mailInfo.setToAddress(email);//target
 			mailInfo.setSubject("用户注册确认");
-			mailInfo.setContent("<a href='"+protocol+ "//"+ip+":"+port+"/cfm?v=" + userId+"'>激活</a>");
+
+			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v=" + userId;
+			StringBuilder sb = new StringBuilder();
+			sb.append("点击如下链接马上完成邮箱验证：");
+			sb.append("<br>");
+			sb.append("<a href='" + linkAddr + "'>激活</a>");
+			sb.append("<br>");
+			sb.append("<br>");
+			sb.append("如果链接无法点击，请完整拷贝到浏览器地址栏里直接访问，链接如下：");
+			sb.append("<br>");
+			sb.append(linkAddr);
+
+			mailInfo.setContent(sb.toString());
 			boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
 			if(!b){
 				logger.info("sending Email failed!!!|{}",email);
