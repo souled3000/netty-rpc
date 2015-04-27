@@ -61,7 +61,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			
 			deviceId = j.hget("device:mactoid", mac);
 			if (null == deviceId) {
-				r.put(status, C0003);
+				r.put(status, C0003.toString());
 				logger.info("There isn't this device. mac:{}|user:{}|status:{}", mac, userId,  r.get("status"));
 				return r;
 			}
