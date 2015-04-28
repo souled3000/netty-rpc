@@ -102,7 +102,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 			try {
 				rp = new RpcRequest(reqUrl, decoder, headers, ctx.channel().remoteAddress().toString());
 
-				logger.info("{} - {}", reqUrl, rp.toString());
+				logger.debug("{} - {}", reqUrl, rp.toString());
 				reqDatagram = rp.getDatagram();
 				if (reqDatagram == null) {
 					if (validateHandler != null) {
@@ -126,11 +126,11 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					ret = reqDatagram;
 				}
 			} catch (Exception e) {
-				logger.error("Called {} ", reqUrl, e);
+				logger.error("(400) {} ", reqUrl, e);
 				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
 			} finally {
 				if (ret != null) {
-					logger.info("url:{}\nrequest:{}\nresponse:{}", reqUrl, rp.toString(), JSON.toJSONString(ret));
+					logger.info("url:{} | request:{} | response:{}", reqUrl, rp.toString(), JSON.toJSONString(ret));
 					if (ret instanceof Map) {
 						Map m = (Map) ret;
 						m.put("urlOrigin", reqUrl);
@@ -141,7 +141,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					}
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(JSON.toJSONBytes(ret, new SerializerFeature[0]))));
 				} else {
-					logger.error("Called {}\nrequest:{}", reqUrl, rp.toString());
+					logger.error("(503)ret is null: {} | param:{}", reqUrl, rp.toString());
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, SERVICE_UNAVAILABLE));
 				}
 			}
