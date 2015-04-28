@@ -14,6 +14,7 @@ import com.blackcrystalinfo.platform.exception.HandlerExistedException;
 import com.blackcrystalinfo.platform.util.ClzUtils;
 import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.Constants;
+import com.blackcrystalinfo.platform.util.UdpScanner;
 
 public class SlotServer {
 	private static final Logger logger = LoggerFactory.getLogger(SlotServer.class);
@@ -30,7 +31,8 @@ public class SlotServer {
 	}
 
 	public static void main(String[] args) throws Exception {
-//		CometScanner.tiktok();
+		CometScanner.tiktok();
+		UdpScanner.tiktok();
 		Thread.sleep(3000);
 		bindHandler();
 		new App(Constants.SERVER_PORT).run();

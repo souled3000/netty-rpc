@@ -4,6 +4,10 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +19,13 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.UdpScanner;
 
 
 @Path(path="/mobile/devices")
@@ -54,6 +60,21 @@ public class DevicesApi extends HandlerAdapter {
 					name = (null == name ? "default" : name);
 
 					devData.put("deviceId",id);
+					try{
+						String url = UdpScanner.take()+"?deviceId="+id;
+						URL _url = new URL(url);
+						HttpURLConnection con = (HttpURLConnection)_url.openConnection();
+						BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+						String udpadr = br.readLine();
+						Map dd = JSON.parseObject(udpadr);
+						if("0".equals(dd.get("status")))
+						devData.put("udpAdr", dd.get("deviceAddr"));
+					}catch(Exception e){
+						
+					}
+					finally{
+						
+					}
 					devData.put("mac",mac);
 					devData.put("deviceName",name);
 					devData.put("pwd",pwd);
