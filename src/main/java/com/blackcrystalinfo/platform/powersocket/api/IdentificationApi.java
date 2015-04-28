@@ -35,14 +35,14 @@ public class IdentificationApi extends HandlerAdapter {
 
 			String email = j.hget("user:email", userId);
 			if (null == email) {
-				r.put(status, C0001);
+				r.put(status, C0001.toString());
 				logger.info("failed validating user {}", r.get(status));
 				return r;
 			}
 
 			String shadow = j.hget("user:shadow", userId);
 			if (!CookieUtil.validateMobileCookie(cookie, shadow)) {
-				r.put(status, C0002);
+				r.put(status, C0002.toString());
 				logger.info("failed validating user {}", r.get(status));
 				return r;
 			}

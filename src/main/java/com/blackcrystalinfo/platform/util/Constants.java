@@ -26,7 +26,11 @@ public class Constants extends ConfigurableConstants{
 	public static int CAPTCHA_EXPIRE = Integer.parseInt(getProperty("captcha.expire",""));
 	
 	public static int SERVER_PORT = Integer.valueOf(getProperty("server.port","8080"));
-	
+
+	public static int REGAGAIN_TIMES_NOTIC = Integer.valueOf(getProperty("regagain.times.notic", "3"));
+	public static int REGAGAIN_TIMES_MAX = Integer.valueOf(getProperty("regagain.times.max", "5"));
+	public static int REGAGAIN_EXPIRE = Integer.valueOf(getProperty("regagain.expire", "86400"));
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}
