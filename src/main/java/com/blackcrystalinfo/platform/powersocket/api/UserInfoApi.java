@@ -7,6 +7,7 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +51,15 @@ public class UserInfoApi extends HandlerAdapter {
 				email = jedis.hget("user:email", userId);
 			}
 			String mobile = jedis.hget("user:phone", userId);
-
+			String family = jedis.hget("user:family", userId);
 			r.put("nick", nick);
 			r.put("email", email);
 			r.put("mobile", mobile);
-
+			if (StringUtils.isNotBlank(family)) {
+				r.put("family", family);
+			} else {
+				r.put("family", "");
+			}
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(jedis);
 			logger.error("", e);
