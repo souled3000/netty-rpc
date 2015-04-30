@@ -21,7 +21,7 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.Utils;
 
-@Path(path="/mobile/invitationdone")
+@Path(path="/mobile/invitationcfm")
 public class InvitationCfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(InvitationCfmApi.class);
 	public Object rpc(RpcRequest req) throws Exception {
