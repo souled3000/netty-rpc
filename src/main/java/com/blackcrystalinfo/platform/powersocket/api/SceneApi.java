@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
-import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
@@ -59,7 +58,7 @@ public class SceneApi extends HandlerAdapter {
 						sm.putAll(t);
 					}
 				}
-				r.put("scene", JSON.toJSONString(sm));
+				r.put("scene", sm);
 			}
 
 		} catch (Exception e) {
