@@ -23,8 +23,7 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 public class FaceDownApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Long l = System.currentTimeMillis();
-		String cookie = req.getParameter( "cookie");
-		String id = CookieUtil.gotUserIdFromCookie(cookie);
+		String id = req.getParameter( "uId");
 		File f = new File(Constants.PIC_PATH + File.separator + id);
 		FullHttpResponse res = null;
 		if(!f.exists()){

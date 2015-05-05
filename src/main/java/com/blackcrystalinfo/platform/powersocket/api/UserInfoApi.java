@@ -37,8 +37,7 @@ public class UserInfoApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String cookie = req.getParameter("cookie");
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getParameter("uId");
 
 		Jedis jedis = null;
 		try {
@@ -52,6 +51,7 @@ public class UserInfoApi extends HandlerAdapter {
 			}
 			String mobile = jedis.hget("user:phone", userId);
 			String family = jedis.hget("user:family", userId);
+			r.put("uId", userId);
 			r.put("nick", nick);
 			r.put("email", email);
 			r.put("mobile", mobile);
