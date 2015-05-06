@@ -61,6 +61,9 @@ public class DemissionFamilyApi extends HandlerAdapter {
 				}
 			}
 
+			// 删除户主
+			j.hdel("user:family", userId);
+
 			// 删除家庭下所有用户的关系表-》family:${family}
 			j.del("family:" + userId);
 
