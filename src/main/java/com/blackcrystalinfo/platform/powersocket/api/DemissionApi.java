@@ -44,7 +44,7 @@ public class DemissionApi extends HandlerAdapter{
 				return r;
 			}
 
-			j.hdel("user:fmaily", userId);
+			j.hdel("user:family", userId);
 			j.srem("family:"+family, userId);
 			
 			Set<String>members = j.smembers("family:"+family);
