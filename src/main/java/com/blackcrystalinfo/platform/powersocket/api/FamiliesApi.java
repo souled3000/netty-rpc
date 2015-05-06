@@ -35,8 +35,9 @@ public class FamiliesApi extends HandlerAdapter {
 			j = DataHelper.getJedis();
 			String fId = j.hget("user:family", userId);
 			Set<String> familySet = j.smembers("family:"+fId);
+			r.put("fId", fId);
 			r.put("families", familySet);
-			r.put(status,SUCCESS);
+			r.put(status,SUCCESS.toString());
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			return r;

@@ -46,7 +46,7 @@ public class QuitApi extends HandlerAdapter {
 				return r;
 			}
 			
-			j.hdel("user:fmaily", uId);
+			j.hdel("user:family", uId);
 			j.srem("family:"+fId, uId);
 			
 			Set<String>members = j.smembers("family:"+fId);
