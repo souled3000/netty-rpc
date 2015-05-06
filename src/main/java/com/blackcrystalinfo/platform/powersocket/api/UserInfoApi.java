@@ -44,6 +44,7 @@ public class UserInfoApi extends HandlerAdapter {
 			jedis = DataHelper.getJedis();
 
 			String nick = jedis.hget("user:nick", userId);
+			String username = jedis.hget("user:email", userId);//用户邮箱即时账户
 			String email = "";
 			String isAvailable = jedis.hget("user:emailavailable", userId); // 标记邮件是否激活
 			if ("true".equalsIgnoreCase(isAvailable)) {
@@ -53,6 +54,7 @@ public class UserInfoApi extends HandlerAdapter {
 			String family = jedis.hget("user:family", userId);
 			r.put("uId", userId);
 			r.put("nick", nick);
+			r.put("username", username);
 			r.put("email", email);
 			r.put("mobile", mobile);
 			if (StringUtils.isNotBlank(family)) {
