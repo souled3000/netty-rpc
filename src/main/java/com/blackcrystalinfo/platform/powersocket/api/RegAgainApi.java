@@ -122,7 +122,7 @@ public class RegAgainApi extends HandlerAdapter {
 		} finally {
 			DataHelper.returnJedis(j);
 		}
-		r.put(status, ErrorCode.SUCCESS);
+		r.put(status, ErrorCode.SUCCESS.toString());
 		return r;
 	}
 }
