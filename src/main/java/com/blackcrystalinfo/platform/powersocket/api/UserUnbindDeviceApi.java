@@ -47,6 +47,9 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 		String mac = args[0];
 		String userId = CookieUtil.gotUserIdFromCookie(args[1]);
 
+		// 手机端需要mac区分绑定解绑的是哪个设备，这里给返回。是不是很奇葩。。。
+		r.put("mac", mac);
+
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
