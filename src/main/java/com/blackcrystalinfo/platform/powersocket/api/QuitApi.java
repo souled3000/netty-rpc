@@ -59,7 +59,7 @@ public class QuitApi extends HandlerAdapter {
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId+"|",3, Integer.parseInt(uId), ""));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId+","+fId+"|",3, Integer.parseInt(uId), ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			return r;
