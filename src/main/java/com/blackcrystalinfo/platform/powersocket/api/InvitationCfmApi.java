@@ -43,8 +43,8 @@ public class InvitationCfmApi extends HandlerAdapter {
 					j.hset("user:family", oper, oper);
 				}
 				j.hset("user:family", uId, oper);
-				j.sadd("family:"+oper, uId);
 				j.sadd("family:"+oper, oper);
+				j.sadd("family:"+oper, uId);
 				
 				
 				
