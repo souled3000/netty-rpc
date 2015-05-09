@@ -22,6 +22,7 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.Utils;
 /**
  * 用户注册邮件确认
  * @author juliana
@@ -46,6 +47,8 @@ public class CfmApi extends HandlerAdapter {
 				return fail();
 			}
 			j.hset("user:emailavailable", sequences, "true");
+			
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(sequences+"|",11, Integer.parseInt(sequences), ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			return fail();
