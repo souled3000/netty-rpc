@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +67,9 @@ public class DemissionFamilyApi extends HandlerAdapter {
 
 			// 删除家庭下所有用户的关系表-》family:${family}
 			j.del("family:" + userId);
-
+			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 			j.publish("PubCommonMsg:0x36".getBytes(),
-					Utils.genMsg(userId + "|", 4, Integer.parseInt(userId), ""));
+					Utils.genMsg(memlist, 4, Integer.parseInt(userId), ""));
 		} catch (Exception e) {
 			DataHelper.returnBrokenJedis(j);
 			logger.error("DemissionFamily error uId:{}|status:{}|msg:{}",
