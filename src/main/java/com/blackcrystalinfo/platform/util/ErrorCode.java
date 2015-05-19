@@ -56,6 +56,8 @@ public enum ErrorCode {
 	C002B("002B")/**邮箱已经激活*/,
 	C002C("002C")/**达到操作上限*/,
 	C002D("002D")/**多次请求操作*/,
+	
+	C002E("002E")/**登录失败次数达上限*/,
 	;
 	public String getCode() {
 		return code;

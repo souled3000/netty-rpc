@@ -22,9 +22,9 @@ import redis.clients.jedis.Jedis;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-
 import com.blackcrystalinfo.platform.util.PBKDF2;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 @Path(path="/login")
@@ -67,11 +67,30 @@ public class UserLoginApi extends HandlerAdapter {
 				return r;
 			}
 
+			// 1.1. 获取登录失败次数
+			int times = 0;
+			String strTimes = jedis.get("user:failedLoginTimes:" + userId);
+			if (StringUtils.isNotBlank(strTimes)) {
+				times = Integer.valueOf(strTimes);
+			}
+			// 1.2. 根据失败次数，决定是否锁定账户
+			if (times >= Constants.FAILED_LOGIN_TIMES_MAX){
+				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
+				r.put(status, C0021.toString());
+				r.put("ttl", ttl);
+				r.put("failedLoginTimes", times);
+				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}",email,pwd,r.get(status));
+				return r;
+			}
+
 			// 2. encodePwd与passwd加密后的串做比较
 			String shadow = jedis.hget("user:shadow", userId);
 			if (!PBKDF2.validate(pwd, shadow)) {
 				r.put(status, C0021.toString());
 				logger.debug("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",email,pwd,r.get(status));
+
+				// 判断失败次数累加
+				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(++times));
 				return r;
 			}
 			r.put("userId",userId);

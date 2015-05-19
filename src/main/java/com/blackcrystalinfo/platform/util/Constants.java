@@ -31,6 +31,9 @@ public class Constants extends ConfigurableConstants{
 	public static int REGAGAIN_TIMES_MAX = Integer.valueOf(getProperty("regagain.times.max", "5"));
 	public static int REGAGAIN_EXPIRE = Integer.valueOf(getProperty("regagain.expire", "86400"));
 
+	public static int FAILED_LOGIN_TIMES_MAX = Integer.valueOf(getProperty("failed.login.times.max", "3"));
+	public static int FAILED_LOGIN_EXPIRE = Integer.valueOf(getProperty("failed.login.expire", "86400"));
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}
