@@ -4,6 +4,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0018;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0019;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0020;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0021;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C002E;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -76,7 +77,7 @@ public class UserLoginApi extends HandlerAdapter {
 			// 1.2. 根据失败次数，决定是否锁定账户
 			if (times >= Constants.FAILED_LOGIN_TIMES_MAX){
 				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
-				r.put(status, C0021.toString());
+				r.put(status, C002E.toString());
 				r.put("ttl", ttl);
 				r.put("failedLoginTimes", times);
 				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}",email,pwd,r.get(status));
