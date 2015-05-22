@@ -17,15 +17,16 @@ public class DataHelper {
 	private static final int ONE_SECOND = 10000;
 
 	static {
-		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		poolConfig.setMaxIdle(10000);
-		poolConfig.setMaxWaitMillis(ONE_SECOND);
-
+		JedisPoolConfig cfg = new JedisPoolConfig();
+		cfg.setMaxIdle(5);
+		cfg.setMaxWaitMillis(ONE_SECOND);
+		cfg.setTestOnBorrow(true);
+		cfg.setMaxTotal(100000);
 		String host = Constants.REDIS_HOST;
 		int port = Integer.parseInt(Constants.REDIS_PORT);
 		String password = null;
 
-		pool = new JedisPool(poolConfig, host, port, ONE_SECOND, password);
+		pool = new JedisPool(cfg, host, port, ONE_SECOND, password);
 	}
 
 	public static Jedis getJedis() {
@@ -34,13 +35,13 @@ public class DataHelper {
 
 	public static void returnJedis(Jedis res) {
 		if (res != null && res.isConnected()) {
-			pool.returnResource(res);
+			pool.returnResourceObject(res);
 		}
 	}
 
 	public static void returnBrokenJedis(Jedis res) {
 		if (res != null && res.isConnected()) {
-			pool.returnBrokenResource(res);
+			pool.returnResourceObject(res);
 		}
 	}
 
