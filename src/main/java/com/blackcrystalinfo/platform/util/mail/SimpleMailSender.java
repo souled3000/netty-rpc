@@ -116,6 +116,34 @@ public class SimpleMailSender {
 		}
 		return false;
 	}
+	
+	/**
+	 * 系统给目标地址发送邮件
+	 * @param toAddr 目标地址
+	 * @param subject 主题
+	 * @param content 内容
+	 * @return 发送成功与否的标志
+	 */
+	public static boolean sendHtmlMail(String toAddr, String subject,
+			String content) {
+		String mailAddr = Constants.getProperty("email.user", "");
+		String mailPwd = Constants.getProperty("email.pwd", "");
+		String mailHost = Constants.getProperty("mail.server.host", "");
+		String mailPort = Constants.getProperty("mail.server.port", "");
+
+		MailSenderInfo mailInfo = new MailSenderInfo();
+		mailInfo.setMailServerHost(mailHost);
+		mailInfo.setMailServerPort(mailPort);
+		mailInfo.setValidate(true);
+		mailInfo.setUserName(mailAddr);// source
+		mailInfo.setPassword(mailPwd);// source
+		mailInfo.setFromAddress(mailAddr);// source
+		mailInfo.setToAddress(toAddr);// target
+		mailInfo.setSubject(subject);
+		mailInfo.setContent(content);
+		return sendHtmlMail(mailInfo);
+	}
+	
 	public static void main(String[] args) {
 		
 		String emailAddr = Constants.getProperty("email.user", "");

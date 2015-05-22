@@ -28,6 +28,7 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
+import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 @Path(path="/login")
 public class UserLoginApi extends HandlerAdapter {
 
@@ -92,8 +93,23 @@ public class UserLoginApi extends HandlerAdapter {
 
 				// 判断失败次数累加
 				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(++times));
+
+				// 最后一次登录失败，发送邮件通知用户
+				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
+					String subject = "账户被锁定通知";
+					StringBuilder sb = new StringBuilder();
+					sb.append("您的帐户登录失败次数超过");
+					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX + "次。</b>");
+					sb.append("请您" + Constants.FAILED_LOGIN_EXPIRE + "秒 后重新登录");
+					SimpleMailSender
+							.sendHtmlMail(email, subject, sb.toString());
+				}
 				return r;
 			}
+
+			// 3. 登录成功后，清除累计失败次数的计数器
+			jedis.del("user:failedLoginTimes:" + userId);
+
 			r.put("userId",userId);
 //			result.setHeartBeat(CookieUtil.EXPIRE_SEC);
 			String cookie = CookieUtil.encode4user(userId, CookieUtil.EXPIRE_SEC,shadow);
