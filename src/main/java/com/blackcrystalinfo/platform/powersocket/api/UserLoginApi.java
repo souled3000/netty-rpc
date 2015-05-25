@@ -70,7 +70,7 @@ public class UserLoginApi extends HandlerAdapter {
 			}
 
 			// 1.1. 获取登录失败次数
-			int times = 0;
+			int times = -1;
 			String strTimes = jedis.get("user:failedLoginTimes:" + userId);
 			if (StringUtils.isNotBlank(strTimes)) {
 				times = Integer.valueOf(strTimes);
@@ -80,7 +80,6 @@ public class UserLoginApi extends HandlerAdapter {
 				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
 				r.put(status, C002E.toString());
 				r.put("ttl", ttl);
-				r.put("failedLoginTimes", times);
 				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}",email,pwd,r.get(status));
 				return r;
 			}
@@ -88,11 +87,13 @@ public class UserLoginApi extends HandlerAdapter {
 			// 2. encodePwd与passwd加密后的串做比较
 			String shadow = jedis.hget("user:shadow", userId);
 			if (!PBKDF2.validate(pwd, shadow)) {
+				times++;
 				r.put(status, C0021.toString());
+				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX - times);
 				logger.debug("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",email,pwd,r.get(status));
 
 				// 判断失败次数累加
-				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(++times));
+				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
 
 				// 最后一次登录失败，发送邮件通知用户
 				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
