@@ -35,7 +35,7 @@ public class QuitApi extends HandlerAdapter {
 			String fId = j.hget("user:family", uId);
 			
 			if(StringUtils.isBlank(fId)){
-				r.put(status, ErrorCode.C0029);
+				r.put(status, ErrorCode.C0029.toString());
 				logger.debug("要退出的人:{},家庭:{}",uId,fId);
 				return r;
 			}
@@ -59,6 +59,10 @@ public class QuitApi extends HandlerAdapter {
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
+
+			//用户退出家庭，除了给家庭其他成员推送外，还需要给用户自己推送消息。
+			members.add(uId);
+
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, 3, Integer.parseInt(uId), ""));
