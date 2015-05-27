@@ -24,7 +24,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-
+import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
@@ -92,9 +92,9 @@ public class UserFindPwdStep1Api extends HandlerAdapter  {
 			mailInfo.setFromAddress(emailAddr);
 			mailInfo.setToAddress(destEmailAddr);
 			mailInfo.setSubject("验证码邮件");
-			mailInfo.setContent("请尽快使用此验证码重置您的密码:" + code);
-			SimpleMailSender sms = new SimpleMailSender();
-			boolean b = sms.sendTextMail(mailInfo);
+			mailInfo.setContent("请尽快使用此验证码重置您的密码：" + code);
+			mailInfo.setContent("验证超时时间：" + DateUtils.secToTime(CODE_EXPIRE));
+			boolean b = SimpleMailSender.sendTextMail(mailInfo);
 			if(!b){
 				logger.info("sending Email failed!!!");
 				r.put(status, C0011.toString());
