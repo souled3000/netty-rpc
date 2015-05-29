@@ -1,5 +1,6 @@
 package com.blackcrystalinfo.platform.captcha;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.util.Properties;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.octo.captcha.component.image.backgroundgenerator.BackgroundGenerator;
 import com.octo.captcha.component.image.backgroundgenerator.FunkyBackgroundGenerator;
+import com.octo.captcha.component.image.backgroundgenerator.GradientBackgroundGenerator;
 import com.octo.captcha.component.image.color.RandomRangeColorGenerator;
 import com.octo.captcha.component.image.fontgenerator.FontGenerator;
 import com.octo.captcha.component.image.fontgenerator.RandomFontGenerator;
@@ -33,7 +35,7 @@ public final class Captcha {
 			length = Integer.parseInt(p.getProperty("length"));
 			wordGenerator = new RandomWordGenerator(dictionary);
 			
-			RandomRangeColorGenerator cgen = new RandomRangeColorGenerator(new int[] { 255, 255 }, new int[] { 255, 255 }, new int[] { 255, 255 });
+			RandomRangeColorGenerator cgen = new RandomRangeColorGenerator(new int[] { 0, 100 }, new int[] { 0, 100 }, new int[] { 0, 100 });
 			
 			TextPaster textPaster = new RandomTextPaster(new Integer(length), new Integer(length), cgen, true);
 
