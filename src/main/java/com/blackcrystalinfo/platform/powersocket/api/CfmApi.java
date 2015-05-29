@@ -66,7 +66,7 @@ public class CfmApi extends HandlerAdapter {
 		c.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 		c.append("</head>");
 		c.append("<body>");
-		c.append("<h1>恭喜成功注册</h1>");
+		c.append("<h1>恭喜成功激活</h1>");
 		c.append("</body>");
 		c.append("</html>");
 		FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(c.toString().getBytes()));
@@ -84,7 +84,7 @@ public class CfmApi extends HandlerAdapter {
 		c.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 		c.append("</head>");
 		c.append("<body>");
-		c.append("<h1>注册失败,可能因为激活已过期，请在30分钟内完成激活</h1>");
+		c.append("<h1>激活失败,可能因为激活已过期，请在30分钟内完成激活</h1>");
 		c.append("</body>");
 		c.append("</html>");
 		FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(c.toString().getBytes()));
