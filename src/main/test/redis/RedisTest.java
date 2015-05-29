@@ -23,11 +23,10 @@ public class RedisTest {
 	
 	public static void f2() throws Exception{
 		long tt = System.currentTimeMillis();
-		
+		final int loop = 10000;
+		int threadsum = 100;
 		ExecutorService p = Executors.newCachedThreadPool();
 		
-		final int loop = 100;
-		int threadsum = 10000;
 //		final int loop = 100;
 //		int threadsum = 10000;
 
@@ -42,7 +41,7 @@ public class RedisTest {
 				Jedis j = DataHelper.getJedis();
 				long l = System.currentTimeMillis();
 				try{
-					for(int i = start;i<=start+loop;i++){
+					for(int i = start;i<start+loop;i++){
 						j.hset("user:email", String.valueOf(i), "XXXXXXXXXXX@XXXXXXXXXXXXX.COM");
 						j.hset("user:emailtoid", "XXXXXXXXXXX@XXXXXXXXXXXXXX.COM"+i, String.valueOf(i));
 						j.hset("user:nick", String.valueOf(i), "XXXXXXXXXXX@XXXXXXXXXXXXX.COM");
@@ -66,6 +65,7 @@ public class RedisTest {
 		List<Future<Long>> l = new ArrayList<Future<Long>>();
 		
 		for(int i = 0;i<threadsum;i++){
+			System.out.println(i);
 			l.add(p.submit(new CC(i)));
 		}
 		p.shutdown();
