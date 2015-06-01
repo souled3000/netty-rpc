@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
-import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
@@ -21,7 +18,6 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 @Path(path="/api/device/changingname")
 public class DeviceNameChangingHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceNameChangingHandler.class);
-	private BASE64Decoder decoder = new BASE64Decoder();
 
 	public Object rpc(JSONObject req) throws InternalException {
 		String mac = req.getString("mac");
@@ -39,17 +35,6 @@ public class DeviceNameChangingHandler extends HandlerAdapter {
 		Map<Object,Object> r = new HashMap<Object,Object>();
 		String mac = args[0];
 		String name = args[1];
-		try {
-			name = new String(decoder.decodeBuffer(name.replace(' ', '+')), "utf8");
-		} catch (UnsupportedEncodingException e) {
-			r.put("status",-2);
-			logger.error("UnsupportedEncodingException. mac:{}|DeviceName:{}|status:{}", mac, name, r.get("status"), e);
-			return r;
-		} catch (IOException e) {
-			r.put("status",-3);
-			logger.error("IOException. mac:{}|DeviceName:{}|status:{}", mac, name, r.get("status"), e);
-			return r;
-		}
 		logger.info("DeviceNameChangingHandler begin mac:{}|name:{}",mac,name);
 
 		Jedis jedis = null;
