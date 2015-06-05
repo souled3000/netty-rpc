@@ -83,7 +83,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			StringBuilder sb = new StringBuilder();
 			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			j.publish("PubDeviceUsers", sb.toString());
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",7, mac2, ""));
+//			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",7, mac2, ""));
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId,r.get("status"), e);
