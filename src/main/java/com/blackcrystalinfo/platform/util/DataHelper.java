@@ -64,7 +64,7 @@ public class DataHelper {
 			j2 = DataHelper.getJedis();
 			throw new Exception();
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j2);
+			//DataHelper.returnBrokenJedis(j2);
 		} finally {
 			DataHelper.returnJedis(j2);
 		}

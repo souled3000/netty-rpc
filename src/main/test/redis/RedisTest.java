@@ -51,7 +51,7 @@ public class RedisTest {
 						j.hset("user:family", String.valueOf(i), String.valueOf(i));
 					}
 				}catch(Exception e){
-					DataHelper.returnBrokenJedis(j);
+					//DataHelper.returnBrokenJedis(j);
 				}finally{
 					DataHelper.returnJedis(j);
 				}

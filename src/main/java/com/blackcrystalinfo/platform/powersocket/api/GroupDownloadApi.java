@@ -62,7 +62,7 @@ public class GroupDownloadApi extends HandlerAdapter {
 
 			r.put("groupDatas", gds);
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("",e);
 			return r;
 		} finally {

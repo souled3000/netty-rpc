@@ -76,7 +76,7 @@ public class Invitation2Api extends HandlerAdapter {
 				}
 			}
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|status:{}", uId, oper, r.get("status"), e);
 			return r;
 		} finally {

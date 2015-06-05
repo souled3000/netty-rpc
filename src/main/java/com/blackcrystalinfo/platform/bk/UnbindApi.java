@@ -72,7 +72,7 @@ public class UnbindApi extends HandlerAdapter {
 				j.publish("PubDeviceUsers", sb.toString());
 			}
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("",e);
 			return r;
 		} finally {

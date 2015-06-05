@@ -63,7 +63,7 @@ public class SceneApi extends HandlerAdapter {
 
 		} catch (Exception e) {
 			logger.info("",e);
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 		} finally {
 			DataHelper.returnJedis(j);
 		}

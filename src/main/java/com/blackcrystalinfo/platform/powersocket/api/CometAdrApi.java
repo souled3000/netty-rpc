@@ -46,7 +46,7 @@ public class CometAdrApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("System error occurs", e);
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			return r;
 		} finally {
 			DataHelper.returnJedis(jedis);

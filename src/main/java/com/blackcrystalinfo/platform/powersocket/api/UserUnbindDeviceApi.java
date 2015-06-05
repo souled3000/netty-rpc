@@ -74,7 +74,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			j.publish("PubDeviceUsers", sb.toString());
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",8, mac2, ""));
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("",e);
 			return r;
 		} finally {

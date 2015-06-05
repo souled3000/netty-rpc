@@ -83,7 +83,7 @@ public class BindApi extends HandlerAdapter {
 			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			j.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error mac:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"), e);
 			return r;
 		} finally {

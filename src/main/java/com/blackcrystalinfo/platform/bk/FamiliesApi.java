@@ -35,7 +35,7 @@ public class FamiliesApi extends HandlerAdapter {
 			r.put("families", familySet);
 			r.put(status,SUCCESS);
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

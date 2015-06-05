@@ -86,7 +86,7 @@ public class DevicesApi extends HandlerAdapter {
 
 			r.put("bindedDevices",bindedDevices);
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("",e);
 			return r;
 		} finally {

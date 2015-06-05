@@ -59,7 +59,7 @@ public class DemissionApi extends HandlerAdapter{
 			}
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",2, Integer.parseInt(userId), ""));
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|family:{}|status:{}", userId, family, family, r.get("status"), e);
 			return r;
 		} finally {

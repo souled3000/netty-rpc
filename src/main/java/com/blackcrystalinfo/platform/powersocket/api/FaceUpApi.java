@@ -47,7 +47,7 @@ public class FaceUpApi extends HandlerAdapter {
 				j = DataHelper.getJedis();
 				j.hset("user:nick", id, nick);
 			} catch (Exception e) {
-				DataHelper.returnBrokenJedis(j);
+				//DataHelper.returnBrokenJedis(j);
 			} finally {
 				DataHelper.returnJedis(j);
 			}

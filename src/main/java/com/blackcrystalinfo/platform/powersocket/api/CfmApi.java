@@ -50,7 +50,7 @@ public class CfmApi extends HandlerAdapter {
 			
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(sequences+"|",11, Integer.parseInt(sequences), ""));
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			return fail();
 		} finally {
 			DataHelper.returnJedis(j);

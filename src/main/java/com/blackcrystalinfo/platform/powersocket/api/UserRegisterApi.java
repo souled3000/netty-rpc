@@ -138,7 +138,7 @@ public class UserRegisterApi extends HandlerAdapter {
 			}
 			
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("User regist error, email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, r.get(status), e);
 			return r;
 		} finally {

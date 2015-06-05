@@ -49,7 +49,7 @@ public class DeviceNameChangingHandler extends HandlerAdapter {
 			jedis.hset("device:name", id, name);
 		} catch (Exception e) {
 			r.put("status",-1);
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("Geting user's device occurs an error. mac:{}|DeviceName:{}|status:{}", mac, name, r.get("status"), e);
 			return r;
 		} finally {

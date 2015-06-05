@@ -65,7 +65,7 @@ public class GroupUploadApi extends HandlerAdapter {
 				}
 				tx.exec();
 			} catch (Exception e) {
-				DataHelper.returnBrokenJedis(j);
+				//DataHelper.returnBrokenJedis(j);
 				logger.error("Upload group info error.", e);
 				return r;
 			} finally {

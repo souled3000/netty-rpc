@@ -63,7 +63,7 @@ public class UserInfoApi extends HandlerAdapter {
 				r.put("family", "");
 			}
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("", e);
 			return r;
 		} finally {

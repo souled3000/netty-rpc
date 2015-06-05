@@ -117,7 +117,7 @@ public class RegAgainApi extends HandlerAdapter {
 				return r;
 			}
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

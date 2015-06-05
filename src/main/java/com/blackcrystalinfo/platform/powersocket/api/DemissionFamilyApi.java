@@ -71,7 +71,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			j.publish("PubCommonMsg:0x36".getBytes(),
 					Utils.genMsg(memlist, 4, Integer.parseInt(userId), ""));
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("DemissionFamily error uId:{}|status:{}|msg:{}",
 					userId, r.get("status"), e);
 			return r;

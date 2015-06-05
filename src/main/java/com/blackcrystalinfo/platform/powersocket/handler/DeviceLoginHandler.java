@@ -82,7 +82,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			r.put("proxyAddr",proxyAddr);
 
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("Device login error  mac:{}|cookie:{}|status:{}", mac, cookie,r.get("status"),e);
 			return r;
 		} finally {

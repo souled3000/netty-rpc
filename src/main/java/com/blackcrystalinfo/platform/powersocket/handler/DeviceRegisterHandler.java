@@ -127,7 +127,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			}
 
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("Device regist error mac:{}|sn:{}|bv:{}", mac, sn, dv, e);
 			return r;
 		} finally {

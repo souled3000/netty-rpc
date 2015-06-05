@@ -62,7 +62,7 @@ public class DemissionApi extends HandlerAdapter{
 				j.publish("PubDeviceUsers", sb.toString());
 			}
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|cookie:{}|status:{}", uId, family, cookie, r.get("status"), e);
 			return r;
 		} finally {

@@ -83,7 +83,7 @@ public class DevicePwdModifying extends HandlerAdapter {
 			r.put("status",0);
 		}catch(Exception e){
 			r.put("status",-1);
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("mac:{}|cookie:{}|newDevicePwd:{}|status:{}",mac,cookie,newDevicePwd,r.get("status"),e);
 			return r;
 		}finally{

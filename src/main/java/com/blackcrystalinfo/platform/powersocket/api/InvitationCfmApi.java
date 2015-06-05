@@ -76,7 +76,7 @@ public class InvitationCfmApi extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("", e);
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 		} finally {
 			DataHelper.returnJedis(j);
 		}

@@ -91,7 +91,7 @@ public class BindOutHandler extends HandlerAdapter {
 
 			r.put("status", 0);
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("Bind out error. mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"), e);
 			throw new InternalException(e.getMessage());
 		} finally {

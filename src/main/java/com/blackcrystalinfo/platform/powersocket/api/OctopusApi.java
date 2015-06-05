@@ -51,7 +51,7 @@ public class OctopusApi extends HandlerAdapter {
 		try{
 			j.setex(cookie, Captcha.expire, word);
 		}catch(Exception e){
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 		}finally{
 			DataHelper.returnJedis(j);
 		}

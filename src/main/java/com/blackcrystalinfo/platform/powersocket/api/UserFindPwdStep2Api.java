@@ -90,7 +90,7 @@ public class UserFindPwdStep2Api extends HandlerAdapter  {
 			jedis.publish("PubModifiedPasswdUser",userId);
 
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("", e);
 			return r;
 		} finally {

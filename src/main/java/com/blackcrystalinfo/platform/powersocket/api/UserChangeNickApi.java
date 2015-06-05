@@ -63,7 +63,7 @@ public class UserChangeNickApi extends HandlerAdapter {
 				return r;
 			}
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("", e);
 			return r;
 		} finally {

@@ -114,7 +114,7 @@ public class UserChangePassApi extends HandlerAdapter {
 			j.publish("PubModifiedPasswdUser", userId);
 
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("User change password error", e);
 			throw new InternalException(e.getMessage());
 		} finally {

@@ -94,7 +94,7 @@ public class BindInHandler extends HandlerAdapter {
 			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			jedis.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("Bind in error mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"), e);
 			return r;
 		} finally {

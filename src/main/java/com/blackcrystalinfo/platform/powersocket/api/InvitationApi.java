@@ -71,7 +71,7 @@ public class InvitationApi extends HandlerAdapter {
 			msg.append(JSON.toJSON(mm));
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId+"|",bizCode, Integer.parseInt(uId), msg.toString()));
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|status:{}", uId, oper, r.get("status"), e);
 			return r;
 		} finally {

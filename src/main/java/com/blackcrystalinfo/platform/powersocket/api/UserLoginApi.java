@@ -119,7 +119,7 @@ public class UserLoginApi extends HandlerAdapter {
 //			result.setProxyAddr(proxyAddr);
 
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(jedis);
+			//DataHelper.returnBrokenJedis(jedis);
 			logger.error("User login error. email:{}|pwd:{}|status:{}",email,pwd,r.get(status),e);
 			return r;
 		} finally {

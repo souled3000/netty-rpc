@@ -53,7 +53,7 @@ public class SepiaApi extends HandlerAdapter {
 				logger.info("sepia:{}|{}",word,sepia);
 			}
 		}catch(Exception e){
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 		}finally{
 			DataHelper.returnJedis(j);
 		}

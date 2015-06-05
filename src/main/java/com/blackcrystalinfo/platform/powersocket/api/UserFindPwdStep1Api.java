@@ -102,7 +102,7 @@ public class UserFindPwdStep1Api extends HandlerAdapter  {
 			}
 			
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			logger.error("UserFindPwdStep1", e);
 			return r;
 		} finally {

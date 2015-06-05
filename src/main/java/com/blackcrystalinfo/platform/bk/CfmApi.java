@@ -77,7 +77,7 @@ public class CfmApi extends HandlerAdapter {
 			}
 			
 		} catch (Exception e) {
-			DataHelper.returnBrokenJedis(j);
+			//DataHelper.returnBrokenJedis(j);
 			return fail();
 		} finally {
 			DataHelper.returnJedis(j);
