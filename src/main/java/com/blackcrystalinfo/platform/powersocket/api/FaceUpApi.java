@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 import io.netty.handler.codec.http.multipart.MixedFileUpload;
 
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import redis.clients.jedis.Jedis;
 
@@ -39,19 +39,21 @@ public class FaceUpApi extends HandlerAdapter {
 			File f = new File(Constants.PIC_PATH + File.separator + id);
 			FileUtils.copyFile(pic.getFile(), f);
 			pic.getFile().delete();
-			r.put(status, SUCCESS.toString());
-			return r;
 		}
-		Jedis j=null;
-		try{
-			j=DataHelper.getJedis();
-			j.hset("user:nick", id, nick);
-		}catch(Exception e){
-			DataHelper.returnBrokenJedis(j);
-		}finally{
-			DataHelper.returnJedis(j);
+
+		Jedis j = null;
+		if (StringUtils.isNotBlank(nick)) {
+			try {
+				j = DataHelper.getJedis();
+				j.hset("user:nick", id, nick);
+			} catch (Exception e) {
+				DataHelper.returnBrokenJedis(j);
+			} finally {
+				DataHelper.returnJedis(j);
+			}
 		}
-		r.put(status, SYSERROR.toString());
+
+		r.put(status, SUCCESS.toString());
 		return r;
 	}
 	
