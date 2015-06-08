@@ -3,6 +3,7 @@ package com.blackcrystalinfo.platform.powersocket.api;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
@@ -45,7 +47,17 @@ public class QuitApi extends HandlerAdapter {
 				r.put(status, "0020");
 				return r;
 			}
-			
+
+			StringBuilder msg = new StringBuilder();
+			Map<String, String> mm = new HashMap<String, String>();
+			String hostNick = j.hget("user:nick", fId);
+			String nick = j.hget("user:nick", uId);
+			mm.put("hostId", fId);
+			mm.put("hostNick", hostNick);
+			mm.put("mId", uId);
+			mm.put("mNick", nick);
+			msg.append(JSON.toJSON(mm));
+
 			j.hdel("user:family", uId);
 			j.srem("family:"+fId, uId);
 			
@@ -65,7 +77,7 @@ public class QuitApi extends HandlerAdapter {
 
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, 3, Integer.parseInt(uId), ""));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, 3, Integer.parseInt(uId), msg.toString()));
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
 			return r;
