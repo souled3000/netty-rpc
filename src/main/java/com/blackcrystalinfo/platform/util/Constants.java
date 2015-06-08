@@ -34,6 +34,17 @@ public class Constants extends ConfigurableConstants{
 	public static int FAILED_LOGIN_TIMES_MAX = Integer.valueOf(getProperty("failed.login.times.max", "3"));
 	public static int FAILED_LOGIN_EXPIRE = Integer.valueOf(getProperty("failed.login.expire", "86400"));
 
+	/**
+	 * 邮箱激活连接的有效期
+	 */
+	public static int MAIL_ACTIVE_EXPIRE = Integer.valueOf(getProperty("mail.active.expire", "86400"));
+
+	/**
+	 * 用户修改密码限制
+	 */
+	public static int PASSWD_CHANGED_TIMES_MAX = Integer.valueOf(getProperty("passwd.changed.times.max", "2"));
+	public static int PASSWD_CHANGED_EXPIRE = Integer.valueOf(getProperty("passwd.changed.expire", "86400"));
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}
