@@ -8,11 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 
+import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
@@ -44,6 +46,16 @@ public class DemissionApi extends HandlerAdapter{
 				return r;
 			}
 
+			StringBuilder msg = new StringBuilder();
+			Map<String, String> mm = new HashMap<String, String>();
+			String hostNick = j.hget("user:nick", family);
+			String nick = j.hget("user:nick", userId);
+			mm.put("hostId", family);
+			mm.put("hostNick", hostNick);
+			mm.put("mId", userId);
+			mm.put("mNick", nick);
+			msg.append(JSON.toJSON(mm));
+
 			j.hdel("user:family", userId);
 			j.srem("family:"+family, userId);
 			
@@ -57,7 +69,12 @@ public class DemissionApi extends HandlerAdapter{
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(userId+"|",2, Integer.parseInt(userId), ""));
+
+			//解绑用户，除了给家庭其他成员推送外，还需要给被解绑用户推送消息。
+			members.add(userId);
+			String memlist = StringUtils.join(members.iterator(), ",") + "|";
+
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, 2, Integer.parseInt(userId), msg.toString()));
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|family:{}|status:{}", userId, family, family, r.get("status"), e);
