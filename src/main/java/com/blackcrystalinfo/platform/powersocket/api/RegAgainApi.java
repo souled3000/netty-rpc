@@ -9,6 +9,7 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class RegAgainApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String uuid = req.getParameter("uid");
+		String uid = req.getParameter("uid");
 		Jedis j = null;
 
 		int times = 0;
@@ -46,7 +47,7 @@ public class RegAgainApi extends HandlerAdapter {
 			j = DataHelper.getJedis();
 
 			// 判断邮件是否已经激活
-			String actived = j.hget("user:emailavailable", uuid);
+			String actived = j.hget("user:emailavailable", uid);
 			if (null != actived && "true".equalsIgnoreCase(actived)) {
 				logger.warn("email had been actived.");
 				r.put(status, C002B.toString());
@@ -54,7 +55,7 @@ public class RegAgainApi extends HandlerAdapter {
 			}
 
 			// 已激活次数
-			String activetimes = j.get("user:activetimes:" + uuid);
+			String activetimes = j.get("user:activetimes:" + uid);
 			if (null != activetimes && !"".equals(activetimes)) {
 				times = Integer.valueOf(activetimes);
 				if (times >= Constants.REGAGAIN_TIMES_MAX) {
@@ -65,7 +66,7 @@ public class RegAgainApi extends HandlerAdapter {
 				}
 			}
 
-			String email = j.hget("user:email", uuid);
+			String email = j.hget("user:email", uid);
 
 			String emailAddr = Constants.getProperty("email.user", "");
 			String emailPwd = Constants.getProperty("email.pwd", "");
@@ -86,6 +87,7 @@ public class RegAgainApi extends HandlerAdapter {
 			mailInfo.setToAddress(email);
 			mailInfo.setSubject("用户注册确认");
 
+			String uuid = UUID.randomUUID().toString();
 			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v="
 					+ uuid;
 			StringBuilder sb = new StringBuilder();
@@ -108,8 +110,10 @@ public class RegAgainApi extends HandlerAdapter {
 
 			// 纪录激活次数
 			times++;
-			j.setex("user:activetimes:" + uuid, Constants.REGAGAIN_EXPIRE,
+			j.setex("user:activetimes:" + uid, Constants.REGAGAIN_EXPIRE,
 					String.valueOf(times));
+			// 连接有效期
+			j.setex("user:mailActive:"+uuid, Constants.MAIL_ACTIVE_EXPIRE, uid);
 			r.put("activetimes", times);
 			if (times >= Constants.REGAGAIN_TIMES_NOTIC) {
 				logger.info("Sending many times");
@@ -125,4 +129,5 @@ public class RegAgainApi extends HandlerAdapter {
 		r.put(status, ErrorCode.SUCCESS.toString());
 		return r;
 	}
+
 }

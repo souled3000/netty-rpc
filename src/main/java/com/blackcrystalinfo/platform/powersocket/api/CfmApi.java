@@ -21,7 +21,9 @@ import redis.clients.jedis.Jedis;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.Utils;
 /**
  * 用户注册邮件确认
@@ -42,15 +44,22 @@ public class CfmApi extends HandlerAdapter {
 		try {
 			j= DataHelper.getJedis();
 			
-			String email = j.hget("user:email",sequences);
+			String uid = j.get("user:mailActive:"+sequences);
+			if (StringUtils.isBlank(uid)) {
+				return fail();
+			}
+			
+			String email = j.hget("user:email",uid);
 			if(StringUtils.isBlank(email)){
 				return fail();
 			}
-			j.hset("user:emailavailable", sequences, "true");
-			
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(sequences+"|",11, Integer.parseInt(sequences), ""));
+			j.hset("user:emailavailable", uid, "true");
+			j.del("user:activetimes:" + uid);
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uid+"|",11, Integer.parseInt(uid), ""));
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
+			e.printStackTrace();
+			logger.error("emai active failed!!!", e);
 			return fail();
 		} finally {
 			DataHelper.returnJedis(j);
@@ -84,7 +93,9 @@ public class CfmApi extends HandlerAdapter {
 		c.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 		c.append("</head>");
 		c.append("<body>");
-		c.append("<h1>激活失败,可能因为激活已过期，请在30分钟内完成激活</h1>");
+		c.append("<h1>激活失败,可能因为激活已过期，请在");
+		c.append(DateUtils.secToTime(Constants.MAIL_ACTIVE_EXPIRE));
+		c.append("内完成激活</h1>");
 		c.append("</body>");
 		c.append("</html>");
 		FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(c.toString().getBytes()));
