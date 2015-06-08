@@ -58,6 +58,8 @@ public enum ErrorCode {
 	C002D("002D")/**多次请求操作*/,
 	
 	C002E("002E")/**登录失败次数达上限*/,
+
+	C002F("002F")/**密码变更次数达到上限*/,
 	;
 	public String getCode() {
 		return code;

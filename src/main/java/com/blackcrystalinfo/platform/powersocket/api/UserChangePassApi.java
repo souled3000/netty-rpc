@@ -24,7 +24,9 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.exception.InternalException;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 @Path(path="/cp")
 public class UserChangePassApi extends HandlerAdapter {
@@ -73,6 +75,30 @@ public class UserChangePassApi extends HandlerAdapter {
 			// 0. 根据用户邮箱，查找用户ID
 			String userId = j.hget("user:mailtoid", userEmail);
 			
+			// 登陆名称验证
+			if (StringUtils.isEmpty(userId)) {
+				logger.debug("unkonw email{}", userEmail);
+				r.put(status, ErrorCode.C0020.toString());
+				return r;
+			}
+
+			// 修改密码次数
+			int times = 0;
+			String strTimes = j.get("user:passwdChangedTimes:" + userId);
+			Long ttl = j.ttl("user:passwdChangedTimes:" + userId);
+			if (StringUtils.isNotBlank(strTimes)) {
+				times = Integer.valueOf(strTimes);
+			}
+
+			// 次数达到上限
+			if (times >= Constants.PASSWD_CHANGED_TIMES_MAX) {
+				logger.warn("Change passwd too many times");
+				r.put("passwdChangedTimes", times);
+				r.put("ttl", ttl);
+				r.put(status, ErrorCode.C002F.toString());
+				return r;
+			}
+
 			// 1. 用户密码
 			String shadow = j.hget("user:shadow", userId);
 
@@ -87,6 +113,7 @@ public class UserChangePassApi extends HandlerAdapter {
 				// 验证码是否过期
 				String keyCode = new String(userEmail + "-code");
 				if (!j.exists(keyCode)) {
+					r.put(status, ErrorCode.C0015.toString());
 					logger.info("code has been expired. userEmail:{}|keyCode:{}|status:{}", userEmail,keyCode,r.get(status));
 					return r;
 				}
@@ -96,12 +123,14 @@ public class UserChangePassApi extends HandlerAdapter {
 				String strFailTime = j.get(keyCode+"fail");
 				int failTime = Integer.valueOf(strFailTime==null?"0":strFailTime);
 				if(failTime>=3){
+					r.put(status, ErrorCode.C0016.toString());
 					logger.info("the times validating beyond three. userEmail:{}|keyCode:{}|status:{}", userEmail,keyCode,r.get(status));
 					return r;
 				}
 				
 				//验证
 				if(!codeVal.equals(passOld)){
+					r.put(status, ErrorCode.C0017.toString());
 					j.incr(keyCode+"fail");//累记失败次数
 					logger.info("validating fail. userEmail:{}|keyCode:{}|status:{}", userEmail,keyCode,r.get(status));
 					return r;
@@ -113,6 +142,10 @@ public class UserChangePassApi extends HandlerAdapter {
 			j.hset("user:shadow", userId, newShadow);
 			j.publish("PubModifiedPasswdUser", userId);
 
+			// 4. 修改密码有次数限制：24小时内只能成功改两次
+			times++;
+			j.setex("user:passwdChangedTimes:"+userId, Constants.PASSWD_CHANGED_EXPIRE, String.valueOf(times));
+			r.put("changedTimes", times);
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
 			logger.error("User change password error", e);
