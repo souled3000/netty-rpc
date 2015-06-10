@@ -145,7 +145,7 @@ public class UserChangePassApi extends HandlerAdapter {
 			// 4. 修改密码有次数限制：24小时内只能成功改两次
 			times++;
 			j.setex("user:passwdChangedTimes:"+userId, Constants.PASSWD_CHANGED_EXPIRE, String.valueOf(times));
-			r.put("changedTimes", times);
+			r.put("passwdChangedTimes", times);
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
 			logger.error("User change password error", e);
