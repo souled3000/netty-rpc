@@ -12,15 +12,14 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import redis.clients.jedis.Jedis;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.powersocket.data.User;
+import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.DataHelper;
-
 
 /**
  * 修改用户昵称
@@ -28,49 +27,49 @@ import com.blackcrystalinfo.platform.util.DataHelper;
  * @author j
  * 
  */
-@Path(path="/mobile/cn")
+@Controller("/mobile/cn")
 public class UserChangeNickApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserChangeNickApi.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(UserChangeNickApi.class);
+
+	@Autowired
+	ILoginSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<Object,Object> r = new HashMap<Object,Object>();
-		r.put(status, SYSERROR.toString());
+		Map<Object, Object> r = new HashMap<Object, Object>();
 
-		String cookie = req.getParameter( "cookie");
+		String cookie = req.getParameter("cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String nick = req.getParameter( "nick");
-		
-		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}", userId, cookie, nick);
+		String nick = req.getParameter("nick");
 
-		if(StringUtils.isBlank(nick)){
+		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}",
+				userId, cookie, nick);
+
+		if (StringUtils.isBlank(nick)) {
 			r.put(status, C0025.toString());
 			return r;
 		}
-		
-		Jedis jedis = null;
+
 		// 1. 校验cookie信息
 		try {
-			jedis = DataHelper.getJedis();
-			
-			String oldNick = jedis.hget("user:nick", userId);
-			if (!nick.equals(oldNick)) {
+			User user = loginSvr.userGet(User.UserIDColumn, userId);
+			if (!nick.equals(user.getNick())) {
 				// 新旧Nick不一致时修改
-				jedis.hset("user:nick", userId, nick);
-			}else{
+				loginSvr.userChangeNick(userId, nick);
+			} else {
 				r.put(status, C0026.toString());
 				return r;
 			}
+			r.put(status, SUCCESS.toString());
+			logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}",
+					userId, cookie, nick, r.get(status));
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(jedis);
+			r.put(status, SYSERROR.toString());
 			logger.error("", e);
 			return r;
-		} finally {
-			DataHelper.returnJedis(jedis);
 		}
-		logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}", userId, cookie, nick, r.get(status));
-		r.put(status,SUCCESS.toString());
 		return r;
 	}
 
