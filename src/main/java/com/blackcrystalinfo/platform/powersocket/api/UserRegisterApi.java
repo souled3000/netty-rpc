@@ -64,6 +64,7 @@ public class UserRegisterApi extends HandlerAdapter {
 					email, phone, pwd, mapping.get(status));
 			return false;
 		}
+
 		return true;
 	}
 
