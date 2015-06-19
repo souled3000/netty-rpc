@@ -32,8 +32,8 @@ public class Device implements RowMapper<Object>{
 		return userid;
 	}
 
-	public void setUserID(String id) {
-		this.id = userid;
+	public void setUserID(String userid) {
+		this.userid = userid;
 	}
 	
 	private String name;
@@ -42,8 +42,8 @@ public class Device implements RowMapper<Object>{
 		return name;
 	}
 
-	public void setName(String id) {
-		this.id = name;
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	private String mac;
@@ -52,8 +52,8 @@ public class Device implements RowMapper<Object>{
 		return mac;
 	}
 
-	public void setMac(String id) {
-		this.id = mac;
+	public void setMac(String mac) {
+		this.mac = mac;
 	}
 	
 	private String sn;
@@ -62,8 +62,8 @@ public class Device implements RowMapper<Object>{
 		return sn;
 	}
 
-	public void setSN(String id) {
-		this.id = sn;
+	public void setSN(String sn) {
+		this.sn = sn;
 	}
 	
 	private String encryptkey;
@@ -72,8 +72,8 @@ public class Device implements RowMapper<Object>{
 		return encryptkey;
 	}
 
-	public void setEncryptKey(String id) {
-		this.id = encryptkey;
+	public void setEncryptKey(String encryptkey) {
+		this.encryptkey = encryptkey;
 	}
 	
 	private String regtime;
@@ -82,8 +82,8 @@ public class Device implements RowMapper<Object>{
 		return regtime;
 	}
 
-	public void setRegTime(String id) {
-		this.id = regtime;
+	public void setRegTime(String regtime) {
+		this.regtime = regtime;
 	}
 	
 	private String parentid;
@@ -92,8 +92,8 @@ public class Device implements RowMapper<Object>{
 		return parentid;
 	}
 
-	public void setParentID(String id) {
-		this.id = parentid;
+	public void setParentID(String parentid) {
+		this.parentid = parentid;
 	}
 	
 	private String deviceType;
@@ -102,8 +102,8 @@ public class Device implements RowMapper<Object>{
 		return deviceType;
 	}
 
-	public void setDeviceType(String id) {
-		this.id = deviceType;
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 
 	@Override
