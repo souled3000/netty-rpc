@@ -32,7 +32,7 @@ public class User implements RowMapper<Object>{
 		user.setNick((rs.getString(UserNickColumn)));
 		user.setShadow((rs.getString(UserShadowColumn)));
 		user.setEmailable((rs.getString(UserEmailableShadowColumn)));
-		user.setAdminid(UserAdminidColumn);
+		//user.setAdminid(UserAdminidColumn);
 		return user;
 	}
 	
