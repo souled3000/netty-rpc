@@ -57,7 +57,7 @@ public class UserChangeNickApi extends HandlerAdapter {
 			User user = loginSvr.userGet(User.UserIDColumn, userId);
 			if (!nick.equals(user.getNick())) {
 				// 新旧Nick不一致时修改
-				loginSvr.userChangeNick(userId, nick);
+				loginSvr.userChangeProperty(userId, User.UserNickColumn,nick);
 			} else {
 				r.put(status, C0026.toString());
 				return r;

@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import redis.clients.jedis.Jedis;
 
@@ -24,6 +25,8 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.exception.InternalException;
+import com.blackcrystalinfo.platform.powersocket.data.User;
+import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
@@ -32,11 +35,33 @@ import com.blackcrystalinfo.platform.util.PBKDF2;
 public class UserChangePassApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserChangePassApi.class);
 
+	@Autowired
+	ILoginSvr loginSvr;
+	
+	private boolean valid(String userEmail,String passOld,String passNew,Map<Object, Object> r){
+		if (StringUtils.isBlank(userEmail)) {
+			r.put(status, C002A.toString());
+			logger.info("userEmail is null. userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
+			return false;
+		}
+		if (StringUtils.isBlank(passOld)) {
+			r.put(status, C000D.toString());
+			logger.info("passOld is null. userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
+			return false;
+		}
+		if (StringUtils.isBlank(passNew)) {
+			r.put(status, C000E.toString());
+			logger.info("passNew is null. userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
+			return false;
+		}
+		return true;
+	}
+	
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		logger.info("Begin UserChangePass");
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		r.put(status, SYSERROR.toString());
+		
 
 		String key = req.getHeaders().get(HttpHeaders.Names.COOKIE);
 		String userEmail = req.getParameter( "email");
@@ -44,19 +69,7 @@ public class UserChangePassApi extends HandlerAdapter {
 		String passNew = req.getParameter( "passNew");
 		logger.info("UserChangePassHandler begin userEmail:{}|passOld:{}|passNew:{}", userEmail, passOld, passNew);
 
-		if (StringUtils.isBlank(userEmail)) {
-			r.put(status, C002A.toString());
-			logger.info("userEmail is null. userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
-			return r;
-		}
-		if (StringUtils.isBlank(passOld)) {
-			r.put(status, C000D.toString());
-			logger.info("passOld is null. userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
-			return r;
-		}
-		if (StringUtils.isBlank(passNew)) {
-			r.put(status, C000E.toString());
-			logger.info("passNew is null. userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
+		if( !valid(userEmail,passOld,passNew,r) ){
 			return r;
 		}
 
@@ -73,7 +86,9 @@ public class UserChangePassApi extends HandlerAdapter {
 				}
 			
 			// 0. 根据用户邮箱，查找用户ID
-			String userId = j.hget("user:mailtoid", userEmail);
+			User user = loginSvr.userGet(User.UserNameColumn, userEmail);
+						
+			String userId = user.getId();
 			
 			// 登陆名称验证
 			if (StringUtils.isEmpty(userId)) {
@@ -100,7 +115,7 @@ public class UserChangePassApi extends HandlerAdapter {
 			}
 
 			// 1. 用户密码
-			String shadow = j.hget("user:shadow", userId);
+			String shadow = user.getShadow();
 
 			// 2. 校验密码是否正确
 			if (!PBKDF2.validate(passOld, shadow)) {
@@ -139,23 +154,25 @@ public class UserChangePassApi extends HandlerAdapter {
 
 			// 3. 生成新密码
 			String newShadow = PBKDF2.encode(passNew);
-			j.hset("user:shadow", userId, newShadow);
+			//j.hset("user:shadow", userId, newShadow);
+			loginSvr.userChangeProperty(userId, User.UserShadowColumn, newShadow);
 			j.publish("PubModifiedPasswdUser", userId);
 
 			// 4. 修改密码有次数限制：24小时内只能成功改两次
 			times++;
 			j.setex("user:passwdChangedTimes:"+userId, Constants.PASSWD_CHANGED_EXPIRE, String.valueOf(times));
 			r.put("passwdChangedTimes", times);
+			
+			r.put(status, SUCCESS.toString());
+			logger.info("ronse: userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			r.put(status, SYSERROR.toString());
 			logger.error("User change password error", e);
 			throw new InternalException(e.getMessage());
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 
-		logger.info("ronse: userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
-		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

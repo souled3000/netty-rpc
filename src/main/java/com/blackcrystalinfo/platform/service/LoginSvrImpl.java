@@ -55,10 +55,12 @@ public class LoginSvrImpl implements ILoginSvr {
 				new User());
 	}
 
-	public void userChangeNick(String userid, String nick) {
-		String sql = "update user set " + User.UserNickColumn + "=? where "
-				+ User.UserIDColumn + "=?";
-		jdbcTemplate.update(sql, new Object[] { nick, userid });
+	@Transactional
+	public void userChangeProperty(String userid,String key,String value){
+		String sql = "update user set "+key+"=? where "+User.UserIDColumn+"=?";
+		jdbcTemplate.update(sql,new Object[]{
+				value,
+				userid});
 	}
 
 	// end of user
