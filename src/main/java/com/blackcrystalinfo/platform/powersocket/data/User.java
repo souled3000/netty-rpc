@@ -23,15 +23,20 @@ public class User implements RowMapper<Object>{
 	
 	@Override
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-		User user = new User();
+		User user = null;
+		if(!rs.wasNull())
+		{
+			user = new User();
+			
+			user.setId((rs.getString(UserIDColumn)));
+			user.setEmail((rs.getString(UserEmailColumn)));
+			user.setUserName((rs.getString(UserNameColumn)));
+			user.setPhone((rs.getString(UserPhoneColumn)));
+			user.setNick((rs.getString(UserNickColumn)));
+			user.setShadow((rs.getString(UserShadowColumn)));
+			user.setEmailable((rs.getString(UserEmailableShadowColumn)));
+		}
 		
-		user.setId((rs.getString(UserIDColumn)));
-		user.setEmail((rs.getString(UserEmailColumn)));
-		user.setUserName((rs.getString(UserNameColumn)));
-		user.setPhone((rs.getString(UserPhoneColumn)));
-		user.setNick((rs.getString(UserNickColumn)));
-		user.setShadow((rs.getString(UserShadowColumn)));
-		user.setEmailable((rs.getString(UserEmailableShadowColumn)));
 		//user.setAdminid(UserAdminidColumn);
 		return user;
 	}
