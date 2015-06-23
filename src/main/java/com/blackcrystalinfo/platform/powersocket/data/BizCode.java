@@ -1,5 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.data;
-
+/**	消息编码类型	*/
 public enum BizCode {
 	/**	1.用户成功加入到家庭	*/
     FamilyAddSuccess(1), 
