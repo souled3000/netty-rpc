@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000D;
+
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000E;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000F;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
@@ -31,6 +32,12 @@ import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.PBKDF2;
+
+/**
+ * 修改密码
+ * 
+ * @author Shenjz
+ */
 @Path(path="/cp")
 public class UserChangePassApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserChangePassApi.class);
