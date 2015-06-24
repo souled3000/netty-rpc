@@ -25,6 +25,11 @@ import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
+/**
+ * 用户登陆
+ * 
+ * @author Shenjz
+ */
 @Controller("/login")
 public class UserLoginApi extends HandlerAdapter {
 

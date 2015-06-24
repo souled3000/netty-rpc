@@ -24,7 +24,7 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 /**
  * 修改用户昵称
  * 
- * @author j
+ * @author shenjizhe
  * 
  */
 @Controller("/mobile/cn")

@@ -24,7 +24,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
  * 
  * 用户登录后获取用户信息接口
  * 
- * @author j
+ * @author shenjizhe
  * 
  */
 
@@ -60,7 +60,7 @@ public class UserInfoApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
-			logger.error("", e);
+			logger.error("User Info API", e);
 			return r;
 		}
 
