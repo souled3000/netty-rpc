@@ -9,18 +9,18 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
-@Path(path="/mobile/cometadr")
+@Controller("/mobile/cometadr")
 public class CometAdrApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CometAdrApi.class);
 
@@ -46,7 +46,6 @@ public class CometAdrApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("System error occurs", e);
-			//DataHelper.returnBrokenJedis(jedis);
 			return r;
 		} finally {
 			DataHelper.returnJedis(jedis);
