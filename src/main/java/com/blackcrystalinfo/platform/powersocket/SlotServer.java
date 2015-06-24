@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.blackcrystalinfo.platform.App;
-import com.blackcrystalinfo.platform.util.Constants;
 
 @Configuration
 public class SlotServer {

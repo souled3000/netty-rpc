@@ -5,14 +5,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.powersocket.data.Device;
-import com.blackcrystalinfo.platform.util.SpringUtils;
 import com.blackcrystalinfo.platform.util.StringUtil;
 
 @Repository
@@ -182,21 +180,4 @@ public class DeviceDaoImpl implements IDeviceDao {
 
 	}
 
-	public static void main(String[] args) {
-		ApplicationContext ctx = SpringUtils.getCtx();
-
-		IDeviceDao dao = ctx.getBean(IDeviceDao.class);
-
-		String macStr = "KyuqJk6cAAA=";
-		try {
-			byte[] mac = StringUtil.base64Decode(macStr);
-			Device dev = dao.get(mac);
-
-			System.out.println(dev.getBase64Mac());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
 }

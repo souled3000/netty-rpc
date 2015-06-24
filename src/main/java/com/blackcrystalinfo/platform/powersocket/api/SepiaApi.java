@@ -14,16 +14,16 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
-@Path(path="/sepia")
+@Controller("/sepia")
 public class SepiaApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(SepiaApi.class);
 	@Override
@@ -33,7 +33,7 @@ public class SepiaApi extends HandlerAdapter {
 		String code = req.getParameter( "code");
 		logger.info("sepia:{}|{}|{}",cookie,sepia,code);
 		Jedis j = DataHelper.getJedis();
-		Map ret = new HashMap();
+		Map<String, Object> ret = new HashMap<String, Object>();
 		ret.put("status", "ffff");
 		try{
 			String word = j.get(cookie);
@@ -42,7 +42,6 @@ public class SepiaApi extends HandlerAdapter {
 				return ret;
 			}
 			Boolean isResponseCorrect = Boolean.FALSE;
-//			isResponseCorrect = CaptchaServiceSingleton.getInstance().validateResponseForID(cookie, sepia.toUpperCase());
 			isResponseCorrect = sepia.toUpperCase().equals(word);
 			if (isResponseCorrect){
 				j.setex(code+cookie, Captcha.expire, "succ");

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 /**

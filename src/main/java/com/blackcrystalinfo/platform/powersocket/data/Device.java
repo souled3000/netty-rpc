@@ -5,6 +5,8 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.blackcrystalinfo.platform.util.StringUtil;
+
 public class Device implements RowMapper<Object>{
 	public static final String DeviceIDColumn = "id";
 	public static final String DeviceUserIDColumn = "user_id";
@@ -46,14 +48,22 @@ public class Device implements RowMapper<Object>{
 		this.name = name;
 	}
 	
-	private String mac;
+	private byte[] mac;
 	
-	public String getMac() {
+	public byte[] getMac() {
 		return mac;
 	}
 
-	public void setMac(String mac) {
+	public void setMac(byte[] mac) {
 		this.mac = mac;
+	}
+	
+	public String getHexMac(){
+		return StringUtil.toHex(mac);
+	}
+	
+	public String getBase64Mac(){
+		return StringUtil.base64Encode(mac);
 	}
 	
 	private String sn;
@@ -112,7 +122,7 @@ public class Device implements RowMapper<Object>{
 		device.setID((rs.getString("id")));
 		device.setUserID((rs.getString("user_id")));
 		device.setName((rs.getString("name")));
-		device.setMac((rs.getString("mac")));
+		device.setMac(rs.getBytes("mac"));
 		device.setSN((rs.getString("sn")));
 		device.setEncryptKey((rs.getString("encryptkey")));
 		device.setRegTime((rs.getString("regtime")));
@@ -125,7 +135,7 @@ public class Device implements RowMapper<Object>{
 		
 	}
 	
-	public Device(String id,String userID,String name,String mac,String sn,String encryptkey,String regtime,String parentid,String device_type){
+	public Device(String id,String userID,String name,byte[] mac,String sn,String encryptkey,String regtime,String parentid,String device_type){
 		this.id=id;
 		this.userid = userID;
 		this.name = name;
