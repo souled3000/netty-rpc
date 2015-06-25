@@ -47,7 +47,7 @@
 			<value>-1</value>
 		</property>
 		<property name="defaultAutoCommit">
-			<value>false</value>
+			<value>true</value>
 		</property>
 		<property name="testOnBorrow">
 			<value>true</value>

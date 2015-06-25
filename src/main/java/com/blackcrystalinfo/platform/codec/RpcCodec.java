@@ -59,7 +59,9 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		try {
 			return ctx.getBean(beanName, IHandler.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (logger.isDebugEnabled()){
+				logger.debug("get bean exception.", e);
+			}
 		}
 		return null;
 	}
@@ -113,9 +115,6 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		HttpPostRequestDecoder decoder = null;
 		if (req.getMethod() == HttpMethod.POST)
 			decoder = new HttpPostRequestDecoder(req);
-		// IHandler validateHandler =
-		// HandlerManager.getHandler(reqUrl.substring(0,
-		// reqUrl.lastIndexOf("/")));
 		IHandler validateHandler = (IHandler) this.getBean(reqUrl.substring(0,
 				reqUrl.lastIndexOf("/")));
 		IHandler handler = null;
