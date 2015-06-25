@@ -93,7 +93,10 @@ public class DeviceDaoImpl implements IDeviceDao {
 			result = deviceId.toString();
 
 		} catch (Exception e) {
-			logger.warn("device not exist, mac={}, e={}", mac, e);
+			if (logger.isDebugEnabled()) {
+				logger.debug("device not exist, mac={}, e={}", mac,
+						e.getMessage());
+			}
 		}
 
 		return result;
@@ -130,7 +133,9 @@ public class DeviceDaoImpl implements IDeviceDao {
 				result = Long.toString(deviceId);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (logger.isDebugEnabled()) {
+				logger.debug("regist dev failed", e);
+			}
 		}
 
 		return result;
@@ -139,7 +144,7 @@ public class DeviceDaoImpl implements IDeviceDao {
 	@Override
 	public void setNameById(String id, String name) {
 		if (null == id) {
-			logger.warn("Device id is null");
+			logger.warn("Device id is null, do nothing.");
 			return;
 		}
 
