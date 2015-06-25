@@ -13,14 +13,13 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.exception.InternalException;
-import com.blackcrystalinfo.platform.powersocket.api.UserLoginApi;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 
 @Controller("/api/device/register")
 public class DeviceRegisterHandler extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(UserLoginApi.class);
+			.getLogger(DeviceRegisterHandler.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;
