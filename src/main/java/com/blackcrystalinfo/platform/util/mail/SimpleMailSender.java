@@ -63,7 +63,7 @@ public class SimpleMailSender {
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
-			logger.info("发txt邮件失败了：",ex);
+			logger.error("发txt邮件失败了：",ex);
 		}
 		return false;
 	}
@@ -112,7 +112,7 @@ public class SimpleMailSender {
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
-			logger.info("发html邮件失败了：",ex);
+			logger.error("发html邮件失败了：",ex);
 		}
 		return false;
 	}

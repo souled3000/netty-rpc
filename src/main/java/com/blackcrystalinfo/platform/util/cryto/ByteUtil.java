@@ -54,7 +54,7 @@ public class ByteUtil {
 	public static String byte2String(byte[] b) {
 		StringBuilder sb = new StringBuilder(b.length + b.length - 1);
 		for (int i = 0; i < b.length; i++) {
-			sb.append(b[i]);
+			sb.append(Integer.toHexString(b[i]));
 			if (i < b.length - 1)
 				sb.append(",");
 		}
@@ -134,6 +134,14 @@ public class ByteUtil {
 		Map m = new HashMap();
 		m.put("status", 1);
 		System.out.println(writeJSON(m));
+		
+		System.out.println(ByteOrder.nativeOrder());
+		
+		byte[] z =new byte[]{0,0,0,1};
+		System.out.println(ByteUtil.toHex(z));
+		System.out.println(ByteUtil.toHex(ByteUtil.littleEndian(z)));
+		System.out.println(ByteUtil.toHex(ByteUtil.bigEndian(z)));
+		
 	}
 
 	public static byte[] reverse(byte[] src) {
@@ -142,5 +150,19 @@ public class ByteUtil {
 		bb.put(src);
 		bb.slice();
 		return ByteUtil.fromHex(Long.toHexString(bb.getLong(0)));
+	}
+	public static byte[] littleEndian(byte[] src){
+		ByteBuffer bb = ByteBuffer.allocate(src.length);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
+		bb.put(src);
+		bb.slice();
+		return bb.array();
+	}
+	public static byte[] bigEndian(byte[] src){
+		ByteBuffer bb = ByteBuffer.allocate(src.length);
+		bb.order(ByteOrder.BIG_ENDIAN);
+		bb.put(src);
+		bb.slice();
+		return bb.array();
 	}
 }
