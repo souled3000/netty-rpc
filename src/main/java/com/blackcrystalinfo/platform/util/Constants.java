@@ -45,6 +45,11 @@ public class Constants extends ConfigurableConstants{
 	public static int PASSWD_CHANGED_TIMES_MAX = Integer.valueOf(getProperty("passwd.changed.times.max", "2"));
 	public static int PASSWD_CHANGED_EXPIRE = Integer.valueOf(getProperty("passwd.changed.expire", "86400"));
 
+	/**
+	 * 数据库密码密文保存
+	 */
+	public static String DB_PWD_RAWKEY = getProperty("db.pwd.rawkey", "blackcrystal");
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}

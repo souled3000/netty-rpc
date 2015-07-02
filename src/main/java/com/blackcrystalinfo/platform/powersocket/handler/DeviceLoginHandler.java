@@ -52,7 +52,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 
 		try {
 			// 1. 根据mac获取deviceId
-			String id = deviceDao.getIdByMac(mac);
+			Long id = deviceDao.getIdByMac(mac);
 			if (null == id) {
 				r.put("status", 2);
 				logger.info("Mac does not exist. mac:{}|cookie:{}|status:{}",
@@ -60,7 +60,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 				return r;
 			}
 			try {
-				if (!CookieUtil.verifyDeviceKey(mac, cookie, id)) {
+				if (!CookieUtil.verifyDeviceKey(mac, cookie, id.toString())) {
 					r.put("status", 1);
 					logger.info(
 							"mac not matched cookie mac:{}|cookie:{}|status:{}",
@@ -72,11 +72,12 @@ public class DeviceLoginHandler extends HandlerAdapter {
 						mac, cookie, r.get("status"), 3);
 				return r;
 			}
+
 			if (StringUtils.isNotBlank(pid)) {
-				deviceDao.setPidById(id, pid);
+				deviceDao.setPidById(id, Long.valueOf(pid));
 			}
 
-			String proxyKey = CookieUtil.generateKey(id,
+			String proxyKey = CookieUtil.generateKey(id.toString(),
 					String.valueOf(System.currentTimeMillis() / 1000),
 					CookieUtil.EXPIRE_SEC);
 			String proxyAddr = CometScanner.take();

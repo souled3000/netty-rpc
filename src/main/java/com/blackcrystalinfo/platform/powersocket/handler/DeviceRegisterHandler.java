@@ -3,6 +3,7 @@ package com.blackcrystalinfo.platform.powersocket.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +61,26 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 		try {
 			// 1. 设备MAC是否已被注册
-			String existId = deviceDao.getIdByMac(mac);
+			Long existId = deviceDao.getIdByMac(mac);
 			if (null == existId) {
-				existId = deviceDao.regist(mac, sn, name, pid, dv);
+
+				Long lPid = null;
+				Integer iDv = null;
+				if (StringUtils.isNotBlank(pid)) {
+					lPid = Long.valueOf(pid);
+				}
+				if (StringUtils.isNotBlank(dv)) {
+					iDv = Integer.valueOf(dv);
+				}
+
+				deviceDao.regist(mac, sn, name, lPid, iDv);
+				existId = deviceDao.getIdByMac(mac);
 			}
 
-			String cookie = CookieUtil.generateDeviceKey(mac, existId);
+			String cookie = "";
+			if (null != existId) {
+				cookie = CookieUtil.generateDeviceKey(mac, existId.toString());
+			}
 			r.put("cookie", cookie);
 		} catch (Exception e) {
 			logger.error("Device regist error mac:{}|sn:{}|bv:{}", mac, sn, dv,

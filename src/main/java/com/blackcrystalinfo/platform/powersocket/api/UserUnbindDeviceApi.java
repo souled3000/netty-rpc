@@ -23,7 +23,6 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.StringUtil;
 
 @Path(path = "/mobile/unbind")
 public class UserUnbindDeviceApi extends HandlerAdapter {
@@ -59,14 +58,12 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			byte[] macByte = StringUtil.mac2Byte(mac);
-
-			if (!deviceDao.exists(macByte)) {
+			if (!deviceDao.exists(mac)) {
 				r.put(status, C0003.toString());
 				return r;
 			}
 
-			String deviceId = String.valueOf(deviceDao.getIdByMac(macByte));
+			String deviceId = String.valueOf(deviceDao.getIdByMac(mac));
 			String owner = j.hget("device:owner", deviceId);
 			if (owner == null || !StringUtils.equals(owner, userId)) {
 				r.put(status, C0005.toString());

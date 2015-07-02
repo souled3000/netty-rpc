@@ -41,13 +41,12 @@ public class DeviceNameChangingHandler extends HandlerAdapter {
 		logger.info("chang name begin, mac:{}|name:{}", mac, name);
 
 		try {
-			String id = deviceDao.getIdByMac(mac);
+			Long id = deviceDao.getIdByMac(mac);
 			if (id == null) {
 				r.put("status", 1);
 				logger.error("Device not exist, mac:{}", mac);
 				return r;
 			}
-
 			deviceDao.setNameById(id, name);
 		} catch (Exception e) {
 			r.put("status", -1);

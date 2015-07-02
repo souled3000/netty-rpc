@@ -12,14 +12,13 @@ import io.netty.handler.codec.http.HttpHeaders;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.CookieUtil;
 
-@Path(path="/mobile/facedown")
+@Controller("/mobile/facedown")
 public class FaceDownApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Long l = System.currentTimeMillis();

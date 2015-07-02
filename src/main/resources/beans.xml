@@ -30,7 +30,11 @@
 		<property name="driverClassName" value="${jdbc.driverClassName}" />
 		<property name="url" value="${jdbc.url}" />
 		<property name="username" value="${jdbc.username}" />
-		<property name="password" value="${jdbc.password}" />
+		<property name="password">
+			<bean class="com.blackcrystalinfo.platform.util.PasswordDecoder">
+				<property name="code" value="${jdbc.password}" />
+			</bean>
+		</property>
 		<property name="maxActive">
 			<value>100</value>
 		</property>

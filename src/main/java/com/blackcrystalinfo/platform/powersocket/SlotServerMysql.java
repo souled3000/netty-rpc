@@ -11,9 +11,9 @@ import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.Constants;
 
 @Configuration
-public class SlotServer {
+public class SlotServerMysql {
 	private static final Logger logger = LoggerFactory
-			.getLogger(SlotServer.class);
+			.getLogger(SlotServerMysql.class);
 
 	@Bean(initMethod = "run")
 	public App app() throws InterruptedException {
@@ -31,4 +31,5 @@ public class SlotServer {
 
 		ctx.close();
 	}
+
 }

@@ -22,7 +22,6 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.StringUtil;
 
 /**
  * 添加设备到家庭
@@ -68,8 +67,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			byte[] macByte = StringUtil.mac2Byte(mac);
-			if (!deviceDao.exists(macByte)) {
+			if (!deviceDao.exists(mac)) {
 				r.put(status, C0003.toString());
 				logger.info(
 						"There isn't this device. mac:{}|user:{}|status:{}",
@@ -77,7 +75,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 				return r;
 			}
 
-			deviceId = String.valueOf(deviceDao.getIdByMac(macByte));
+			deviceId = String.valueOf(deviceDao.getIdByMac(mac));
 			String owner = j.hget("device:owner", deviceId);
 			if (owner != null) {
 				r.put(status, C0004.toString());

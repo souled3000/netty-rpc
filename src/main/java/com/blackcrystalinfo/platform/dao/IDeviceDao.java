@@ -2,6 +2,12 @@ package com.blackcrystalinfo.platform.dao;
 
 import com.blackcrystalinfo.platform.powersocket.data.Device;
 
+/**
+ * 设备数据库访问接口
+ * 
+ * @author j
+ * 
+ */
 public interface IDeviceDao {
 
 	/**
@@ -18,15 +24,34 @@ public interface IDeviceDao {
 	 * @param dv
 	 *            设备类型
 	 */
-	void regist(byte[] mac, String sn, String name, Long pid, Integer dv);
+	void regist(String mac, String sn, String name, Long pid, Integer dv);
 
-	String regist(String mac, String sn, String name, String pid, String dv);
-
+	/**
+	 * 获取设备
+	 * 
+	 * @param id
+	 *            设备ID
+	 * @return
+	 */
 	Device get(Long id);
 
-	Device get(byte[] mac);
+	/**
+	 * 获取设备
+	 * 
+	 * @param mac
+	 *            设备mac地址
+	 * @return
+	 */
+	Device get(String mac);
 
-	boolean exists(byte[] mac);
+	/**
+	 * 设备是否存在
+	 * 
+	 * @param mac
+	 *            设备mac地址
+	 * @return
+	 */
+	boolean exists(String mac);
 
 	/**
 	 * 获取设备Id
@@ -35,11 +60,16 @@ public interface IDeviceDao {
 	 *            设备mac地址
 	 * @return 设备Id
 	 */
-	Long getIdByMac(byte[] mac);
+	Long getIdByMac(String mac);
 
-	String getIdByMac(String mac);
-
-	byte[] getMacById(Long id);
+	/**
+	 * 获取设备mac
+	 * 
+	 * @param id
+	 *            设备ID
+	 * @return 设备mac地址
+	 */
+	String getMacById(Long id);
 
 	/**
 	 * 修改设备网关
@@ -51,8 +81,6 @@ public interface IDeviceDao {
 	 */
 	void setPidById(Long id, Long pid);
 
-	void setPidById(String id, String pid);
-
 	/**
 	 * 修改设备名称
 	 * 
@@ -62,7 +90,5 @@ public interface IDeviceDao {
 	 *            设备名称
 	 */
 	void setNameById(Long id, String name);
-
-	void setNameById(String id, String name);
 
 }
