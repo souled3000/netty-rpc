@@ -26,19 +26,7 @@ public enum BizCode {
     /**	11.用户邮件成功激活	*/
     UserActivateSuccess(11),
     /**	12.用户手机号码绑定成功 	*/
-    UserPhoneBindSuccess(12)
-    {
-        @Override
-        public boolean isRest() {
-            return true;
-        }
-    },
-    SUN(0) {
-        @Override
-        public boolean isRest() {
-            return true;
-        }
-    };
+    UserPhoneBindSuccess(12);
  
     private int value;
  
@@ -48,9 +36,5 @@ public enum BizCode {
  
     public int getValue() {
         return value;
-    }
- 
-    public boolean isRest() {
-        return false;
     }
 }

@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000D;
-
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000E;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000F;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
@@ -18,12 +17,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.data.User;
@@ -38,7 +37,7 @@ import com.blackcrystalinfo.platform.util.PBKDF2;
  * 
  * @author Shenjz
  */
-@Path(path="/cp")
+@Controller("/cp")
 public class UserChangePassApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserChangePassApi.class);
 

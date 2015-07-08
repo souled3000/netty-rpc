@@ -12,13 +12,13 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.powersocket.data.BizCode;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
@@ -31,7 +31,7 @@ import com.blackcrystalinfo.platform.util.Utils;
  * 
  * @author Shenjz
  */
-@Path(path="/mobile/invitation")
+@Controller("/mobile/invitation")
 public class InvitationApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(InvitationApi.class);
 	

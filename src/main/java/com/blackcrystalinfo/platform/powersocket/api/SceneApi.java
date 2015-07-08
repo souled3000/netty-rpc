@@ -11,23 +11,27 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
-@Path(path = "/mobile/scene")
+/**
+ * 情景模式
+ * 
+ * @author shenjizhe
+ */
+@Controller("/mobile/scene")
 public class SceneApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(SceneApi.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		r.put(status, SYSERROR.toString());
 
 		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 		String scenename = req.getParameter("sceneName");
@@ -61,14 +65,14 @@ public class SceneApi extends HandlerAdapter {
 				r.put("scene", sm);
 			}
 
+			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
+			r.put(status, SYSERROR.toString());
 			logger.info("",e);
-			//DataHelper.returnBrokenJedis(j);
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 
-		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

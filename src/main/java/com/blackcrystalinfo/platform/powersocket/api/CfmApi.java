@@ -15,24 +15,33 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.powersocket.data.BizCode;
+import com.blackcrystalinfo.platform.powersocket.data.User;
+import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.Utils;
+
 /**
  * 用户注册邮件确认
  * @author juliana
  *
  */
-@Path(path="/cfm")
+@Controller("/cfm")
 public class CfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CfmApi.class);
+	
+	@Autowired
+	ILoginSvr loginSvr;
+	
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 
@@ -49,13 +58,15 @@ public class CfmApi extends HandlerAdapter {
 				return fail();
 			}
 			
-			String email = j.hget("user:email",uid);
+			User user = loginSvr.userGet(User.UserIDColumn, uid);
+			String email = user.getEmail();
 			if(StringUtils.isBlank(email)){
 				return fail();
 			}
-			j.hset("user:emailavailable", uid, "true");
+			loginSvr.userChangeProperty(uid, User.UserEmailableShadowColumn, "true");
 			j.del("user:activetimes:" + uid);
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uid+"|",11, Integer.parseInt(uid), ""));
+			j.del("user:mailActive:"+sequences);//激活了，这个链接就没用了，下次调用直接fail
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uid+"|",BizCode.UserActivateSuccess.getValue(), Integer.parseInt(uid), ""));
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
 			e.printStackTrace();
@@ -93,7 +104,7 @@ public class CfmApi extends HandlerAdapter {
 		c.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 		c.append("</head>");
 		c.append("<body>");
-		c.append("<h1>激活失败,可能因为激活已过期，请在");
+		c.append("<h1>激活失败,可能因为连接已失效；也可能因为激活已过期，请在");
 		c.append(DateUtils.secToTime(Constants.MAIL_ACTIVE_EXPIRE));
 		c.append("内完成激活</h1>");
 		c.append("</body>");

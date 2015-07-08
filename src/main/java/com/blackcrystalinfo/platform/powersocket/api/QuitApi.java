@@ -3,7 +3,6 @@ package com.blackcrystalinfo.platform.powersocket.api;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,25 +10,37 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.powersocket.data.BizCode;
+import com.blackcrystalinfo.platform.powersocket.data.User;
+import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.Utils;
 
-@Path(path="/mobile/quit")
+/**
+ * 
+ * @author ShenJZ
+ *	用户退出家庭
+ */
+@Controller("/mobile/quit")
 public class QuitApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(QuitApi.class);
 
+	@Autowired
+	ILoginSvr loginSvr;
+
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		r.put(status, SYSERROR.toString());
+
 		String uId = CookieUtil.gotUserIdFromCookie(req.getParameter( "cookie"));
 		Jedis j = null;
 		try {
@@ -50,8 +61,12 @@ public class QuitApi extends HandlerAdapter {
 
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
-			String hostNick = j.hget("user:nick", fId);
-			String nick = j.hget("user:nick", uId);
+
+			User user = loginSvr.userGet(User.UserIDColumn, uId);
+			User familyUser = loginSvr.userGet(User.UserIDColumn, fId);
+			String hostNick = familyUser.getNick();
+			String nick = user.getNick();
+
 			mm.put("hostId", fId);
 			mm.put("hostNick", hostNick);
 			mm.put("mId", uId);
@@ -77,14 +92,15 @@ public class QuitApi extends HandlerAdapter {
 
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, 3, Integer.parseInt(uId), msg.toString()));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
+			r.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			r.put(status, SYSERROR.toString());
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
 		}
-		r.put(status, ErrorCode.SUCCESS.toString());
+
 		return r;
 	}
 }

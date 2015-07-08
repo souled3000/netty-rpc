@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.PBKDF2;
-import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 /**
@@ -80,29 +80,16 @@ public class UserRegisterApi extends HandlerAdapter {
 		return true;
 	}
 
-	private boolean sendEmail(String userId, String email,
+	private boolean sendEmail(String uuid, String email,
 			Map<Object, Object> mapping) {
-		String emailAddr = Constants.getProperty("email.user", "");
-		String emailPwd = Constants.getProperty("email.pwd", "");
-		String mailHost = Constants.getProperty("mail.server.host", "");
-		String mailPost = Constants.getProperty("mail.server.port", "");
+		String subject = "用户注册确认";
 
 		String protocol = Constants.SERVERPROTOCOL;
 		String ip = Constants.SERVERIP;
 		String port = Constants.SERVERPORT;
 
-		MailSenderInfo mailInfo = new MailSenderInfo();
-		mailInfo.setMailServerHost(mailHost);
-		mailInfo.setMailServerPort(mailPost);
-		mailInfo.setValidate(true);
-		mailInfo.setUserName(emailAddr);// source
-		mailInfo.setPassword(emailPwd);// source
-		mailInfo.setFromAddress(emailAddr);// source
-		mailInfo.setToAddress(email);// target
-		mailInfo.setSubject("用户注册确认");
+		String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v=" + uuid;
 
-		String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v="
-				+ userId;
 		StringBuilder sb = new StringBuilder();
 		sb.append("点击如下链接马上完成邮箱验证：");
 		sb.append("<br>");
@@ -113,8 +100,8 @@ public class UserRegisterApi extends HandlerAdapter {
 		sb.append("<br>");
 		sb.append(linkAddr);
 
-		mailInfo.setContent(sb.toString());
-		boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
+		boolean b = SimpleMailSender
+				.sendHtmlMail(email, subject, sb.toString());
 		if (!b) {
 			logger.info("sending Email failed!!!|{}", email);
 			mapping.put(status, C0011.toString());
@@ -168,13 +155,16 @@ public class UserRegisterApi extends HandlerAdapter {
 			r.put("uid", userId);
 
 			// 7. send the email for register
-			if (!sendEmail(userId, email, r)) {
+			String uuid = UUID.randomUUID().toString();
+			if (!sendEmail(uuid, email, r)) {
 				return r;
 			}
+			// 连接有效期
+			j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE,
+					userId);
 
 			// 8. set success code
 			r.put(status, SUCCESS.toString());
-
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			DataHelper.returnBrokenJedis(j);

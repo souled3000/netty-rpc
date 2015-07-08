@@ -12,36 +12,42 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.powersocket.data.BizCode;
+import com.blackcrystalinfo.platform.powersocket.data.User;
+import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.Utils;
 
 /**
  * 
- * @author juliana 解绑用户
+ * @author shenjizhe 解散家庭
  */
-@Path(path = "/mobile/demissionFamily")
+@Controller("/mobile/demissionFamily")
 public class DemissionFamilyApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(DemissionFamilyApi.class);
+	@Autowired
+	ILoginSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		r.put(status, SYSERROR.toString());
 		String userId = CookieUtil.gotUserIdFromCookie(req
 				.getParameter("cookie"));
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
 
-			String userEmail = j.hget("user:email", userId);
+			User user = loginSvr.userGet(User.UserIDColumn, userId);
+			String userEmail = user.getEmail();
 			if (null == userEmail) {
 				r.put(status, C0006.toString());
 				return r;
@@ -69,8 +75,10 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			j.del("family:" + userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 			j.publish("PubCommonMsg:0x36".getBytes(),
-					Utils.genMsg(memlist, 4, Integer.parseInt(userId), ""));
+					Utils.genMsg(memlist, BizCode.FamilyDismiss.getValue(), Integer.parseInt(userId), ""));
+			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
+			r.put(status, SYSERROR.toString());
 			//DataHelper.returnBrokenJedis(j);
 			logger.error("DemissionFamily error uId:{}|status:{}|msg:{}",
 					userId, r.get("status"), e);
@@ -78,7 +86,6 @@ public class DemissionFamilyApi extends HandlerAdapter {
 		} finally {
 			DataHelper.returnJedis(j);
 		}
-		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

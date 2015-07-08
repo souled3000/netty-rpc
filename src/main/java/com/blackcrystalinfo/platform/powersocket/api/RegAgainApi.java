@@ -25,7 +25,6 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
-import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 /**
@@ -75,29 +74,16 @@ public class RegAgainApi extends HandlerAdapter {
 			}
 
 			String email = user.getEmail();
-
-			String emailAddr = Constants.getProperty("email.user", "");
-			String emailPwd = Constants.getProperty("email.pwd", "");
-			String mailHost = Constants.getProperty("mail.server.host", "");
-			String mailPost = Constants.getProperty("mail.server.port", "");
+			String subject = "用户注册确认";
 
 			String protocol = Constants.SERVERPROTOCOL;
 			String ip = Constants.SERVERIP;
 			String port = Constants.SERVERPORT;
 
-			MailSenderInfo mailInfo = new MailSenderInfo();
-			mailInfo.setMailServerHost(mailHost);
-			mailInfo.setMailServerPort(mailPost);
-			mailInfo.setValidate(true);
-			mailInfo.setUserName(emailAddr);
-			mailInfo.setPassword(emailPwd);// 您的邮箱密码
-			mailInfo.setFromAddress(emailAddr);
-			mailInfo.setToAddress(email);
-			mailInfo.setSubject("用户注册确认");
-
 			String uuid = UUID.randomUUID().toString();
 			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v="
 					+ uuid;
+
 			StringBuilder sb = new StringBuilder();
 			sb.append("点击如下链接马上完成邮箱验证：");
 			sb.append("<br>");
@@ -108,8 +94,8 @@ public class RegAgainApi extends HandlerAdapter {
 			sb.append("<br>");
 			sb.append(linkAddr);
 
-			mailInfo.setContent(sb.toString());
-			boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
+			boolean b = SimpleMailSender.sendHtmlMail(email, subject,
+					sb.toString());
 			if (!b) {
 				logger.info("sending Email failed!!!");
 				r.put(status, C0011.toString());
