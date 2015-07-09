@@ -14,11 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import redis.clients.jedis.Jedis;
+
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/mobile")
 public class IdentificationApi extends HandlerAdapter {
@@ -33,25 +36,43 @@ public class IdentificationApi extends HandlerAdapter {
 		r.put(status, SYSERROR.toString());
 		String cookie = req.getParameter("cookie");
 
+		Jedis jedis = null;
 		try {
+			jedis = DataHelper.getJedis();
 			String userId = CookieUtil.gotUserIdFromCookie(cookie);
-			User user = loginSvr.userGet(User.UserIDColumn, userId);
-			String email = user.getEmail();
-			if (null == email) {
+			
+			User user = null;
+			String shadow = null;
+			try {
+				user = loginSvr.userGet(User.UserIDColumn, userId);
+				shadow = user.getShadow();
+			} catch (Exception e) {
 				r.put(status, C0001.toString());
 				logger.info("failed validating user {}", r.get(status));
 				return r;
 			}
 
-			String shadow = user.getShadow();
 			if (!CookieUtil.validateMobileCookie(cookie, shadow)) {
 				r.put(status, C0002.toString());
 				logger.info("failed validating user {}", r.get(status));
 				return r;
 			}
+
+			// 一个账户只能同时在一台机器上登录
+			String cookieNew = jedis.get("user:cookie:" + userId);
+			if (!cookie.equals(cookieNew)) {
+				r.put(status, C0002.toString());
+				logger.info(
+						"cookie is older then stored, userid={} cookie={}, cookieNew={}",
+						userId, cookie, cookieNew);
+				return r;
+			}
+
 		} catch (Exception e) {
 			logger.error("Check cookie failed, e = ", e);
 			return r;
+		} finally {
+			DataHelper.returnJedis(jedis);
 		}
 
 		r.put(status, SUCCESS.toString());

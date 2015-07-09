@@ -55,10 +55,13 @@ public class CookieUtil {
 	public static String encode4user(String userId, String expire,String shadow) throws NoSuchAlgorithmException {
 		BASE64Encoder encoder = new BASE64Encoder();
 		String cookie = "";
-		String sha1Value = encodeSha1(userId, expire);
-		String beforeAes = String.format("%s|%s|%s", userId, expire, sha1Value);
+		String timestamp = System.currentTimeMillis()+"";
+		String sha1Value = encodeSha1(userId, expire, timestamp);
+		String beforeAes = String.format("%s|%s|%s|%s", userId, expire, timestamp, sha1Value);
 		cookie = encoder.encode(beforeAes.getBytes());
 		cookie = cookie.replace("+", "%2B");
+		cookie = cookie.replaceAll("\r", "");
+		cookie = cookie.replaceAll("\n", "");
 		String up = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
 		return cookie+"-"+up;
 	}
@@ -83,22 +86,24 @@ public class CookieUtil {
 
 		String[] parts = beforeAes.split("\\|");
 
-		if(parts.length<3){
-			throw new ArrayIndexOutOfBoundsException("parts's length less than three.");
+		if(parts.length<4){
+			throw new ArrayIndexOutOfBoundsException("parts's length less than four.");
 		}
 		String userId = "";
 		String expire = "";
+		String timestamp = "";
 		String sha1Value = "";
 
 		userId = parts[0];
 		expire = parts[1];
-		sha1Value = parts[2];
+		timestamp = parts[2];
+		sha1Value = parts[3];
 
-		if (!sha1Value.equals(encodeSha1(userId, expire))) {
+		if (!sha1Value.equals(encodeSha1(userId, expire, timestamp))) {
 			return null;
 		}
 
-		return new String[] { userId, expire };
+		return new String[] { userId, expire, timestamp };
 	}
 
 	public static String gotUserIdFromCookie(String cookie) throws Exception{
@@ -173,10 +178,10 @@ public class CookieUtil {
 		return result;
 	}
 
-	private static String encodeSha1(String id, String expire) throws NoSuchAlgorithmException {
+	private static String encodeSha1(String id, String expire, String timestamp) throws NoSuchAlgorithmException {
 		String result = "";
 
-		String beforeSha1 = String.format("%s|%s|%s", id, expire, USER_SALT);
+		String beforeSha1 = String.format("%s|%s|%s|%s", id, expire, timestamp, USER_SALT);
 		result = sha1(beforeSha1);
 
 		return result;

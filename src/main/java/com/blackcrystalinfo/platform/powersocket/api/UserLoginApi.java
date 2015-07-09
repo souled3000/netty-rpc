@@ -19,10 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import redis.clients.jedis.Jedis;
+
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 /**
@@ -71,7 +74,9 @@ public class UserLoginApi extends HandlerAdapter {
 			return r;
 		}
 
+		Jedis jedis = null;
 		try {
+			jedis = DataHelper.getJedis();
 			User user = loginSvr.userGet(User.UserNameColumn, email);
 			email = email.toLowerCase();
 
@@ -92,10 +97,15 @@ public class UserLoginApi extends HandlerAdapter {
 						email, pwd, r.get(status));
 				return r;
 			}
-			r.put("userId", userId);
-			r.put("cookie", user.getCookie());
 
-			// 5. set success
+			// 5. generate cookie
+			String cookie = user.getCookie();
+			jedis.set("user:cookie:"+userId, cookie); //用户Id->cookie映射
+
+			r.put("userId", userId);
+			r.put("cookie", cookie);
+
+			// 6. set success
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
