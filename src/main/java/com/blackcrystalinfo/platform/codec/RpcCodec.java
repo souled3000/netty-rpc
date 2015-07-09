@@ -59,7 +59,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		try {
 			return ctx.getBean(beanName, IHandler.class);
 		} catch (Exception e) {
-			if (logger.isDebugEnabled()){
+			if (logger.isDebugEnabled()) {
 				logger.debug("get bean exception.", e);
 			}
 		}
@@ -91,7 +91,6 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	public static final int HTTP_CACHE_SECONDS = 60;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void handleHttp(ChannelHandlerContext ctx, FullHttpRequest req)
 			throws Exception {
 		if (!req.getDecoderResult().isSuccess()
@@ -169,10 +168,11 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 				if (ret != null) {
 					logger.info("url:{} | request:{} | response:{}", reqUrl,
 							rp.toString(), JSON.toJSONString(ret));
-					if (ret instanceof Map) {
-						Map m = (Map) ret;
-						m.put("urlOrigin", reqUrl);
-					}
+					// 不需要返回请求的url，去掉了
+					// if (ret instanceof Map) {
+					// Map m = (Map) ret;
+					// m.put("urlOrigin", reqUrl);
+					// }
 					if (ret instanceof FullHttpResponse) {
 						sendHttpResponse2(ctx, req, (FullHttpResponse) ret);
 						return;
