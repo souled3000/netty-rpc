@@ -4,6 +4,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0018;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0019;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0020;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0021;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C002E;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -25,8 +26,10 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
+import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 /**
  * 用户登陆
@@ -77,30 +80,72 @@ public class UserLoginApi extends HandlerAdapter {
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
-			User user = loginSvr.userGet(User.UserNameColumn, email);
-			email = email.toLowerCase();
 
 			// 3. get user id
-			String userId = user.getId();
-			if (null == userId) {
+			User user = null;
+			String userId = "";
+			try{
+				user = loginSvr.userGet(User.UserNameColumn, email);
+				userId = user.getId();
+			} catch (Exception e) {
 				r.put(status, C0020.toString());
 				logger.debug("User not exist. email:{}|pwd:{}|status:{}",
 						email, pwd, r.get(status));
 				return r;
 			}
+			email = email.toLowerCase();
 
-			// 4. valid password
-			if (!user.validate(pwd)) {
-				r.put(status, C0021.toString());
-				logger.debug(
-						"PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",
+			// 4. 获取登录失败次数
+			int times = -1;
+			String strTimes = jedis.get("user:failedLoginTimes:" + userId);
+			if (StringUtils.isNotBlank(strTimes)) {
+				times = Integer.valueOf(strTimes);
+			}
+
+			// 5. 根据失败次数，决定是否锁定账户
+			if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
+				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
+				r.put(status, C002E.toString());
+				r.put("ttl", ttl);
+				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}",
 						email, pwd, r.get(status));
 				return r;
 			}
 
-			// 5. generate cookie
+			// 6. valid password
+			if (!user.validate(pwd)) {
+				times++;
+				r.put(status, C0021.toString());
+				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX
+						- times);
+				logger.debug(
+						"PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",
+						email, pwd, r.get(status));
+
+				// 判断失败次数累加
+				jedis.setex("user:failedLoginTimes:" + userId,
+						Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
+
+				// 最后一次登录失败，发送邮件通知用户
+				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
+					String subject = "账户被锁定通知";
+					StringBuilder sb = new StringBuilder();
+					sb.append("您的帐户登录失败次数超过");
+					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX
+							+ "次。</b>");
+					sb.append("请您" + Constants.FAILED_LOGIN_EXPIRE + "秒 后重新登录");
+					SimpleMailSender
+							.sendHtmlMail(email, subject, sb.toString());
+				}
+				return r;
+			}
+
+			// 7. 登录成功后，清除累计失败次数的计数器
+			jedis.del("user:failedLoginTimes:" + userId);
+
+			// 8. generate cookie
 			String cookie = user.getCookie();
-			jedis.set("user:cookie:"+userId, cookie); //用户Id->cookie映射
+			jedis.set("user:cookie:" + userId, cookie); // 用户Id->cookie映射
 
 			r.put("userId", userId);
 			r.put("cookie", cookie);

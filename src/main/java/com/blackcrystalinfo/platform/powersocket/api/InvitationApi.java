@@ -1,6 +1,8 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C001E;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C001F;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -63,14 +65,14 @@ public class InvitationApi extends HandlerAdapter {
 			
 			//操作员是另的家庭的成员，不具有添加成员的权限
 			if(StringUtils.isNotBlank(operFamily)&&!StringUtils.equals(operFamily, oper)){
-				r.put(status,"001E");
+				r.put(status,C001E.toString());
 				return r;
 			}
 			
 			if(StringUtils.isBlank(uFamily)){
 				
 			}else{
-				r.put(status, "001F");
+				r.put(status, C001F.toString());
 				return r;
 			}
 			
