@@ -13,12 +13,15 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
+import com.blackcrystalinfo.platform.dao.IDeviceDao;
+import com.blackcrystalinfo.platform.powersocket.data.Device;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
@@ -27,6 +30,9 @@ public class DevicesApi extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(DevicesApi.class);
+
+	@Autowired
+	private IDeviceDao deviceDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -48,10 +54,12 @@ public class DevicesApi extends HandlerAdapter {
 					Set<String> devices = j.smembers("u:" + m + ":devices");
 					for (String id : devices) {
 						Map<Object, Object> devData = new HashMap<Object, Object>();
-						String mac = j.hget("device:mac", id);
-						String name = j.hget("device:name", id);
-						String pwd = j.hget("device:pwd:" + userId, id);
-						String dv = j.hget("device:dv", id);
+
+						Device device = deviceDao.get(Long.valueOf(id));
+						String mac = device.getMac();
+						String name = device.getName();
+						String pwd = ""; // TODO: 这个没用，但接口文档里有，先这么留着
+						String dv = device.getDeviceType();
 
 						name = (null == name ? "default" : name);
 
@@ -67,10 +75,12 @@ public class DevicesApi extends HandlerAdapter {
 				Set<String> devices = j.smembers("u:" + userId + ":devices");
 				for (String id : devices) {
 					Map<Object, Object> devData = new HashMap<Object, Object>();
-					String mac = j.hget("device:mac", id);
-					String name = j.hget("device:name", id);
-					String pwd = j.hget("device:pwd:" + userId, id);
-					String dv = j.hget("device:dv", id);
+
+					Device device = deviceDao.get(Long.valueOf(id));
+					String mac = device.getMac();
+					String name = device.getName();
+					String pwd = ""; // TODO: 这个没用，但接口文档里有，先这么留着
+					String dv = device.getDeviceType();
 
 					name = (null == name ? "default" : name);
 
