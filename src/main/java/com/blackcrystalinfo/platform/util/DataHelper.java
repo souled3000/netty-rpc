@@ -8,7 +8,7 @@ public class DataHelper {
 	private static final JedisPool pool;
 	private static final int ONE_SECOND = 10000;
 
-	private static final int DB_INDEX = 1;
+	private static final int DB_INDEX = 0;
 	static {
 		JedisPoolConfig cfg = new JedisPoolConfig();
 		cfg.setMaxIdle(5);
