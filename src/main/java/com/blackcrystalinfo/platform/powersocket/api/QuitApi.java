@@ -1,5 +1,8 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0029;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0030;
+import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
@@ -23,13 +26,11 @@ import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.Utils;
 
 /**
  * 
- * @author ShenJZ
- *	用户退出家庭
+ * @author ShenJZ 用户退出家庭
  */
 @Controller("/mobile/quit")
 public class QuitApi extends HandlerAdapter {
@@ -41,21 +42,21 @@ public class QuitApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
-		String uId = CookieUtil.gotUserIdFromCookie(req.getParameter( "cookie"));
+		String uId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
 			String fId = j.hget("user:family", uId);
-			
-			if(StringUtils.isBlank(fId)){
-				r.put(status, ErrorCode.C0029.toString());
-				logger.debug("要退出的人:{},家庭:{}",uId,fId);
+
+			if (StringUtils.isBlank(fId)) {
+				r.put(status, C0029.toString());
+				logger.debug("要退出的人:{},家庭:{}", uId, fId);
 				return r;
 			}
-			
-			if(StringUtils.equals(fId, uId)){
-				logger.debug("要退出的人:{},家庭:{}",uId,fId);
-				r.put(status, "0020");
+
+			if (StringUtils.equals(fId, uId)) {
+				logger.debug("要退出的人:{},家庭:{}", uId, fId);
+				r.put(status, C0030.toString());
 				return r;
 			}
 
@@ -74,26 +75,29 @@ public class QuitApi extends HandlerAdapter {
 			msg.append(JSON.toJSON(mm));
 
 			j.hdel("user:family", uId);
-			j.srem("family:"+fId, uId);
-			
-			Set<String>members = j.smembers("family:"+fId);
-			for(String m : members){
-				Set<String> devices = j.smembers("u:"+m+":devices");
-				for(String o : devices){
+			j.srem("family:" + fId, uId);
+
+			Set<String> members = j.smembers("family:" + fId);
+			for (String m : members) {
+				Set<String> devices = j.smembers("u:" + m + ":devices");
+				for (String o : devices) {
 					StringBuilder sb = new StringBuilder();
-					//将uid与oper下的所有设备做关联
-					sb.append(o).append("|").append(uId).append("|").append("0");
+					// 将uid与oper下的所有设备做关联
+					sb.append(o).append("|").append(uId).append("|")
+							.append("0");
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
 
-			//用户退出家庭，除了给家庭其他成员推送外，还需要给用户自己推送消息。
+			// 用户退出家庭，除了给家庭其他成员推送外，还需要给用户自己推送消息。
 			members.add(uId);
 
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
-			r.put(status, ErrorCode.SUCCESS.toString());
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist,
+					BizCode.FamilyQuit.getValue(), Integer.parseInt(uId),
+					msg.toString()));
+			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			return r;

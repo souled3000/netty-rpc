@@ -69,7 +69,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 				}
 			} catch (Exception e) {
 				logger.error("Cookie decode error. mac:{}|cookie:{}|status:{}",
-						mac, cookie, r.get("status"), 3);
+						mac, cookie, r.get("status"));
 				return r;
 			}
 
@@ -88,7 +88,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			r.put("proxyAddr", proxyAddr);
 
 		} catch (Exception e) {
-			logger.error("Device login error  mac:{}|cookie:{}|status:{}", mac,
+			logger.error("Device login error  mac:{}|cookie:{}|status:{}|e:{}", mac,
 					cookie, r.get("status"), e);
 			return r;
 		}

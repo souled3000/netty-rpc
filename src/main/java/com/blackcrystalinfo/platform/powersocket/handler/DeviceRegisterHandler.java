@@ -32,7 +32,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String dv = req.getString("dv");
 		String pid = req.getString("pid");
 		String name = req.getString("name");
-		return deal(mac, sn, dv, pid, name);
+		String key = req.getString("key");
+		return deal(mac, sn, dv, pid, name, key);
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -41,7 +42,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String dv = req.getParameter("dv");
 		String pid = req.getParameter("pid");
 		String name = req.getParameter("name");
-		return deal(mac, sn, dv, pid, name);
+		String key = req.getParameter("key");
+		return deal(mac, sn, dv, pid, name, key);
 	}
 
 	private Object deal(String... args) throws InternalException {
@@ -53,9 +55,12 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String dv = args[2];
 		String pid = args[3];
 		String name = args[4];
+		String key = args[5];
 
-		logger.info("Device regist begin mac:{}|sn:{}|bv:{}", mac, sn, dv);
+		logger.info("Device regist begin mac:{}|sn:{}|bv:{}|key:{}", mac, sn, dv, key);
 		if (!isValidSN(sn)) {
+			r.put("status", 1);
+			logger.info("Device sn", mac, sn, dv);
 			return r;
 		}
 
