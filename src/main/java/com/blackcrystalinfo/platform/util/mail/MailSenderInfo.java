@@ -5,6 +5,8 @@ package com.blackcrystalinfo.platform.util.mail;
  */
 import java.util.Properties;
 
+import com.blackcrystalinfo.platform.util.Constants;
+
 public class MailSenderInfo {
 	// 发送邮件的服务器的IP和端口
 	private String mailServerHost;
@@ -33,6 +35,10 @@ public class MailSenderInfo {
 		p.put("mail.smtp.host", this.mailServerHost);
 		p.put("mail.smtp.port", this.mailServerPort);
 		p.put("mail.smtp.auth", validate ? "true" : "false");
+		if (Constants.MAIL_SENDER_SSL) {
+			p.put("mail.smtp.socketFactory.port", this.mailServerPort);
+			p.put("mail.smtp.socketFactory.class",  "javax.net.ssl.SSLSocketFactory");
+		}
 		return p;
 	}
 

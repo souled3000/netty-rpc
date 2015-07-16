@@ -56,6 +56,11 @@ public class Constants extends ConfigurableConstants{
 	public static boolean DEV_REG_VALID = Boolean.valueOf(getProperty("dev.reg.valid", "true"));
 	public static String DEV_REG_LIC_PATH = getProperty("dev.reg.lic.path", "");
 
+	/**
+	 * 是否使用SSL方式发送邮件
+	 */
+	public static boolean MAIL_SENDER_SSL = Boolean.valueOf(getProperty("mail.sender.ssl", "false"));
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}
