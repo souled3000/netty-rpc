@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.hsqldb.lib.StringInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.exception.InternalException;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.guru.LicenseHelper;
 
 @Controller("/api/device/register")
 public class DeviceRegisterHandler extends HandlerAdapter {
@@ -57,10 +60,11 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String name = args[4];
 		String key = args[5];
 
-		logger.info("Device regist begin mac:{}|sn:{}|bv:{}|key:{}", mac, sn, dv, key);
-		if (!isValidSN(sn)) {
+		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|key:{}", mac, sn,
+				dv, key);
+		if (!isValidDev(mac, key)) {
 			r.put("status", 1);
-			logger.info("Device sn", mac, sn, dv);
+			logger.info("Device regist failed, status:{}", r.get("status"));
 			return r;
 		}
 
@@ -88,7 +92,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			}
 			r.put("cookie", cookie);
 		} catch (Exception e) {
-			logger.error("Device regist error mac:{}|sn:{}|bv:{}", mac, sn, dv,
+			logger.error("Device regist error mac:{}|sn:{}|dv:{}", mac, sn, dv,
 					e);
 			return r;
 		}
@@ -98,7 +102,21 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		return r;
 	}
 
-	private boolean isValidSN(String sn) {
+	private boolean isValidDev(String mac, String key) {
+		boolean needValid = Constants.DEV_REG_VALID;
+		if (!needValid) {
+			// 不用校验，方便调试
+			return true;
+		}
+
+		String lic_path = Constants.DEV_REG_LIC_PATH;
+		int ret = LicenseHelper.validateLicense(mac.getBytes(),
+				new StringInputStream(key), lic_path);
+		if (ret != 0) {
+			logger.error("valid failed, ret = {}", ret);
+			return false;
+		}
+
 		return true;
 	}
 

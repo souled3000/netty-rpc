@@ -50,6 +50,12 @@ public class Constants extends ConfigurableConstants{
 	 */
 	public static String DB_PWD_RAWKEY = getProperty("db.pwd.rawkey", "blackcrystal");
 
+	/**
+	 * 设备注册校验（需求原文->设备授权管理）
+	 */
+	public static boolean DEV_REG_VALID = Boolean.valueOf(getProperty("dev.reg.valid", "true"));
+	public static String DEV_REG_LIC_PATH = getProperty("dev.reg.lic.path", "");
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
@@ -13,7 +12,6 @@ import redis.clients.jedis.Jedis;
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
@@ -28,34 +26,24 @@ public class UnbindByDv extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(UnbindByDv.class);
 
-	@Autowired
-	private IDeviceDao deviceDao;
-
 	public Object rpc(JSONObject req) throws InternalException {
-		String mac = req.getString("mac");
-		return deal(mac);
+		String id = req.getString("id");
+		return deal(id);
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = req.getParameter("mac");
-		return deal(mac);
+		String id = req.getParameter("id");
+		return deal(id);
 	}
 
 	public Object deal(String... args) throws InternalException {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		String mac = args[0];
-		logger.info("Unbind user by device begin, mac:{} ", mac);
+		String id = args[0];
+		logger.info("Unbind user by device begin, id:{} ", id);
 
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-
-			Long id = deviceDao.getIdByMac(mac);
-			if (id == null) {
-				r.put("status", 1);
-				logger.error("Device not exist, mac:{}", mac);
-				return r;
-			}
 
 			String deviceId = String.valueOf(id);
 			String owner = j.hget("device:owner", deviceId);
@@ -69,6 +57,7 @@ public class UnbindByDv extends HandlerAdapter {
 				j.publish("PubDeviceUsers", sb.toString());
 			} else {
 				logger.info("Device is not binded~~~");
+				r.put("status", 1);
 			}
 		} catch (Exception e) {
 			logger.error("Device Unbind error e = ", e);

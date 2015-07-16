@@ -127,7 +127,7 @@ public class User implements RowMapper<Object>{
 	}
 
 	public String getAdminid() {
-		if( StringUtils.isNotBlank(adminid))
+		if( StringUtils.isBlank(adminid))
 			adminid = "";
 		return adminid;
 	}

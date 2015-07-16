@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 public class Device implements RowMapper<Object> {
 	public static final String DeviceIDColumn = "id";
-	public static final String DeviceUserIDColumn = "user_id";
 	public static final String DeviceNameColumn = "name";
 	public static final String DeviceMacColumn = "mac";
 	public static final String DeviceSNColumn = "sn";
@@ -112,7 +111,6 @@ public class Device implements RowMapper<Object> {
 		if (!rs.wasNull()) {
 			device = new Device();
 			device.setID((rs.getString("id")));
-			device.setUserID((rs.getString("user_id")));
 			device.setName((rs.getString("name")));
 			device.setMac((rs.getString("mac")));
 			device.setSN((rs.getString("sn")));
