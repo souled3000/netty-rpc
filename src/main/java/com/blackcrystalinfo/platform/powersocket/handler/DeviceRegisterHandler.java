@@ -1,10 +1,10 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.hsqldb.lib.StringInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 import com.guru.LicenseHelper;
 
 @Controller("/api/device/register")
@@ -35,8 +36,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String dv = req.getString("dv");
 		String pid = req.getString("pid");
 		String name = req.getString("name");
-		String key = req.getString("key");
-		return deal(mac, sn, dv, pid, name, key);
+		String sign = req.getString("sign");
+		return deal(mac, sn, dv, pid, name, sign);
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -45,8 +46,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String dv = req.getParameter("dv");
 		String pid = req.getParameter("pid");
 		String name = req.getParameter("name");
-		String key = req.getParameter("key");
-		return deal(mac, sn, dv, pid, name, key);
+		String sign = req.getParameter("sign");
+		return deal(mac, sn, dv, pid, name, sign);
 	}
 
 	private Object deal(String... args) throws InternalException {
@@ -58,11 +59,11 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String dv = args[2];
 		String pid = args[3];
 		String name = args[4];
-		String key = args[5];
+		String sign = args[5];
 
-		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|key:{}", mac, sn,
-				dv, key);
-		if (!isValidDev(mac, key)) {
+		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|sign:{}", mac, sn,
+				dv, sign);
+		if (!isValidDev(mac, sign)) {
 			r.put("status", 1);
 			logger.info("Device regist failed, status:{}", r.get("status"));
 			return r;
@@ -103,6 +104,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 	}
 
 	private boolean isValidDev(String mac, String key) {
+		byte[] sign = ByteUtil.fromHex(key);
+
 		boolean needValid = Constants.DEV_REG_VALID;
 		if (!needValid) {
 			// 不用校验，方便调试
@@ -111,7 +114,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 		String lic_path = Constants.DEV_REG_LIC_PATH;
 		int ret = LicenseHelper.validateLicense(mac.getBytes(),
-				new StringInputStream(key), lic_path);
+				new ByteArrayInputStream(sign), lic_path);
 		if (ret != 0) {
 			logger.error("valid failed, ret = {}", ret);
 			return false;

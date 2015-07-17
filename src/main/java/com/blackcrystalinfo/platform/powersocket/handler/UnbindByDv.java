@@ -58,6 +58,7 @@ public class UnbindByDv extends HandlerAdapter {
 			} else {
 				logger.info("Device is not binded~~~");
 				r.put("status", 1);
+				return r;
 			}
 		} catch (Exception e) {
 			logger.error("Device Unbind error e = ", e);
