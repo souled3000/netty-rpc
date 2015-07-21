@@ -72,6 +72,11 @@
 			<version>2.4</version>
 		</dependency>
 		<dependency>
+			<groupId>com.guru</groupId>
+			<artifactId>license-manage</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>4.1.1.RELEASE</version>

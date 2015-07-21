@@ -61,6 +61,11 @@ public class Constants extends ConfigurableConstants{
 	 */
 	public static boolean MAIL_SENDER_SSL = Boolean.valueOf(getProperty("mail.sender.ssl", "false"));
 
+	/**
+	 * 发送短信中间件地址
+	 */
+	public static String SMS_SENDER_URL = getProperty("sms.sender.url", "http://127.0.0.1/sms");
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}

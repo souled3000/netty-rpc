@@ -28,8 +28,10 @@ import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
+import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
  * 用户登陆
@@ -133,9 +135,15 @@ public class UserLoginApi extends HandlerAdapter {
 					sb.append("您的帐户登录失败次数超过");
 					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX
 							+ "次。</b>");
-					sb.append("请您" + Constants.FAILED_LOGIN_EXPIRE + "秒 后重新登录");
+					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + "秒 后重新登录");
 					SimpleMailSender
 							.sendHtmlMail(email, subject, sb.toString());
+					
+					// 发送短信
+					String phone = user.getPhone();
+					if (StringUtils.isNotEmpty(phone)) {
+						SMSSender.send(phone, sb.toString());
+					}
 				}
 				return r;
 			}
