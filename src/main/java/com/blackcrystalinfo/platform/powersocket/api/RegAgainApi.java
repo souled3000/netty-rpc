@@ -107,6 +107,11 @@ public class RegAgainApi extends HandlerAdapter {
 			j.setex("user:activetimes:" + uid, Constants.REGAGAIN_EXPIRE,
 					String.valueOf(times));
 			// 连接有效期
+			String oldUUID = j.get("user:mailActiveUUID:" + uid);
+			j.del("user:mailActive:" + oldUUID); // 删除旧的激活连接
+
+			j.setex("user:mailActiveUUID:" + uid, Constants.MAIL_ACTIVE_EXPIRE,
+					uuid);
 			j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE,
 					uid);
 			r.put("activetimes", times);

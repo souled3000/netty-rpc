@@ -160,6 +160,7 @@ public class UserRegisterApi extends HandlerAdapter {
 				return r;
 			}
 			// 连接有效期
+			j.setex("user:mailActiveUUID:" + userId, Constants.MAIL_ACTIVE_EXPIRE, uuid);
 			j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE,
 					userId);
 
