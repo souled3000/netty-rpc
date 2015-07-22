@@ -66,6 +66,11 @@ public class Constants extends ConfigurableConstants{
 	 */
 	public static String SMS_SENDER_URL = getProperty("sms.sender.url", "http://127.0.0.1/sms");
 
+	/**
+	 * 用户加入家庭超时时间
+	 */
+	public static int USER_INVITATION_CFM_EXPIRE = Integer.valueOf(getProperty("user.invitation.cfm.expire", "300"));
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}

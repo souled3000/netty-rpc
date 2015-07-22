@@ -64,6 +64,8 @@ public enum ErrorCode {
 	C0030("0030")/**户主不能退出自己的家庭*/,
 
 	C0031("0031")/**用户在别的地方登录，需要重新登陆*/,
+
+	C0032("0032")/**被动用户加入家庭超时*/,
 	;
 	public String getCode() {
 		return code;

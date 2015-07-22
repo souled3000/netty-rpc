@@ -2,6 +2,7 @@ package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0032;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
@@ -47,7 +48,16 @@ public class InvitationCfmApi extends HandlerAdapter {
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-			
+
+			// 用户确认加入家庭是有时效限制的
+			String fId = j.get("user:invitationfamily:" + uId);
+			if (null == fId || !fId.equals(oper)) {
+				logger.info("confirm out date, uId:{}|oper:{}", uId, oper);
+				r.put("status", C0032);
+				return r;
+			}
+			j.del("user:invitationfamily:" + uId);
+
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
 			

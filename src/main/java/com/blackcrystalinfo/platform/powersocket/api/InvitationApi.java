@@ -24,6 +24,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.BizCode;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.Utils;
@@ -89,7 +90,11 @@ public class InvitationApi extends HandlerAdapter {
 			mm.put("mNick", nick);
 			msg.append(JSON.toJSON(mm));
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId+"|",BizCode.FamilyInvite.getValue(), Integer.parseInt(uId), msg.toString()));
-			
+
+			// 用户确认加入家庭是有时效限制的
+			j.setex("user:invitationfamily:",
+					Constants.USER_INVITATION_CFM_EXPIRE, oper);
+
 			r.put(status,SUCCESS.toString());
 		} catch (Exception e) {
 			//DataHelper.returnBrokenJedis(j);
