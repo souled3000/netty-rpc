@@ -53,7 +53,7 @@ public class InvitationCfmApi extends HandlerAdapter {
 			String fId = j.get("user:invitationfamily:" + uId);
 			if (null == fId || !fId.equals(oper)) {
 				logger.info("confirm out date, uId:{}|oper:{}", uId, oper);
-				r.put("status", C0032);
+				r.put("status", C0032.toString());
 				return r;
 			}
 			j.del("user:invitationfamily:" + uId);
