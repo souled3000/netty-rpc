@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0010;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0011;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C001D;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0033;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
@@ -30,6 +31,7 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.DateUtils;
+import com.blackcrystalinfo.platform.util.StringUtil;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
@@ -97,6 +99,19 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 			if (StringUtils.isBlank(emailAble)) {
 				r.put(status, C0033.toString());
 				return r;
+			}
+
+			// 发送找回密码邮件次数限制：一天内激活次数不超出5次
+			int times = 0;
+			String findpwdtimes = j.get("user:findpwdtimes:" + user.getId());
+			if (StringUtils.isNotBlank(findpwdtimes)) {
+				times = Integer.valueOf(findpwdtimes);
+				if (times >= Constants.REGAGAIN_TIMES_MAX) {
+					// 达到操作上限，不发送邮件
+					logger.warn("Find password email had to the upper limit.");
+					r.put(status, C002C.toString());
+					return r;
+				}
 			}
 
 			// 生成验证码
