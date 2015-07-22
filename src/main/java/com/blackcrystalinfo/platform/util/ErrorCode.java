@@ -66,6 +66,7 @@ public enum ErrorCode {
 	C0031("0031")/**用户在别的地方登录，需要重新登陆*/,
 
 	C0032("0032")/**被动用户加入家庭超时*/,
+	C0033("0033")/**邮箱未激活*/,
 	;
 	public String getCode() {
 		return code;

@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0010;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0011;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C001D;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0033;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -82,6 +83,13 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 			User user = userDao.userGet(User.UserEmailColumn, destEmailAddr);
 			if (null == user) {
 				r.put(status, C0006.toString());
+				return r;
+			}
+
+			// bug:未激活的邮箱不可以找回密码
+			String emailAble = user.getEmailable();
+			if (StringUtils.isBlank(emailAble)) {
+				r.put(status, C0033.toString());
 				return r;
 			}
 
