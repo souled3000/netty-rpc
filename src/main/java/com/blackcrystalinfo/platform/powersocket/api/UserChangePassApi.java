@@ -173,7 +173,10 @@ public class UserChangePassApi extends HandlerAdapter {
 			times++;
 			j.setex("user:passwdChangedTimes:"+userId, Constants.PASSWD_CHANGED_EXPIRE, String.valueOf(times));
 			r.put("passwdChangedTimes", times);
-			
+
+			// bug37: 既然修改成功了，就应该把重发激活邮件次数清空了
+			j.del("user:findpwdtimes:" + userId);
+
 			r.put(status, SUCCESS.toString());
 			logger.info("ronse: userEmail:{}|passOld:{}|passNew:{}|status:{}", userEmail, passOld, passNew, r.get(status));
 		} catch (Exception e) {
