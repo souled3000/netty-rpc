@@ -79,8 +79,14 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 				}
 			}
 
-			// 邮箱是否存在
-			User user = userDao.userGet(User.UserEmailColumn, destEmailAddr);
+			// 用户是否存在
+			User user = null;
+			try {
+				user = userDao.userGet(User.UserIDColumn, destEmailAddr);
+			} catch (Exception ex) {
+				user = null;
+			}
+
 			if (null == user) {
 				r.put(status, C0006.toString());
 				return r;
