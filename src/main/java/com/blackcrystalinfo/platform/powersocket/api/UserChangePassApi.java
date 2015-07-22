@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C000E;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C000F;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C002A;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C001D;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -85,7 +86,11 @@ public class UserChangePassApi extends HandlerAdapter {
 
 			String flag = j.get("B0010" + key);
 			if(Captcha.validity)
-				if (flag == null || !flag.equals("succ")) {
+				if (flag == null) {
+					r.put(status, C001D.toString());
+					logger.debug("captcha fail.");
+					return r;
+				} else if (!flag.equals("succ")) {
 					r.put(status, C0027.toString());
 					logger.debug("captcha fail.");
 					return r;

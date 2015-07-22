@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0022;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0023;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0024;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C001D;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -72,7 +73,11 @@ public class UserRegisterApi extends HandlerAdapter {
 			Map<Object, Object> mapping) {
 		String flag = j.get("B0001" + cookie);
 		if (Captcha.validity)
-			if (flag == null || !flag.equals("succ")) {
+			if (flag == null) {
+				mapping.put(status, C001D.toString());
+				logger.debug("captcha fail.");
+				return false;
+			} else if (!flag.equals("succ")) {
 				mapping.put(status, C0027.toString());
 				logger.debug("captcha fail.");
 				return false;

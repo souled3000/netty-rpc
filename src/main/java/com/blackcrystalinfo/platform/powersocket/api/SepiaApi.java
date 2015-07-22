@@ -54,6 +54,7 @@ public class SepiaApi extends HandlerAdapter {
 				logger.info("sepia:{}|{}", word, sepia);
 				ret.put("status", SUCCESS.toString());
 			} else {
+				j.setex(code + cookie, Captcha.expire, "failed");
 				ret.put("status", C0027.toString());
 				logger.info("sepia:{}|{}", word, sepia);
 			}
