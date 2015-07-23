@@ -67,6 +67,7 @@ public enum ErrorCode {
 
 	C0032("0032")/**被动用户加入家庭超时*/,
 	C0033("0033")/**邮箱未激活*/,
+	C0034("0034")/**非家主不可以解散家庭*/,
 	;
 	public String getCode() {
 		return code;

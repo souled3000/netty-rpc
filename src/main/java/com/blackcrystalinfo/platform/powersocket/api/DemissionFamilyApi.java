@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0034;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -50,6 +51,13 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			String userEmail = user.getEmail();
 			if (null == userEmail) {
 				r.put(status, C0006.toString());
+				return r;
+			}
+
+			// 非家庭主账号，不可以解散家庭
+			String fId = j.hget("user:family", userId);
+			if (!userId.equals(fId)){
+				r.put(status, C0034.toString());
 				return r;
 			}
 
