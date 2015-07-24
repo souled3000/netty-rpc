@@ -92,7 +92,7 @@ public class InvitationApi extends HandlerAdapter {
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId+"|",BizCode.FamilyInvite.getValue(), Integer.parseInt(uId), msg.toString()));
 
 			// 用户确认加入家庭是有时效限制的
-			j.setex("user:invitationfamily:",
+			j.setex("user:invitationfamily:" + uId,
 					Constants.USER_INVITATION_CFM_EXPIRE, oper);
 
 			r.put(status,SUCCESS.toString());
