@@ -161,13 +161,14 @@ public class UserRegisterApi extends HandlerAdapter {
 
 			// 7. send the email for register
 			String uuid = UUID.randomUUID().toString();
-			if (!sendEmail(uuid, email, r)) {
-				return r;
+			if (sendEmail(uuid, email, r)) {
+				// 连接有效期
+				j.setex("user:mailActiveUUID:" + userId, Constants.MAIL_ACTIVE_EXPIRE, uuid);
+				j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE, userId);
+			} else {
+				// 只记录日志，不返回客户端
+				logger.error("send active email failed! email={}", email);
 			}
-			// 连接有效期
-			j.setex("user:mailActiveUUID:" + userId, Constants.MAIL_ACTIVE_EXPIRE, uuid);
-			j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE,
-					userId);
 
 			// 8. set success code
 			r.put(status, SUCCESS.toString());
