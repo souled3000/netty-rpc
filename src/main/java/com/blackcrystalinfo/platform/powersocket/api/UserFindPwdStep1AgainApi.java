@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0010;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0011;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C002D;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0033;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -66,10 +67,19 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 				r.put(status, C0006.toString());
 				return r;
 			}
-			int times = 0;
-			// 重新发送找回密码邮件次数
+
 			User user = userDao.userGet(User.UserNameColumn, destEmailAddr);
 			String userId = user.getId();
+
+			// bug:未激活的邮箱不可以找回密码
+			String emailAble = user.getEmailable();
+			if (StringUtils.isBlank(emailAble)) {
+				r.put(status, C0033.toString());
+				return r;
+			}
+
+			// 重新发送找回密码邮件次数
+			int times = 0;
 			String findpwdtimes = j.get("user:findpwdtimes:" + userId);
 			if (null != findpwdtimes && !"".equals(findpwdtimes)) {
 				times = Integer.valueOf(findpwdtimes);
