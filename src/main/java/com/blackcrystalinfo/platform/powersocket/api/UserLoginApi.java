@@ -135,7 +135,7 @@ public class UserLoginApi extends HandlerAdapter {
 					sb.append("您的帐户登录失败次数超过");
 					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX
 							+ "次。</b>");
-					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + "秒 后重新登录");
+					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + " 后重新登录");
 					SimpleMailSender
 							.sendHtmlMail(email, subject, sb.toString());
 					

@@ -17,9 +17,29 @@ public class DateUtils {
 				second = time % 60;
 			}
 		}
-		timeStr = unitFormat(hour) + "时" + unitFormat(minute) + "分"
-				+ unitFormat(second) + "秒";
+		// timeStr = unitFormat(hour) + "时" + unitFormat(minute) + "分"
+		// + unitFormat(second) + "秒";
+
+		timeStr = combineStr(hour, minute, second);
 		return timeStr;
+	}
+
+	public static String combineStr(int hour, int minute, int second) {
+		StringBuilder sb = new StringBuilder();
+
+		if (hour != 0) {
+			sb.append(hour).append("小时");
+		}
+
+		if (0 != minute) {
+			sb.append(minute).append("分钟");
+		}
+
+		if (0 != second) {
+			sb.append(minute).append("秒");
+		}
+
+		return sb.toString();
 	}
 
 	public static String unitFormat(int i) {
@@ -32,6 +52,6 @@ public class DateUtils {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(secToTime(300));
+		System.out.println(secToTime(86400));
 	}
 }
