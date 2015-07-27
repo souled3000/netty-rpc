@@ -31,7 +31,6 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.DateUtils;
-import com.blackcrystalinfo.platform.util.StringUtil;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
@@ -132,6 +131,11 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 				r.put(status, C0011.toString());
 				return r;
 			}
+
+			// 纪录激活次数
+			times++;
+			j.setex("user:findpwdtimes:" + user.getId(), Constants.REGAGAIN_EXPIRE,
+					String.valueOf(times));
 
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
