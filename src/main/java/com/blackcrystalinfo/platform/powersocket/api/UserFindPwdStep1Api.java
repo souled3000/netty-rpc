@@ -6,6 +6,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0011;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C001D;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C002D;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0033;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
@@ -137,6 +138,11 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 			j.setex("user:findpwdtimes:" + user.getId(), Constants.REGAGAIN_EXPIRE,
 					String.valueOf(times));
 
+			r.put("findpwdtimes", times);
+			if (times >= Constants.REGAGAIN_TIMES_NOTIC) {
+				logger.info("Sending many times");
+				r.put(status, C002D.toString());
+			}
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
 			logger.error("UserFindPwdStep1", e);
