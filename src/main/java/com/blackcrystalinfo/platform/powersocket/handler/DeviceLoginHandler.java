@@ -93,8 +93,6 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			return r;
 		}
 
-		logger.info("response: mac:{}|cookie:{}|status:{}", mac, cookie,
-				r.get("status"));
 		r.put("status", 0);
 		return r;
 	}
