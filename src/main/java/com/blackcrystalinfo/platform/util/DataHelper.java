@@ -72,6 +72,7 @@ public class DataHelper {
 	
 	public static void main(String[] args) {
 		Jedis j = DataHelper.getJedis();
+		System.out.println(j.hget("device:name", "-3"));
 		Long l = System.currentTimeMillis();
 		byte[] p = j.get("a".getBytes());
 		

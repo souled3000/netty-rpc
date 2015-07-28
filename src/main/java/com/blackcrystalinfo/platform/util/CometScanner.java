@@ -208,7 +208,7 @@ public class CometScanner {
 			}
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main2(String[] args) throws Exception {
 		CometScanner.tiktok();
 		Thread.sleep(1 * 1000);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -225,7 +225,7 @@ public class CometScanner {
 		}, 0, 10000);
 	}
 
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		Set<String> a = new HashSet<String>();
 		a.add("a");
 		a.add("b");
@@ -235,5 +235,6 @@ public class CometScanner {
 		float f = Float.valueOf("NaN");
 		System.out.println(f < CPU_THRESHOLD);
 		System.out.println(Float.valueOf("NaN"));
+		
 	}
 }
