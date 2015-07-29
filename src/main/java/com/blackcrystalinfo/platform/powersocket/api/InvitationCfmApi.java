@@ -84,18 +84,12 @@ public class InvitationCfmApi extends HandlerAdapter {
 
 				// 获取家庭所有设备
 				Set<String> members = j.smembers("family:" + oper);
-				for (String m : members) {
-					Set<String> devices = j.smembers("u:" + m + ":devices");
-					for (String o : devices) {
-						StringBuilder sb = new StringBuilder();
-						// 将uid与oper下的所有设备做关联
-						sb.append(o).append("|").append(uId).append("|").append("1");
-						j.publish("PubDeviceUsers", sb.toString());
-					}
-				}
 				String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
 				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyAddSuccess.getValue() , Long.parseLong(uId), msg.toString()));
+
+				// 发布通知：用户设备列表更新
+				pubDeviceUsersRels(oper, members, j);
 			} else {
 				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue() , Long.parseLong(uId), msg.toString()));
 
@@ -112,4 +106,36 @@ public class InvitationCfmApi extends HandlerAdapter {
 
 		return r;
 	}
+
+	/**
+	 * 加入家庭后，更新说有家庭成员的设备列表，及加入用户的设备列表。
+	 * 
+	 * @param uId
+	 *            加入用户的ID
+	 * @param members
+	 *            加入家庭成员ID列表
+	 * @param j
+	 */
+	private void pubDeviceUsersRels(String uId, Set<String> members, Jedis j) {
+		Set<String> devices = j.smembers("u:" + uId + ":devices");
+		for (String d : devices) {
+			// 家庭所有成员需要更新列表
+			for (String m : members) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(d).append("|").append(m).append("|").append("1");
+				j.publish("PubDeviceUsers", sb.toString());
+			}
+		}
+
+		for (String m : members) {
+			devices = j.smembers("u:" + m + ":devices");
+			// 家庭下没个成员绑定的设备，都要更新到新用户的名下
+			for (String d : devices) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(d).append("|").append(uId).append("|").append("1");
+				j.publish("PubDeviceUsers", sb.toString());
+			}
+		}
+	}
+
 }

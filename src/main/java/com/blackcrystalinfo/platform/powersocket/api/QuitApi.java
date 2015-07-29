@@ -78,16 +78,7 @@ public class QuitApi extends HandlerAdapter {
 			j.srem("family:" + fId, uId);
 
 			Set<String> members = j.smembers("family:" + fId);
-			for (String m : members) {
-				Set<String> devices = j.smembers("u:" + m + ":devices");
-				for (String o : devices) {
-					StringBuilder sb = new StringBuilder();
-					// 将uid与oper下的所有设备做关联
-					sb.append(o).append("|").append(uId).append("|")
-							.append("0");
-					j.publish("PubDeviceUsers", sb.toString());
-				}
-			}
+			pubDeviceUsersRels(uId, members, j);
 
 			// 用户退出家庭，除了给家庭其他成员推送外，还需要给用户自己推送消息。
 			members.add(uId);
@@ -106,5 +97,36 @@ public class QuitApi extends HandlerAdapter {
 		}
 
 		return r;
+	}
+
+	/**
+	 * 退出家庭后，更新所有家庭成员的设备列表，及退出用户的设备列表。
+	 * 
+	 * @param uId
+	 *            退出用户的ID
+	 * @param members
+	 *            退出家庭成员ID列表（不包含退出用户ID）
+	 * @param j
+	 */
+	private void pubDeviceUsersRels(String uId, Set<String> members, Jedis j) {
+		Set<String> devices = j.smembers("u:" + uId + ":devices");
+		for (String d : devices) {
+			// 家庭其他成员移除退出用户的设备
+			for (String m : members) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(d).append("|").append(m).append("|").append("0");
+				j.publish("PubDeviceUsers", sb.toString());
+			}
+		}
+
+		for (String m : members) {
+			devices = j.smembers("u:" + m + ":devices");
+			// 退出用户的设备列表里移除家庭其他成员的设备
+			for (String d : devices) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(d).append("|").append(uId).append("|").append("0");
+				j.publish("PubDeviceUsers", sb.toString());
+			}
+		}
 	}
 }
