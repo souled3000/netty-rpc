@@ -26,15 +26,15 @@ import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
- * 绑定手机号码的第一步，发送短信验证码。
+ * 修改绑定手机号码的第一步，发送短信验证码。
  * 
  * @author j
  * 
  */
-@Controller("/mobile/phonebind/step1")
-public class PhoneBindStep1Api extends HandlerAdapter {
+@Controller("/mobile/phonechange/step1")
+public class PhoneChangeStep1Api extends HandlerAdapter {
 
-	private Logger logger = LoggerFactory.getLogger(PhoneBindStep1Api.class);
+	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep1Api.class);
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants
 			.getProperty("validate.code.length", "6"));
@@ -42,19 +42,19 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 			.getProperty("validate.code.expire", "300"));
 
 	private static final int DO_INTV_TTL = Integer.valueOf(Constants
-			.getProperty("phonebind.step1.interval.ttl", "60"));
+			.getProperty("phonechange.step1.interval.ttl", "60"));
 
 	private static final int DO_FREQ_TTL = Integer.valueOf(Constants
-			.getProperty("phonebind.step1.frequency.ttl", "86400"));
+			.getProperty("phonechange.step1.frequency.ttl", "86400"));
 
 	private static final int DO_FREQ_MAX = Integer.valueOf(Constants
-			.getProperty("phonebind.step1.frequency.max", "5"));
+			.getProperty("phonechange.step1.frequency.max", "5"));
 
-	public static final String CODE_KEY = "ttl:user:phonebind:step1:";
+	public static final String CODE_KEY = "ttl:user:phonechange:step1:";
 
-	public static final String INTV_KEY = "ttl:user:phonebind:step1:interval:";
+	public static final String INTV_KEY = "ttl:user:phonechange:step1:interval:";
 
-	public static final String FREQ_KEY = "ttl:user:phonebind:step1:frequency:";
+	public static final String FREQ_KEY = "ttl:user:phonechange:step1:frequency:";
 
 	@Autowired
 	private ILoginSvr userDao;
@@ -84,9 +84,9 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 		}
 
 		// 用户已经绑定手机号码？
-		String phoneable = user.getPhoneable();
-		if ("true".equalsIgnoreCase(phoneable)) {
-			ret.put("status", "已绑定手机号码，请勿重复绑定");
+		String oldPhone = user.getPhone();
+		if (StringUtils.equals(phone, oldPhone)) {
+			ret.put("status", "已绑定该手机号码，请换其他手机号码。");
 			return ret;
 		}
 
