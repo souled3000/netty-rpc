@@ -32,6 +32,7 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.DateUtils;
+import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
@@ -101,14 +102,34 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 				return r;
 			}
 
-			// 发送找回密码邮件次数限制：一天内激活次数不超出5次
+			// 修改密码次数
 			int times = 0;
+			String strTimes = j.get("user:passwdChangedTimes:" + user.getId());
+			Long ttl = j.ttl("user:passwdChangedTimes:" + user.getId());
+			if (StringUtils.isNotBlank(strTimes)) {
+				times = Integer.valueOf(strTimes);
+			}
+
+			// 次数达到上限
+			if (times >= Constants.PASSWD_CHANGED_TIMES_MAX) {
+				logger.warn("Change passwd too many times");
+				r.put("passwdChangedTimes", times);
+				r.put("ttl", ttl);
+				r.put(status, ErrorCode.C002F.toString());
+				return r;
+			}
+
+			// 发送找回密码邮件次数限制：一天内激活次数不超出5次
+			times = 0;
+			ttl = 0L;
 			String findpwdtimes = j.get("user:findpwdtimes:" + user.getId());
+			ttl = j.ttl("user:findpwdtimes:" + user.getId());
 			if (StringUtils.isNotBlank(findpwdtimes)) {
 				times = Integer.valueOf(findpwdtimes);
 				if (times >= Constants.REGAGAIN_TIMES_MAX) {
 					// 达到操作上限，不发送邮件
 					logger.warn("Find password email had to the upper limit.");
+					r.put("ttl", ttl);
 					r.put(status, C002C.toString());
 					return r;
 				}
