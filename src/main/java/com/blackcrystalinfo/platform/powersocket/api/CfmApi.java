@@ -63,7 +63,7 @@ public class CfmApi extends HandlerAdapter {
 			if(StringUtils.isBlank(email)){
 				return fail();
 			}
-			loginSvr.userChangeProperty(uid, User.UserEmailableShadowColumn, "true");
+			loginSvr.userChangeProperty(uid, User.UserEmailableColumn, "true");
 			j.del("user:activetimes:" + uid);
 			j.del("user:mailActiveUUID:" + uid); //激活了，用户-》UUID 这个记录要删除
 			j.del("user:mailActive:" + sequences); //激活了，这个链接就没用了，下次调用直接fail
