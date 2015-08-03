@@ -84,7 +84,13 @@ public class UserFindPwdByPhoneStep1Api extends HandlerAdapter {
 			}
 
 			// 手机号码是否存在
-			User user = userDao.userGet(User.UserPhoneColumn, phone);
+			User user = null;
+			try {
+				user = userDao.userGet(User.UserPhoneColumn, phone);
+			} catch (Exception ex) {
+				user = null;
+			}
+
 			if (null == user) {
 				r.put(status, C0006.toString());
 				return r;
