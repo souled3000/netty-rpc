@@ -71,6 +71,11 @@ public class Constants extends ConfigurableConstants{
 	 */
 	public static int USER_INVITATION_CFM_EXPIRE = Integer.valueOf(getProperty("user.invitation.cfm.expire", "300"));
 
+	/**
+	 * 用户登录超时时间：15天
+	 */
+	public static int USER_COOKIE_EXPIRE = Integer.valueOf(getProperty("user.invitation.cfm.expire", "1296000"));
+
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}

@@ -153,7 +153,7 @@ public class UserLoginApi extends HandlerAdapter {
 
 			// 8. generate cookie
 			String cookie = user.getCookie();
-			jedis.set("user:cookie:" + userId, cookie); // 用户Id->cookie映射
+			jedis.setex("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE, cookie); // 用户Id->cookie映射
 
 			r.put("userId", userId);
 			r.put("cookie", cookie);

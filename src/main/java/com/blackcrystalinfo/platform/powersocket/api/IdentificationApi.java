@@ -10,6 +10,7 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
@@ -41,6 +43,23 @@ public class IdentificationApi extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 			String userId = CookieUtil.gotUserIdFromCookie(cookie);
+			String cookieNew = jedis.get("user:cookie:" + userId);
+
+			// cookie过期了
+			if (StringUtils.isBlank(cookieNew)) {
+				r.put(status, C0002.toString());
+				logger.info("the cookie is expire");
+				return r;
+			}
+
+			// 一个账户只能同时在一台机器上登录
+			if (!cookie.equals(cookieNew)) {
+				r.put(status, C0031.toString());
+				logger.info(
+						"cookie is older then stored, userid={} cookie={}, cookieNew={}",
+						userId, cookie, cookieNew);
+				return r;
+			}
 
 			User user = null;
 			String shadow = null;
@@ -59,16 +78,8 @@ public class IdentificationApi extends HandlerAdapter {
 				return r;
 			}
 
-			// 一个账户只能同时在一台机器上登录
-			String cookieNew = jedis.get("user:cookie:" + userId);
-			if (!cookie.equals(cookieNew)) {
-				r.put(status, C0031.toString());
-				logger.info(
-						"cookie is older then stored, userid={} cookie={}, cookieNew={}",
-						userId, cookie, cookieNew);
-				return r;
-			}
-
+			// 刷新cookie有效期
+			jedis.expire("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE);
 		} catch (Exception e) {
 			logger.error("Check cookie failed, e = ", e);
 			return r;
