@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +38,28 @@ public class FamiliesApi extends HandlerAdapter {
 			Set<String> familySet = j.smembers("family:" + fId);
 			r.put("fId", fId);
 			r.put("families", familySet);
+
+			// TODO: 需要跟手机协商，如果这个地方把成员的详细信息获取到，就不用挨个获取了
+			Set<Map<String, Object>> members = new HashSet<Map<String, Object>>();
+			for (String uId : familySet) {
+				Map<String, Object> member = new HashMap<String, Object>();
+
+				String nick = "";
+				String username = "";
+				String mobile = "";
+				String email = "";
+				String family = "";
+				String facestamp = j.hget("user:facestamp", uId);
+
+				member.put("uId", uId);
+				member.put("nick", nick);
+				member.put("username", username);
+				member.put("mobile", mobile);
+				member.put("email", email);
+				member.put("family", family);
+				member.put("facestamp", facestamp);
+			}
+			r.put("members", members);
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {

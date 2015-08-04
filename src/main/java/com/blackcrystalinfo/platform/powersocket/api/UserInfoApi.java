@@ -42,20 +42,24 @@ public class UserInfoApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		String userId = req.getParameter("uId");
 		Jedis jedis = null;
-		
+
 		try {
 			jedis = DataHelper.getJedis();
 			User user = loginSvr.userGet(User.UserIDColumn, userId);
 
 			String family = jedis.hget("user:family", userId);
 			user.setAdminid(family);
-			
+
 			r.put("uId", userId);
 			r.put("nick", user.getNick());
 			r.put("username", user.getUserName());
 			r.put("mobile", user.getPhone());
 			r.put("email", user.getAbleEmail());
 			r.put("family", user.getAdminid());
+
+			// 头像的md5值，手机端通过该值判断
+			String facestamp = jedis.hget("user:facestamp", userId);
+			r.put("facestamp", facestamp);
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
