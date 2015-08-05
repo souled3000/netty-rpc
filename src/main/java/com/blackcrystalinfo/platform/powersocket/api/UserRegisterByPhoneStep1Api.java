@@ -69,11 +69,15 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 
-			String code = VerifyCode.randString(CODE_LENGTH);
-			jedis.setex(key, CODE_EXPIRE, code);
-
 			// send message
-			SMSSender.send(phone, code);
+			String code = VerifyCode.randString(CODE_LENGTH);
+			if (!SMSSender.send(phone, code)) {
+				ret.put("status", "发送短信验证码失败！");
+				return ret;
+			}
+
+			// 记录短信验证码
+			jedis.setex(key, CODE_EXPIRE, code);
 
 			ret.put("code", code);
 			ret.put("status", ErrorCode.SUCCESS.toString());
