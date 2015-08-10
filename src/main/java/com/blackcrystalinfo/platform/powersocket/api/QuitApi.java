@@ -89,6 +89,12 @@ public class QuitApi extends HandlerAdapter {
 				}
 			}
 
+			// 当所有成员用户退出后自动解散家庭
+			if (members.size() == 1) {
+				j.hdel("user:family", fId);
+				j.del("family:" + fId);
+			}
+
 			// 用户退出家庭，除了给家庭其他成员推送外，还需要给用户自己推送消息。
 			members.add(uId);
 
@@ -97,6 +103,7 @@ public class QuitApi extends HandlerAdapter {
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist,
 					BizCode.FamilyQuit.getValue(), Integer.parseInt(uId),
 					msg.toString()));
+
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());

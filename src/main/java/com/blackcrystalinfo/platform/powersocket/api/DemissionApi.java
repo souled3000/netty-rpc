@@ -90,6 +90,12 @@ public class DemissionApi extends HandlerAdapter {
 				}
 			}
 
+			// 当所有成员用户退出后自动解散家庭
+			if (members.size() == 1) {
+				j.hdel("user:family", family);
+				j.del("family:" + family);
+			}
+
 			// 解绑用户，除了给家庭其他成员推送外，还需要给被解绑用户推送消息。
 			members.add(userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
