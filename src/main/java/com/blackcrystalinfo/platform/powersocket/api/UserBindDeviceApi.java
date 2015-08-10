@@ -85,6 +85,8 @@ public class UserBindDeviceApi extends HandlerAdapter {
 				return r;
 			} else {
 				j.hset("device:owner", deviceId, userId);
+				j.hset("device:bindtime", deviceId,
+						String.valueOf(System.currentTimeMillis()));
 				j.sadd("u:" + userId + ":devices", deviceId);
 			}
 
