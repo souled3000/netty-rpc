@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.handler;
 
 import java.io.ByteArrayInputStream;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import redis.clients.jedis.Jedis;
+
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
@@ -17,6 +20,7 @@ import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 import com.guru.LicenseHelper;
 
@@ -69,6 +73,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			return r;
 		}
 
+		Jedis jedis = null;
 		try {
 			// 1. 设备MAC是否已被注册
 			Long existId = deviceDao.getIdByMac(mac);
@@ -90,12 +95,17 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			String cookie = "";
 			if (null != existId) {
 				cookie = CookieUtil.generateDeviceKey(mac, existId.toString());
+				String cookieMd5 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(cookie.getBytes()));
+				jedis = DataHelper.getJedis();
+				jedis.hset("device:cookie", existId.toString(), cookieMd5);
 			}
 			r.put("cookie", cookie);
 		} catch (Exception e) {
 			logger.error("Device regist error mac:{}|sn:{}|dv:{}", mac, sn, dv,
 					e);
 			return r;
+		} finally {
+			DataHelper.returnJedis(jedis);
 		}
 
 		logger.info("response:  mac:{}|sn:{}|dv:{}", mac, sn, dv);

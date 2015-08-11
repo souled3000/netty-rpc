@@ -81,7 +81,8 @@ public class DevicesApi extends HandlerAdapter {
 					String name = device.getName();
 					String pwd = ""; // TODO: 这个没用，但接口文档里有，先这么留着
 					String dv = device.getDeviceType();
-
+					String owner = j.hget("device:owner", userId);
+					String cookie = j.hget("device:cookie", userId);
 					name = (null == name ? "default" : name);
 
 					devData.put("deviceId", id);
@@ -89,6 +90,8 @@ public class DevicesApi extends HandlerAdapter {
 					devData.put("deviceName", name);
 					devData.put("pwd", pwd);
 					devData.put("deviceType", dv);
+					devData.put("owner", owner);
+					devData.put("cookie", cookie);
 					bindedDevices.add(devData);
 				}
 			}
