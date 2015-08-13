@@ -89,7 +89,7 @@ public class InvitationCfmApi extends HandlerAdapter {
 				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyAddSuccess.getValue() , Long.parseLong(uId), msg.toString()));
 
 				// 发布通知：用户设备列表更新
-				pubDeviceUsersRels(oper, members, j);
+				pubDeviceUsersRels(uId, members, j);
 			} else {
 				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue() , Long.parseLong(uId), msg.toString()));
 
@@ -121,6 +121,11 @@ public class InvitationCfmApi extends HandlerAdapter {
 		for (String d : devices) {
 			// 家庭所有成员需要更新列表
 			for (String m : members) {
+				// 自己的设备无需处理
+				if (StringUtils.equals(m, uId)) {
+					continue;
+				}
+
 				StringBuilder sb = new StringBuilder();
 				sb.append(d).append("|").append(m).append("|").append("1");
 				j.publish("PubDeviceUsers", sb.toString());
@@ -128,6 +133,11 @@ public class InvitationCfmApi extends HandlerAdapter {
 		}
 
 		for (String m : members) {
+			// 自己的设备无需处理
+			if (StringUtils.equals(m, uId)) {
+				continue;
+			}
+
 			devices = j.smembers("u:" + m + ":devices");
 			// 家庭下没个成员绑定的设备，都要更新到新用户的名下
 			for (String d : devices) {
