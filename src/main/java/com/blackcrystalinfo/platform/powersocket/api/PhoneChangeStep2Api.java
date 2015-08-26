@@ -25,7 +25,7 @@ import com.blackcrystalinfo.platform.util.ErrorCode;
  * @author j
  * 
  */
-@Controller("/mobile/phonebind/step2")
+@Controller("/mobile/phonechange/step2")
 public class PhoneChangeStep2Api extends HandlerAdapter {
 	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep2Api.class);
 
