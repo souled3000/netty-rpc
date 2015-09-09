@@ -7,8 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class SimpleHttpClientUtil {
-	public static String sendGet(String url, String queryParam)
-			throws IOException {
+	public static String sendGet(String url, String queryParam) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br = null;
 		try {
@@ -16,8 +15,7 @@ public class SimpleHttpClientUtil {
 			URL hostURL = new URL(url + "?" + queryParam);
 			URLConnection conn = hostURL.openConnection();
 
-			br = new BufferedReader(
-					new InputStreamReader(conn.getInputStream()));
+			br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				sb.append(line);
@@ -34,8 +32,7 @@ public class SimpleHttpClientUtil {
 	public static void main(String[] args) {
 		String ret;
 		try {
-			ret = SimpleHttpClientUtil.sendGet("http://localhost/sendSms.php",
-					"type=submit&phone=18612455087&content=123123123");
+			ret = SimpleHttpClientUtil.sendGet("http://localhost/sendSms.php", "type=submit&phone=18612455087&content=123123123");
 			System.out.println(ret);
 		} catch (IOException e) {
 			e.printStackTrace();

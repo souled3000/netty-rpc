@@ -2,8 +2,9 @@ package com.blackcrystalinfo.platform.exception;
 
 /**
  * 服务器内部错误
+ * 
  * @author steven
- *
+ * 
  */
 public class InternalException extends Exception {
 

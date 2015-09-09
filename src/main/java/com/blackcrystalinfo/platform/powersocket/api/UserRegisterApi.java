@@ -41,36 +41,29 @@ import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 @Controller("/register")
 public class UserRegisterApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserRegisterApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserRegisterApi.class);
 
 	@Autowired
 	ILoginSvr loginSvr;
 
-	private boolean validUser(String email, String phone, String pwd,
-			Map<Object, Object> mapping) {
-		logger.debug("UserRegisterHandler begin email:{}|phone:{}|passwd:{}",
-				email, phone, pwd);
+	private boolean validUser(String email, String phone, String pwd, Map<Object, Object> mapping) {
+		logger.debug("UserRegisterHandler begin email:{}|phone:{}|passwd:{}", email, phone, pwd);
 
 		if (StringUtils.isBlank(email)) {
 			mapping.put(status, C0022.toString());
-			logger.debug(
-					"email is null. email:{}|phone:{}|passwd:{}|status:{}",
-					email, phone, pwd, mapping.get(status));
+			logger.debug("email is null. email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, mapping.get(status));
 			return false;
 		}
 		if (StringUtils.isBlank(pwd)) {
 			mapping.put(status, C0023.toString());
-			logger.debug("pwd is null. email:{}|phone:{}|passwd:{}|status:{}",
-					email, phone, pwd, mapping.get(status));
+			logger.debug("pwd is null. email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, mapping.get(status));
 			return false;
 		}
 
 		return true;
 	}
 
-	private boolean checkCookie(Jedis j, String cookie,
-			Map<Object, Object> mapping) {
+	private boolean checkCookie(Jedis j, String cookie, Map<Object, Object> mapping) {
 		String flag = j.get("B0001" + cookie);
 		if (Captcha.validity)
 			if (flag == null) {
@@ -85,8 +78,7 @@ public class UserRegisterApi extends HandlerAdapter {
 		return true;
 	}
 
-	private boolean sendEmail(String uuid, String email,
-			Map<Object, Object> mapping) {
+	private boolean sendEmail(String uuid, String email, Map<Object, Object> mapping) {
 		String subject = "用户注册确认";
 
 		String protocol = Constants.SERVERPROTOCOL;
@@ -105,8 +97,7 @@ public class UserRegisterApi extends HandlerAdapter {
 		sb.append("<br>");
 		sb.append(linkAddr);
 
-		boolean b = SimpleMailSender
-				.sendHtmlMail(email, subject, sb.toString());
+		boolean b = SimpleMailSender.sendHtmlMail(email, subject, sb.toString());
 		if (!b) {
 			logger.info("sending Email failed!!!|{}", email);
 			mapping.put(status, C0011.toString());
@@ -145,9 +136,7 @@ public class UserRegisterApi extends HandlerAdapter {
 
 			if (exist) {
 				r.put(status, C0024.toString());
-				logger.debug(
-						"user has been existed. email:{}|phone:{}|passwd:{}|status:{}",
-						email, phone, pwd, r.get(status));
+				logger.debug("user has been existed. email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, r.get(status));
 				return r;
 			}
 
@@ -155,8 +144,7 @@ public class UserRegisterApi extends HandlerAdapter {
 			loginSvr.userRegister(email, phone, nick, PBKDF2.encode(pwd));
 
 			// 6. get the user id
-			String userId = loginSvr.userGet(User.UserNameColumn, email)
-					.getId();
+			String userId = loginSvr.userGet(User.UserNameColumn, email).getId();
 			r.put("uid", userId);
 
 			// 7. send the email for register
@@ -175,9 +163,7 @@ public class UserRegisterApi extends HandlerAdapter {
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			DataHelper.returnBrokenJedis(j);
-			logger.error(
-					"User regist error, email:{}|phone:{}|passwd:{}|status:{}",
-					email, phone, pwd, r.get(status), e);
+			logger.error("User regist error, email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, r.get(status), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

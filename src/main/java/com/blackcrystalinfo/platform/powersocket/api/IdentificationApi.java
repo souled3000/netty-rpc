@@ -26,8 +26,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/mobile")
 public class IdentificationApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(HandlerAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(HandlerAdapter.class);
 
 	@Autowired
 	private ILoginSvr loginSvr;
@@ -63,9 +62,7 @@ public class IdentificationApi extends HandlerAdapter {
 			String cookieNew = jedis.get("user:cookie:" + userId);
 			if (!cookie.equals(cookieNew)) {
 				r.put(status, C0031.toString());
-				logger.info(
-						"cookie is older then stored, userid={} cookie={}, cookieNew={}",
-						userId, cookie, cookieNew);
+				logger.info("cookie is older then stored, userid={} cookie={}, cookieNew={}", userId, cookie, cookieNew);
 				return r;
 			}
 

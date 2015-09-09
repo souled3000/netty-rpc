@@ -149,7 +149,7 @@ public class CometScanner {
 								logger.debug("adding url:{}|path:{} to q", url, tmpPath);
 							} else
 								logger.debug("not adding url:{}|path:{} to q, beacause of absent of url in IPMAP", url, tmpPath);
-						}else
+						} else
 							logger.debug("not adding url:{}|path:{} to q, the url has been exsisted in q", url, tmpPath);
 					}
 				} else {
@@ -167,16 +167,16 @@ public class CometScanner {
 				PATH2URL.remove(tmp);
 			}
 		}
-		Map<String,String> tmpMap = new HashMap<String,String>();
-		for(String k : PATH2URL.keySet()){
+		Map<String, String> tmpMap = new HashMap<String, String>();
+		for (String k : PATH2URL.keySet()) {
 			tmpMap.put(PATH2URL.get(k), k);
 		}
-		for(String k : q){
-			if(tmpMap.get(k)==null){
+		for (String k : q) {
+			if (tmpMap.get(k) == null) {
 				q.remove(k);
 			}
 		}
-		
+
 	}
 
 	public static synchronized String take() {
@@ -220,7 +220,7 @@ public class CometScanner {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				String url = CometScanner.take();
-				System.out.printf("url:%s|qsize:%d|path2urlsize:%d\n", url, q.size(),PATH2URL.size());
+				System.out.printf("url:%s|qsize:%d|path2urlsize:%d\n", url, q.size(), PATH2URL.size());
 			}
 		}, 0, 10000);
 	}

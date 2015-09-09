@@ -32,44 +32,45 @@ import com.blackcrystalinfo.platform.util.Utils;
 
 /**
  * 用户注册邮件确认
+ * 
  * @author juliana
- *
+ * 
  */
 @Controller("/cfm")
 public class CfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CfmApi.class);
-	
+
 	@Autowired
 	ILoginSvr loginSvr;
-	
+
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 
-		QueryStringDecoder decoder = new QueryStringDecoder(req.getUrl());  
-        Map<String, List<String>> parame = decoder.parameters();
-        List<String> q = parame.get("v"); // 读取从客户端传过来的参数  
-		String sequences= q.get(0);
+		QueryStringDecoder decoder = new QueryStringDecoder(req.getUrl());
+		Map<String, List<String>> parame = decoder.parameters();
+		List<String> q = parame.get("v"); // 读取从客户端传过来的参数
+		String sequences = q.get(0);
 		Jedis j = null;
 		try {
-			j= DataHelper.getJedis();
-			
-			String uid = j.get("user:mailActive:"+sequences);
+			j = DataHelper.getJedis();
+
+			String uid = j.get("user:mailActive:" + sequences);
 			if (StringUtils.isBlank(uid)) {
 				return fail();
 			}
-			
+
 			User user = loginSvr.userGet(User.UserIDColumn, uid);
 			String email = user.getEmail();
-			if(StringUtils.isBlank(email)){
+			if (StringUtils.isBlank(email)) {
 				return fail();
 			}
 			loginSvr.userChangeProperty(uid, User.UserEmailableShadowColumn, "true");
 			j.del("user:activetimes:" + uid);
-			j.del("user:mailActiveUUID:" + uid); //激活了，用户-》UUID 这个记录要删除
-			j.del("user:mailActive:" + sequences); //激活了，这个链接就没用了，下次调用直接fail
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uid+"|",BizCode.UserActivateSuccess.getValue(), Integer.parseInt(uid), ""));
+			j.del("user:mailActiveUUID:" + uid); // 激活了，用户-》UUID 这个记录要删除
+			j.del("user:mailActive:" + sequences); // 激活了，这个链接就没用了，下次调用直接fail
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uid + "|", BizCode.UserActivateSuccess.getValue(), Integer.parseInt(uid), ""));
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			e.printStackTrace();
 			logger.error("emai active failed!!!", e);
 			return fail();
@@ -78,8 +79,8 @@ public class CfmApi extends HandlerAdapter {
 		}
 		return succ();
 	}
-	
-	private Object succ(){
+
+	private Object succ() {
 		StringBuilder c = new StringBuilder();
 		c.append("<!DOCTYPE html>");
 		c.append("<html lang=\"zh-CN\">");
@@ -97,7 +98,8 @@ public class CfmApi extends HandlerAdapter {
 		setContentLength(res, res.content().readableBytes());
 		return res;
 	}
-	private Object fail(){
+
+	private Object fail() {
 		StringBuilder c = new StringBuilder();
 		c.append("<!DOCTYPE html>");
 		c.append("<html lang=\"zh-CN\">");

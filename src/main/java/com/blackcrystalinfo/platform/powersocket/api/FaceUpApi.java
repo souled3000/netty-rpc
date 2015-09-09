@@ -32,8 +32,7 @@ public class FaceUpApi extends HandlerAdapter {
 		String cookie = req.getParameter("cookie");
 		String nick = req.getParameter("nick");
 		String id = CookieUtil.gotUserIdFromCookie(cookie);
-		MixedFileUpload pic = (MixedFileUpload) req.getParams()
-				.getBodyHttpData("pic");
+		MixedFileUpload pic = (MixedFileUpload) req.getParams().getBodyHttpData("pic");
 		if (pic != null && pic.get() != null) {
 			File f = new File(Constants.PIC_PATH + File.separator + id);
 			FileUtils.copyFile(pic.getFile(), f);

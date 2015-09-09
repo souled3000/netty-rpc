@@ -24,8 +24,9 @@ import com.blackcrystalinfo.platform.util.Constants;
  * 简单邮件（不带附件的邮件）发送器
  */
 public class SimpleMailSender {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SimpleMailSender.class);
+
 	/**
 	 * 以文本格式发送邮件
 	 * 
@@ -63,7 +64,7 @@ public class SimpleMailSender {
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
-			logger.info("发txt邮件失败了：",ex);
+			logger.info("发txt邮件失败了：", ex);
 		}
 		return false;
 	}
@@ -112,20 +113,23 @@ public class SimpleMailSender {
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
-			logger.info("发html邮件失败了：",ex);
+			logger.info("发html邮件失败了：", ex);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 系统给目标地址发送邮件
-	 * @param toAddr 目标地址
-	 * @param subject 主题
-	 * @param content 内容
+	 * 
+	 * @param toAddr
+	 *            目标地址
+	 * @param subject
+	 *            主题
+	 * @param content
+	 *            内容
 	 * @return 发送成功与否的标志
 	 */
-	public static boolean sendHtmlMail(String toAddr, String subject,
-			String content) {
+	public static boolean sendHtmlMail(String toAddr, String subject, String content) {
 		String mailAddr = Constants.getProperty("email.user", "");
 		String mailPwd = Constants.getProperty("email.pwd", "");
 		String mailHost = Constants.getProperty("mail.server.host", "");
@@ -143,14 +147,14 @@ public class SimpleMailSender {
 		mailInfo.setContent(content);
 		return sendHtmlMail(mailInfo);
 	}
-	
+
 	public static void main(String[] args) {
-		
+
 		String emailAddr = Constants.getProperty("email.user", "");
 		String emailPwd = Constants.getProperty("email.pwd", "");
 		String mailHost = Constants.getProperty("mail.server.host", "");
 		String mailPost = Constants.getProperty("mail.server.port", "");
-		
+
 		String protocol = Constants.SERVERPROTOCOL;
 		String ip = Constants.SERVERIP;
 		String port = Constants.SERVERPORT;
@@ -161,10 +165,10 @@ public class SimpleMailSender {
 		mailInfo.setUserName(emailAddr);
 		mailInfo.setPassword(emailPwd);// 您的邮箱密码
 		mailInfo.setFromAddress(emailAddr);
-//		mailInfo.setToAddress("2683641128@qq.com");
+		// mailInfo.setToAddress("2683641128@qq.com");
 		mailInfo.setToAddress("24841337@qq.com");
 		mailInfo.setSubject("用户注册确认");
-		mailInfo.setContent("<a href='"+protocol+ "//"+ip+":"+port+"/cfm?v=" + 111+"'>激活</a>");
+		mailInfo.setContent("<a href='" + protocol + "//" + ip + ":" + port + "/cfm?v=" + 111 + "'>激活</a>");
 		boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
 		System.out.println(b);
 	}

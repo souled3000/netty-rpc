@@ -85,9 +85,7 @@ public class QuitApi extends HandlerAdapter {
 
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist,
-					BizCode.FamilyQuit.getValue(), Integer.parseInt(uId),
-					msg.toString()));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());

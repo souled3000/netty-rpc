@@ -21,16 +21,17 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
-@Path(path="/mobile/invitation")
+@Path(path = "/mobile/invitation")
 public class Invitation1Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(Invitation1Api.class);
+
 	public Object rpc(RpcRequest req) throws Exception {
 		long l = System.currentTimeMillis();
-		Map<Object,Object> r = new HashMap<Object,Object>();
+		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = req.getParameter( "cookie");
+		String cookie = req.getParameter("cookie");
 		String family = CookieUtil.gotUserIdFromCookie(cookie);
-		String uId = req.getParameter( "uId");
+		String uId = req.getParameter("uId");
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
@@ -42,7 +43,7 @@ public class Invitation1Api extends HandlerAdapter {
 				return r;
 			}
 
-			long b1 = j.zadd(family + "u",(double)l, uId);// u:user;用户加入家庭;<fid+'u'>家庭用户组的key
+			long b1 = j.zadd(family + "u", (double) l, uId);// u:user;用户加入家庭;<fid+'u'>家庭用户组的key
 			if (b1 == 0) {
 				r.put(status, C0007.toString()); // 重复绑定
 				logger.info("User device has binded! uId:{}|cookie:{}|status:{}", uId, family, cookie, r.get("status"));
@@ -51,22 +52,22 @@ public class Invitation1Api extends HandlerAdapter {
 				j.zadd(uId, (double) l, family);
 			}
 
-			//获取家庭所有设备
-			Set<String> devices = j.zrange(family+"d",0,-1);
-			for(String o : devices){
+			// 获取家庭所有设备
+			Set<String> devices = j.zrange(family + "d", 0, -1);
+			for (String o : devices) {
 				StringBuilder sb = new StringBuilder();
-				//将uid与family下的所有设备做关联
+				// 将uid与family下的所有设备做关联
 				sb.append(o).append("|").append(uId).append("|").append("1");
 				j.publish("PubDeviceUsers", sb.toString());
 			}
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|cookie:{}|status:{}", uId, family, cookie, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
 		}
-		r.put(status,SUCCESS.toString());
+		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

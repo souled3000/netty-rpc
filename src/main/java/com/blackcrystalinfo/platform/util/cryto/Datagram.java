@@ -81,32 +81,32 @@ public class Datagram {
 	}
 
 	public void encapsulate() throws Exception {
-		
+
 		Random r = new Random();
 		int intKtm = r.nextInt(65535);
-		logger.info("intKtm:"+intKtm);
-		ktm = StringUtils.leftPad(Integer.toHexString(intKtm),4,'0');
-//		ctp = String.valueOf(r.nextInt(2) + 1);
+		logger.info("intKtm:" + intKtm);
+		ktm = StringUtils.leftPad(Integer.toHexString(intKtm), 4, '0');
+		// ctp = String.valueOf(r.nextInt(2) + 1);
 		ctp = String.valueOf(1);
 		Long keyFinal = getFinalKey(key, ktm);
 
-		crc = StringUtils.leftPad(ByteUtil.crc(ctn),8,'0');
+		crc = StringUtils.leftPad(ByteUtil.crc(ctn), 8, '0');
 
 		switch (Integer.valueOf(ctp)) {
 		case 1:
-//			logger.info("base64--ctn:{}",ctn);
+			// logger.info("base64--ctn:{}",ctn);
 			ctn = encoder.encode(DES.encrypt(ctn.getBytes(), ByteUtil.reverse(ByteUtil.fromHex(Long.toHexString(keyFinal))))).replaceAll("\\s", "");
-//			logger.info("base64--ctn:{}",ctn);
-//			ctn = URLEncoder.encode(ctn, "utf8");
-//			logger.info("urlencoder ctn:{}",ctn);
+			// logger.info("base64--ctn:{}",ctn);
+			// ctn = URLEncoder.encode(ctn, "utf8");
+			// logger.info("urlencoder ctn:{}",ctn);
 			break;
 		case 2:
-//			ctn = decoder.decodeBuffer(RC4.HloveyRC4(ctn.getBytes(), String.valueOf(keyFinal)));
+			// ctn = decoder.decodeBuffer(RC4.HloveyRC4(ctn.getBytes(), String.valueOf(keyFinal)));
 			break;
 		default:
 			break;
 		}
-		logger.info("encapsulate: "+this.toString());
+		logger.info("encapsulate: " + this.toString());
 	}
 
 	public Long getFinalKey(String key, String ktm) throws Exception {
@@ -116,42 +116,41 @@ public class Datagram {
 		Long lKtmHight = lKtm & 0xff00;
 		lKtmHight >>= 8;
 
-//		logger.info("lKtm:" + lKtm+"|"+Long.toHexString(lKtm));
-//		logger.info("lKtmLow:" + lKtmLow+"|"+Long.toHexString(lKtmLow));
-//		logger.info("lKtmHight:" + lKtmHight+"|"+Long.toHexString(lKtmHight));
+		// logger.info("lKtm:" + lKtm+"|"+Long.toHexString(lKtm));
+		// logger.info("lKtmLow:" + lKtmLow+"|"+Long.toHexString(lKtmLow));
+		// logger.info("lKtmHight:" + lKtmHight+"|"+Long.toHexString(lKtmHight));
 
 		Long key2 = Long.valueOf(CodePool.getCode(lKtmLow), 16);
-//		logger.info("key2:" + key2+"|"+Long.toHexString(key2));
-
+		// logger.info("key2:" + key2+"|"+Long.toHexString(key2));
 
 		Long key3 = Long.valueOf(CodePool.getCode(lKtmHight), 16);
 
-//		logger.info("key3:" + key3+"|"+Long.toHexString(key3));
+		// logger.info("key3:" + key3+"|"+Long.toHexString(key3));
 
 		key3 <<= 32;
 		Long key4 = key2 + key3;
-//		logger.info("key4:" + key4+"|"+Long.toHexString(key4));
+		// logger.info("key4:" + key4+"|"+Long.toHexString(key4));
 		Long keyFinal = null;
 		if (key != null && !"".equals(key)) {
 			byte[] md5Key = MessageDigest.getInstance("MD5").digest(key.getBytes());
 
-//			logger.info("md5: " + ByteUtil.toHex(md5Key));
+			// logger.info("md5: " + ByteUtil.toHex(md5Key));
 			byte[] md5KeyLower = new byte[8];
 			System.arraycopy(md5Key, 0, md5KeyLower, 0, 8);
-			
+
 			ByteBuffer bb = ByteBuffer.allocate(8);
 			bb.order(ByteOrder.LITTLE_ENDIAN);
 			bb.put(md5KeyLower);
 			Long key1 = bb.getLong(0);
 
-//			logger.info("md5的低八:" + ByteUtil.toHex(md5KeyLower));
-//			logger.info("key1:" + Long.toHexString(key1));
-//			logger.info("key1:" + key1);
+			// logger.info("md5的低八:" + ByteUtil.toHex(md5KeyLower));
+			// logger.info("key1:" + Long.toHexString(key1));
+			// logger.info("key1:" + key1);
 			keyFinal = key1 ^ key4;
 		} else {
 			keyFinal = key4;
 		}
-		logger.info("keyFinal:{}|{}" , keyFinal, Long.toHexString(keyFinal));
+		logger.info("keyFinal:{}|{}", keyFinal, Long.toHexString(keyFinal));
 		return keyFinal;
 	}
 
@@ -163,10 +162,10 @@ public class Datagram {
 		switch (intCtp) {
 		case 1:
 			byte[] debase64 = decoder.decodeBuffer(ctn);
-//			logger.info("ctn:" + ctn);
-//			logger.info("base64 ctn:" + ByteUtil.toHex(debase64));
-//			logger.info("keyFinal: " + keyFinal);
-//			logger.info("keyFinal: " + Long.toHexString(keyFinal));
+			// logger.info("ctn:" + ctn);
+			// logger.info("base64 ctn:" + ByteUtil.toHex(debase64));
+			// logger.info("keyFinal: " + keyFinal);
+			// logger.info("keyFinal: " + Long.toHexString(keyFinal));
 			strCtn = new String(DES.decrypt(debase64, ByteUtil.reverse(ByteUtil.fromHex(Long.toHexString(keyFinal)))), "utf8");
 			break;
 		case 2:
@@ -176,7 +175,7 @@ public class Datagram {
 			logger.info("What!!");
 			break;
 		}
-		logger.info("ctn plaintext：{}" , strCtn);
+		logger.info("ctn plaintext：{}", strCtn);
 
 		long c = ByteUtil.crc32(strCtn, crc);
 		if (c == 0) {
@@ -186,8 +185,9 @@ public class Datagram {
 		}
 
 	}
-	public static void main(String[] args) throws Exception{
-		Datagram g = new Datagram(null,null,null,null,null);
+
+	public static void main(String[] args) throws Exception {
+		Datagram g = new Datagram(null, null, null, null, null);
 		g.decapsulate();
 		JSONObject.parseObject("mac:\"CFiqNk6cAAA=\",name:\"IOi/meaYr+e9keWFsw==\"}");
 	}

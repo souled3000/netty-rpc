@@ -16,14 +16,15 @@ import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class Utils {
-	
-	public static byte[] genMsg(String head,int bizCode, long id, String msg){
-		return ArrayUtils.addAll(head.getBytes(), genDatagram4Long(bizCode,id,msg));
+
+	public static byte[] genMsg(String head, int bizCode, long id, String msg) {
+		return ArrayUtils.addAll(head.getBytes(), genDatagram4Long(bizCode, id, msg));
 	}
-	public static byte[] genMsg(String head,int bizCode, String mac, String msg){
-		return ArrayUtils.addAll(head.getBytes(), genDatagram4Mac(bizCode,mac,msg));
+
+	public static byte[] genMsg(String head, int bizCode, String mac, String msg) {
+		return ArrayUtils.addAll(head.getBytes(), genDatagram4Mac(bizCode, mac, msg));
 	}
-	
+
 	public static byte[] genDatagram4Long(int bizCode, long id, String msg) {
 
 		try {
@@ -46,8 +47,9 @@ public class Utils {
 		}
 		return null;
 	}
+
 	public static byte[] genDatagram4Mac(int bizCode, String mac, String msg) {
-		
+
 		try {
 			byte[] m;
 			m = msg.getBytes("utf8");
@@ -70,45 +72,45 @@ public class Utils {
 	}
 
 	public static void printDatagram4Websocket(byte[] r) {
-		
-		int biz = (int)r[0];
-		System.out.println("biz:"+biz);
-		
+
+		int biz = (int) r[0];
+		System.out.println("biz:" + biz);
+
 		byte[] bId = new byte[8];
-		for(int i = 1;i<9;i++){
-			bId[i-1]=r[i];
+		for (int i = 1; i < 9; i++) {
+			bId[i - 1] = r[i];
 		}
-		
+
 		long id = NumberByte.byte2Long(bId);
-		System.out.println("id:"+id);
-		System.out.println("ml:"+r[9]);
-		int ml = (int)r[9];
+		System.out.println("id:" + id);
+		System.out.println("ml:" + r[9]);
+		int ml = (int) r[9];
 		byte[] bmsg = new byte[ml];
-		
-		System.out.println("ml:"+ml);
-		for(int i=0;i<ml;i++){
-			bmsg[i] = r[10+i];
+
+		System.out.println("ml:" + ml);
+		for (int i = 0; i < ml; i++) {
+			bmsg[i] = r[10 + i];
 		}
 		try {
-			String msg = new String(bmsg,"utf8");
+			String msg = new String(bmsg, "utf8");
 			System.out.println(msg);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public static void main2(String[] args) {
-		byte[] a = genDatagram4Long(1,-30,"哈哈");
+		byte[] a = genDatagram4Long(1, -30, "哈哈");
 		System.out.println(ByteUtil.toHex(a));
 		System.out.println("--------------------------");
-		
+
 		printDatagram4Websocket(a);
 	}
-	
-	public static void main(String[] args) throws Exception{
+
+	public static void main(String[] args) throws Exception {
 		Jedis j = DataHelper.getJedis();
-		j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg("-32,-48|",5, Integer.parseInt("48"), "黄河"));
+		j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg("-32,-48|", 5, Integer.parseInt("48"), "黄河"));
 		DataHelper.returnJedis(j);
 	}
 }

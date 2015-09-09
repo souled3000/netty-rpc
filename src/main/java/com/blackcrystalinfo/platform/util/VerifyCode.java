@@ -16,11 +16,12 @@ public final class VerifyCode {
 		}
 		return new String(buf);
 	}
+
 	public static void main(String[] args) {
 		long l = System.currentTimeMillis();
-		for(int n = 0 ; n++<100000000;){
+		for (int n = 0; n++ < 100000000;) {
 			VerifyCode.randString(6);
 		}
-		System.out.println((System.currentTimeMillis()-l)/1000);
+		System.out.println((System.currentTimeMillis() - l) / 1000);
 	}
 }

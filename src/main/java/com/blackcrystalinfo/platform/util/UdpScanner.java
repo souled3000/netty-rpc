@@ -139,28 +139,28 @@ public class UdpScanner {
 				/** 已用内存 */
 				long h = Long.valueOf(items[4]);
 				/** 已用句柄数 */
-//				if (cpu < CPU_THRESHOLD && tm - um > MEM_THRESHOLD && HANDLER_THRESHOLD > h) {
-					Matcher m = p.matcher(url);
-					if (m.find()) {
-						String key = m.group();
-						if (!q.contains(url)) {
-							System.out.println(url+m.find());
-							if (IPMAP.containsKey(key)) {
-								System.out.println(url+m.find());
-								q.put(url);
-								logger.debug("adding url:{}|path:{} to q", url, tmpPath);
-							} else
-								logger.debug("not adding url:{}|path:{} to q, beacause of absent of url in IPMAP", url, tmpPath);
-						}else
-							logger.debug("not adding url:{}|path:{} to q, the url has been exsisted in q", url, tmpPath);
-					}
-//				} else {
-//					logger.error("ALARM!!! {} < {}CPU_THRESHOLD && {} - {} > {}MEM_THRESHOLD && {}HANDLER_THRESHOLD > {}", cpu, CPU_THRESHOLD, tm, um, MEM_THRESHOLD, HANDLER_THRESHOLD, h);
-//					if (q.contains(url)) {
-//						q.remove(url);
-//						logger.info("remove url:{}|path:{}", url, tmpPath);
-//					}
-//				}
+				// if (cpu < CPU_THRESHOLD && tm - um > MEM_THRESHOLD && HANDLER_THRESHOLD > h) {
+				Matcher m = p.matcher(url);
+				if (m.find()) {
+					String key = m.group();
+					if (!q.contains(url)) {
+						System.out.println(url + m.find());
+						if (IPMAP.containsKey(key)) {
+							System.out.println(url + m.find());
+							q.put(url);
+							logger.debug("adding url:{}|path:{} to q", url, tmpPath);
+						} else
+							logger.debug("not adding url:{}|path:{} to q, beacause of absent of url in IPMAP", url, tmpPath);
+					} else
+						logger.debug("not adding url:{}|path:{} to q, the url has been exsisted in q", url, tmpPath);
+				}
+				// } else {
+				// logger.error("ALARM!!! {} < {}CPU_THRESHOLD && {} - {} > {}MEM_THRESHOLD && {}HANDLER_THRESHOLD > {}", cpu, CPU_THRESHOLD, tm, um, MEM_THRESHOLD, HANDLER_THRESHOLD, h);
+				// if (q.contains(url)) {
+				// q.remove(url);
+				// logger.info("remove url:{}|path:{}", url, tmpPath);
+				// }
+				// }
 			}
 		}
 
@@ -169,16 +169,16 @@ public class UdpScanner {
 				PATH2URL.remove(tmp);
 			}
 		}
-		Map<String,String> tmpMap = new HashMap<String,String>();
-		for(String k : PATH2URL.keySet()){
+		Map<String, String> tmpMap = new HashMap<String, String>();
+		for (String k : PATH2URL.keySet()) {
 			tmpMap.put(PATH2URL.get(k), k);
 		}
-		for(String k : q){
-			if(tmpMap.get(k)==null){
+		for (String k : q) {
+			if (tmpMap.get(k) == null) {
 				q.remove(k);
 			}
 		}
-		
+
 	}
 
 	public static synchronized String take() {
@@ -222,7 +222,7 @@ public class UdpScanner {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				String url = UdpScanner.take();
-				System.out.printf("url:%s|qsize:%d|path2urlsize:%d\n", url, q.size(),PATH2URL.size());
+				System.out.printf("url:%s|qsize:%d|path2urlsize:%d\n", url, q.size(), PATH2URL.size());
 			}
 		}, 0, 10000);
 	}

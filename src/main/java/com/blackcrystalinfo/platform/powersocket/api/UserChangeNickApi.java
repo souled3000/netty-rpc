@@ -30,8 +30,7 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 @Controller("/mobile/cn")
 public class UserChangeNickApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserChangeNickApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserChangeNickApi.class);
 
 	@Autowired
 	ILoginSvr loginSvr;
@@ -44,8 +43,7 @@ public class UserChangeNickApi extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		String nick = req.getParameter("nick");
 
-		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}",
-				userId, cookie, nick);
+		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}", userId, cookie, nick);
 
 		if (StringUtils.isBlank(nick)) {
 			r.put(status, C0025.toString());
@@ -57,14 +55,13 @@ public class UserChangeNickApi extends HandlerAdapter {
 			User user = loginSvr.userGet(User.UserIDColumn, userId);
 			if (!nick.equals(user.getNick())) {
 				// 新旧Nick不一致时修改
-				loginSvr.userChangeProperty(userId, User.UserNickColumn,nick);
+				loginSvr.userChangeProperty(userId, User.UserNickColumn, nick);
 			} else {
 				r.put(status, C0026.toString());
 				return r;
 			}
 			r.put(status, SUCCESS.toString());
-			logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}",
-					userId, cookie, nick, r.get(status));
+			logger.info("response: userId:{}|cookie:{}|nick:{}|status:{}", userId, cookie, nick, r.get(status));
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			logger.error("", e);

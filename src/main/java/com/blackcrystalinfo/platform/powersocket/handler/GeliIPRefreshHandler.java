@@ -17,10 +17,10 @@ public class GeliIPRefreshHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CometAdrApi.class);
 
 	public Object rpc(RpcRequest req) throws InternalException {
-		Map<Object,Object> r = new HashMap<Object,Object>();
+		Map<Object, Object> r = new HashMap<Object, Object>();
 		try {
 			CometScanner.refresh();
-			r.put("status",0);
+			r.put("status", 0);
 		} catch (Exception e) {
 			logger.error("System error occurs", e);
 			r.put("status", -1);

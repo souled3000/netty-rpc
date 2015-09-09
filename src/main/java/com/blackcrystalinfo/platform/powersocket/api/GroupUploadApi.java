@@ -26,8 +26,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 @Controller("/mobile/gu")
 public class GroupUploadApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(GroupUploadApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(GroupUploadApi.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -40,11 +39,8 @@ public class GroupUploadApi extends HandlerAdapter {
 		String grpNew = req.getParameter("grpNew");
 		String grpValue = req.getParameter("grpValue");
 		String table = "user:group:" + userId;
-		logger.info(
-				"GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}",
-				userId, grpOld, grpNew, grpValue);
-		if (StringUtils.isBlank(userId)
-				|| (StringUtils.isBlank(grpOld) && StringUtils.isBlank(grpNew))) {
+		logger.info("GroupUploadHandler begin userId:{}|grpOld:{}|grpNew:{}|grpValue:{}", userId, grpOld, grpNew, grpValue);
+		if (StringUtils.isBlank(userId) || (StringUtils.isBlank(grpOld) && StringUtils.isBlank(grpNew))) {
 			r.put(status, C0009.toString());
 			logger.info("grpOld与grpNew不能都为空");
 		} else {
@@ -75,9 +71,7 @@ public class GroupUploadApi extends HandlerAdapter {
 				DataHelper.returnJedis(j);
 			}
 		}
-		logger.info(
-				"response: userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}",
-				userId, grpOld, grpNew, grpValue, r.get(status));
+		logger.info("response: userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}", userId, grpOld, grpNew, grpValue, r.get(status));
 		return r;
 	}
 

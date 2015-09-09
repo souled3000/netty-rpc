@@ -52,18 +52,18 @@ public class CookieUtil {
 	 * @return cookie
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static String encode4user(String userId, String expire,String shadow) throws NoSuchAlgorithmException {
+	public static String encode4user(String userId, String expire, String shadow) throws NoSuchAlgorithmException {
 		BASE64Encoder encoder = new BASE64Encoder();
 		String cookie = "";
-		String timestamp = System.currentTimeMillis()+"";
+		String timestamp = System.currentTimeMillis() + "";
 		String sha1Value = encodeSha1(userId, expire, timestamp);
 		String beforeAes = String.format("%s|%s|%s|%s", userId, expire, timestamp, sha1Value);
 		cookie = encoder.encode(beforeAes.getBytes());
 		cookie = cookie.replace("+", "%2B");
 		cookie = cookie.replaceAll("\r", "");
 		cookie = cookie.replaceAll("\n", "");
-		String up = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId+shadow).getBytes()));
-		return cookie+"-"+up;
+		String up = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest((userId + shadow).getBytes()));
+		return cookie + "-" + up;
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class CookieUtil {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 */
-	private static String[] decodeUserCookie(String cookie) throws NoSuchAlgorithmException, IOException{
+	private static String[] decodeUserCookie(String cookie) throws NoSuchAlgorithmException, IOException {
 
 		cookie = cookie.replace("%2B", "+");
 
@@ -86,7 +86,7 @@ public class CookieUtil {
 
 		String[] parts = beforeAes.split("\\|");
 
-		if(parts.length<4){
+		if (parts.length < 4) {
 			throw new ArrayIndexOutOfBoundsException("parts's length less than four.");
 		}
 		String userId = "";
@@ -106,15 +106,13 @@ public class CookieUtil {
 		return new String[] { userId, expire, timestamp };
 	}
 
-	public static String gotUserIdFromCookie(String cookie) throws Exception{
+	public static String gotUserIdFromCookie(String cookie) throws Exception {
 		String[] cs = cookie.split("-");
 		String[] cookies = CookieUtil.decodeUserCookie(cs[0]);
 		String userId = cookies[0];
 		return userId;
 	}
 
-	
-	
 	public static String generateKey(String id, String timestamp, String expire) throws NoSuchAlgorithmException {
 		String key = "";
 		String buf = String.format("%s|%s|%s", id, timestamp, expire);
@@ -128,7 +126,7 @@ public class CookieUtil {
 		key = String.format("%s|%s", buf, md5Str);
 		return key;
 	}
-	
+
 	public static String generateDeviceKey(String mac, String id) throws NoSuchAlgorithmException, InvalidKeyException {
 		String cookie = "";
 
@@ -163,11 +161,10 @@ public class CookieUtil {
 		return deviceId;
 	}
 
-
-	public static boolean verifyDeviceKey(String mac, String cookie,String id) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+	public static boolean verifyDeviceKey(String mac, String cookie, String id) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
 		boolean result = false;
 
-//		String id = extractDeviceId(cookie);
+		// String id = extractDeviceId(cookie);
 		if (null != cookie) {
 			cookie = cookie.replace("+", "%2B");
 			if (cookie.equals(generateDeviceKey(mac, id))) {
@@ -212,8 +209,7 @@ public class CookieUtil {
 		return str.toLowerCase();
 	}
 
-	
-	public static boolean validateMobileCookie(String cookie,String shadow){
+	public static boolean validateMobileCookie(String cookie, String shadow) {
 		try {
 			String[] cs = cookie.split("-");
 			if (cs.length != 2) {
@@ -227,13 +223,13 @@ public class CookieUtil {
 				return false;
 			}
 		} catch (Exception e) {
-			logger.error("",e);
+			logger.error("", e);
 			return false;
 		}
 		return true;
 	}
-	
-	public static void main(String[] args)throws Exception {
+
+	public static void main(String[] args) throws Exception {
 		System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
 	}
 }

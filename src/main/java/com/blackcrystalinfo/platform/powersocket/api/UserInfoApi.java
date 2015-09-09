@@ -30,26 +30,24 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/mobile/getUserInfo")
 public class UserInfoApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserInfoApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserInfoApi.class);
 
 	@Autowired
 	ILoginSvr loginSvr;
 
 	@Override
-	public Object rpc(com.blackcrystalinfo.platform.RpcRequest req)
-			throws Exception {
+	public Object rpc(com.blackcrystalinfo.platform.RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		String userId = req.getParameter("uId");
 		Jedis jedis = null;
-		
+
 		try {
 			jedis = DataHelper.getJedis();
 			User user = loginSvr.userGet(User.UserIDColumn, userId);
 
 			String family = jedis.hget("user:family", userId);
 			user.setAdminid(family);
-			
+
 			r.put("uId", userId);
 			r.put("nick", user.getNick());
 			r.put("username", user.getUserName());

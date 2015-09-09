@@ -33,8 +33,7 @@ import com.blackcrystalinfo.platform.util.Utils;
  */
 @Controller("/mobile/demission")
 public class DemissionApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(DemissionApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(DemissionApi.class);
 	@Autowired
 	ILoginSvr loginSvr;
 
@@ -43,8 +42,7 @@ public class DemissionApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
 		String userId = req.getParameter("uId");
-		String family = CookieUtil.gotUserIdFromCookie(req
-				.getParameter("cookie"));
+		String family = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
@@ -85,16 +83,13 @@ public class DemissionApi extends HandlerAdapter {
 			members.add(userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist,
-					BizCode.FamilyRemoveMember.getValue(),
-					Integer.parseInt(userId), msg.toString()));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyRemoveMember.getValue(), Integer.parseInt(userId), msg.toString()));
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
 			r.put(status, SYSERROR.toString());
-			logger.error("Bind in error uId:{}|family:{}|status:{}", userId,
-					family, family, r.get("status"), e);
+			logger.error("Bind in error uId:{}|family:{}|status:{}", userId, family, family, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

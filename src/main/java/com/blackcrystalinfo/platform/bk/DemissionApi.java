@@ -1,4 +1,5 @@
 package com.blackcrystalinfo.platform.bk;
+
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
 import static com.blackcrystalinfo.platform.util.ErrorCode.C0008;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
@@ -22,18 +23,18 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 
 /**
  * 
- * @author juliana
- *	解绑用户
+ * @author juliana 解绑用户
  */
-@Path(path="/mobile/demission")
-public class DemissionApi extends HandlerAdapter{
+@Path(path = "/mobile/demission")
+public class DemissionApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DemissionApi.class);
+
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String uId = req.getParameter( "uId");
-		String cookie = req.getParameter( "cookie");
+		String uId = req.getParameter("uId");
+		String cookie = req.getParameter("cookie");
 		String family = CookieUtil.gotUserIdFromCookie(cookie);
 		Jedis j = null;
 		try {
@@ -53,16 +54,16 @@ public class DemissionApi extends HandlerAdapter{
 				j.zrem(uId, family);
 			}
 
-			//获取家庭所有设备
-			Set<String> devices = j.zrange(family+"d",0,-1);
-			for(String o : devices){
+			// 获取家庭所有设备
+			Set<String> devices = j.zrange(family + "d", 0, -1);
+			for (String o : devices) {
 				StringBuilder sb = new StringBuilder();
-				//将uid与family下的所有设备切断关联
+				// 将uid与family下的所有设备切断关联
 				sb.append(o).append("|").append(uId).append("|").append("0");
 				j.publish("PubDeviceUsers", sb.toString());
 			}
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error uId:{}|cookie:{}|status:{}", uId, family, cookie, r.get("status"), e);
 			return r;
 		} finally {

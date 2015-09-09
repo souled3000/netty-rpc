@@ -19,15 +19,13 @@ public final class CodePool {
 	private static List<String> pool = new ArrayList<String>();
 	static {
 		try {
-			File f = new File(System.getProperty("user.dir") + File.separator
-					+ "keys");
-			if(!f.exists())
+			File f = new File(System.getProperty("user.dir") + File.separator + "keys");
+			if (!f.exists())
 				CodePool.flushPool();
-			else
-			{
+			else {
 				BufferedReader r = new BufferedReader(new FileReader(f));
 				String s = "";
-				while((s = r.readLine())!=null){
+				while ((s = r.readLine()) != null) {
 					pool.add(s);
 				}
 			}
@@ -46,14 +44,13 @@ public final class CodePool {
 
 		// return StringUtil.toHex(bytes);
 		Random r = new Random();
-		Long l = Math.abs((long)r.nextInt());
+		Long l = Math.abs((long) r.nextInt());
 		return StringUtils.leftPad(Long.toHexString(l), 8, "0");
 	}
 
 	public static void flushPool() throws Exception {
 		pool.clear();
-		File f = new File(System.getProperty("user.dir") + File.separator
-				+ "keys");
+		File f = new File(System.getProperty("user.dir") + File.separator + "keys");
 		PrintWriter pw = new PrintWriter(new FileWriter(f, false));
 		for (int n = 0; n < 256; n++) {
 			String s = gen();
@@ -67,15 +64,15 @@ public final class CodePool {
 
 	public static void main(String[] args) throws Exception {
 		for (String s : pool)
-			if(s.length()<8)
-			System.out.println(s);
+			if (s.length() < 8)
+				System.out.println(s);
 
 		System.out.println("-----------------------------------------------");
-		
+
 		StringBuilder sb = new StringBuilder();
-		for(int i =1 ;i<=pool.size() ;i++){
-			sb.append("0x").append(pool.get(i-1)).append(",");
-			if(i%4==0)
+		for (int i = 1; i <= pool.size(); i++) {
+			sb.append("0x").append(pool.get(i - 1)).append(",");
+			if (i % 4 == 0)
 				sb.append("\n");
 		}
 		System.out.println(sb.toString());

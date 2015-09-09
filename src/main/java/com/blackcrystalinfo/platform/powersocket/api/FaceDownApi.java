@@ -22,10 +22,10 @@ import com.blackcrystalinfo.platform.util.Constants;
 public class FaceDownApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Long l = System.currentTimeMillis();
-		String id = req.getParameter( "uId");
+		String id = req.getParameter("uId");
 		File f = new File(Constants.PIC_PATH + File.separator + id);
 		FullHttpResponse res = null;
-		if(!f.exists()){
+		if (!f.exists()) {
 			res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
 			return res;
 		}
@@ -35,7 +35,7 @@ public class FaceDownApi extends HandlerAdapter {
 		res.headers().set(HttpHeaders.Names.CACHE_CONTROL, "no-store");
 		res.headers().set(HttpHeaders.Names.PRAGMA, "no-cache");
 		res.headers().set(HttpHeaders.Names.CONTENT_TYPE, "image/jpeg");
-		res.headers().set("urlOrigin","/mobile/facedown");
+		res.headers().set("urlOrigin", "/mobile/facedown");
 		setContentLength(res, res.content().readableBytes());
 		return res;
 	}

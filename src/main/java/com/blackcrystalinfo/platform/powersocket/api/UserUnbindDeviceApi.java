@@ -27,8 +27,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/mobile/unbind")
 public class UserUnbindDeviceApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserUnbindDeviceApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserUnbindDeviceApi.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;
@@ -75,8 +74,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			j.srem("u:" + userId + ":devices", deviceId);
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(userId).append("|")
-					.append("0");
+			sb.append(deviceId).append("|").append(userId).append("|").append("0");
 			j.publish("PubDeviceUsers", sb.toString());
 
 			// 设备绑定解绑，发布通知消息，更新用户设备关系。

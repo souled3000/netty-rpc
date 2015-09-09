@@ -23,20 +23,20 @@ import com.octo.captcha.component.word.wordgenerator.WordGenerator;
 public final class Captcha {
 	private static String dictionary;
 	private static int length;
-    private static WordToImage wordToImage;
-    private static WordGenerator wordGenerator;
-    public static int expire;
-    public static boolean validity = false;
-	static{
+	private static WordToImage wordToImage;
+	private static WordGenerator wordGenerator;
+	public static int expire;
+	public static boolean validity = false;
+	static {
 		Properties p = new Properties();
 		try {
 			p.load(ClassLoader.getSystemResourceAsStream("captcha.properties"));
 			dictionary = p.getProperty("dictionary");
 			length = Integer.parseInt(p.getProperty("length"));
 			wordGenerator = new RandomWordGenerator(dictionary);
-			
+
 			RandomRangeColorGenerator cgen = new RandomRangeColorGenerator(new int[] { 0, 100 }, new int[] { 0, 100 }, new int[] { 0, 100 });
-			
+
 			TextPaster textPaster = new RandomTextPaster(new Integer(length), new Integer(length), cgen, true);
 
 			BackgroundGenerator backgroundGenerator = new FunkyBackgroundGenerator(new Integer(70), new Integer(30));
@@ -46,19 +46,19 @@ public final class Captcha {
 			FontGenerator fontGenerator = new RandomFontGenerator(new Integer(14), new Integer(14), fontsList);
 
 			wordToImage = new ComposedWordToImage(fontGenerator, backgroundGenerator, textPaster);
-			
+
 			expire = Integer.parseInt(p.getProperty("expire"));
-			validity = Boolean.parseBoolean(p.getProperty("validity","false"));
+			validity = Boolean.parseBoolean(p.getProperty("validity", "false"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public static BufferedImage getImage(String word){
+
+	public static BufferedImage getImage(String word) {
 		return wordToImage.getImage(word);
 	}
-	
-	public static String getWord(){
+
+	public static String getWord() {
 		return wordGenerator.getWord(length);
 	}
 }

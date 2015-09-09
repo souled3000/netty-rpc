@@ -130,7 +130,7 @@ public class ByteUtil {
 		byte[] src = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
 		System.out.println(src.length);
 		System.out.println(ByteUtil.reverse(src));
-		
+
 		Map m = new HashMap();
 		m.put("status", 1);
 		System.out.println(writeJSON(m));

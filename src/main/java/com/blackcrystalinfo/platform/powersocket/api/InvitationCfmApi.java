@@ -35,7 +35,7 @@ import com.blackcrystalinfo.platform.util.Utils;
 @Controller("/mobile/invitationcfm")
 public class InvitationCfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(InvitationCfmApi.class);
-	
+
 	@Autowired
 	ILoginSvr loginSvr;
 
@@ -60,13 +60,13 @@ public class InvitationCfmApi extends HandlerAdapter {
 
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
-			
+
 			User operUser = loginSvr.userGet(User.UserIDColumn, oper);
 			User familyUser = loginSvr.userGet(User.UserIDColumn, uId);
-			
+
 			String mnick = operUser.getNick();
 			String nick = familyUser.getNick();
-			
+
 			mm.put("hostId", oper);
 			mm.put("hostNick", mnick);
 			mm.put("mId", uId);
@@ -86,20 +86,20 @@ public class InvitationCfmApi extends HandlerAdapter {
 				Set<String> members = j.smembers("family:" + oper);
 				String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyAddSuccess.getValue() , Long.parseLong(uId), msg.toString()));
+				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyAddSuccess.getValue(), Long.parseLong(uId), msg.toString()));
 
 				// 发布通知：用户设备列表更新
 				pubDeviceUsersRels(uId, members, j);
 			} else {
-				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue() , Long.parseLong(uId), msg.toString()));
+				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue(), Long.parseLong(uId), msg.toString()));
 
 			}
-			
+
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			logger.error("", e);
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 		} finally {
 			DataHelper.returnJedis(j);
 		}

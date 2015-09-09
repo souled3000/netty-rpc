@@ -27,7 +27,7 @@ public class CometAdrApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws InternalException {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = req.getParameter( "cookie");
+		String cookie = req.getParameter("cookie");
 
 		logger.info("WebsocketInfoHandler begin cookie:{}", cookie);
 

@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 
-public class User implements RowMapper<Object>{
+public class User implements RowMapper<Object> {
 	public static final String UserIDColumn = "id";
 	public static final String UserNameColumn = "username";
 	public static final String UserEmailColumn = "email";
@@ -20,14 +20,13 @@ public class User implements RowMapper<Object>{
 	public static final String UserShadowColumn = "shadow";
 	public static final String UserEmailableShadowColumn = "emailable";
 	public static final String UserAdminidColumn = "adminid";
-	
+
 	@Override
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 		User user = null;
-		if(!rs.wasNull())
-		{
+		if (!rs.wasNull()) {
 			user = new User();
-			
+
 			user.setId((rs.getString(UserIDColumn)));
 			user.setEmail((rs.getString(UserEmailColumn)));
 			user.setUserName((rs.getString(UserNameColumn)));
@@ -36,15 +35,15 @@ public class User implements RowMapper<Object>{
 			user.setShadow((rs.getString(UserShadowColumn)));
 			user.setEmailable((rs.getString(UserEmailableShadowColumn)));
 		}
-		
-		//user.setAdminid(UserAdminidColumn);
+
+		// user.setAdminid(UserAdminidColumn);
 		return user;
 	}
-	
-	public User(){
-		
+
+	public User() {
+
 	}
-	
+
 	private String id;
 	private String userName;
 	private String email;
@@ -53,17 +52,17 @@ public class User implements RowMapper<Object>{
 	private String shadow;
 	private String emailable;
 	private String adminid;
-	
+
 	public String getUserName() {
 		return userName;
 	}
-	
-	public boolean validate(String pwd) throws NoSuchAlgorithmException, InvalidKeySpecException{
+
+	public boolean validate(String pwd) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		return PBKDF2.validate(pwd, shadow);
 	}
-	
-	public String getCookie() throws NoSuchAlgorithmException{
-		return CookieUtil.encode4user(id, CookieUtil.EXPIRE_SEC,shadow);
+
+	public String getCookie() throws NoSuchAlgorithmException {
+		return CookieUtil.encode4user(id, CookieUtil.EXPIRE_SEC, shadow);
 	}
 
 	public void setUserName(String userName) {
@@ -97,11 +96,11 @@ public class User implements RowMapper<Object>{
 	public String getEmailable() {
 		return emailable;
 	}
-	
-	public String getAbleEmail(){
-		if( "true".equalsIgnoreCase(emailable)) {
+
+	public String getAbleEmail() {
+		if ("true".equalsIgnoreCase(emailable)) {
 			return email;
-		}else{
+		} else {
 			return "";
 		}
 	}
@@ -127,7 +126,7 @@ public class User implements RowMapper<Object>{
 	}
 
 	public String getAdminid() {
-		if( StringUtils.isBlank(adminid))
+		if (StringUtils.isBlank(adminid))
 			adminid = "";
 		return adminid;
 	}

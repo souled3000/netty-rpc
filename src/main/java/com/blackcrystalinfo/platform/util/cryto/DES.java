@@ -28,13 +28,13 @@ public class DES {
 		// System.out.println(Long.parseLong(key,16));
 		System.err.println(data);
 		System.err.println(ByteUtil.toHex(key));
-		
+
 		BigInteger inte = new BigInteger(key);
-//		System.out.println(inte);
+		// System.out.println(inte);
 		System.err.println(ByteUtil.toHex(encrypt("{idn:0123456789}".getBytes(), ByteUtil.reverse(key))));
 
-		System.out.println("---------------"+encoder.encode(encrypt("{idn:0123456789}".getBytes(), ByteUtil.reverse(key))));
-		
+		System.out.println("---------------" + encoder.encode(encrypt("{idn:0123456789}".getBytes(), ByteUtil.reverse(key))));
+
 		System.err.println(new String(decrypt(d2, key)));
 
 	}
@@ -148,8 +148,8 @@ public class DES {
 				;
 				content = temp;
 			}
-			
-			for(int i =0 ;i<key.length;i++){
+
+			for (int i = 0; i < key.length; i++) {
 				key[i] &= 0x7f;
 			}
 			SecureRandom random = new SecureRandom();
@@ -177,7 +177,7 @@ public class DES {
 	 */
 	public static byte[] decrypt(byte[] content, byte[] key) {
 		try {
-			for(int i =0 ;i<key.length;i++){
+			for (int i = 0; i < key.length; i++) {
 				key[i] &= 0x7f;
 			}
 			SecureRandom random = new SecureRandom();

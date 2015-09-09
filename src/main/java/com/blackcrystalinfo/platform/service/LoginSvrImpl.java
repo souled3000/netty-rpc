@@ -22,8 +22,7 @@ public class LoginSvrImpl implements ILoginSvr {
 	}
 
 	@Transactional
-	public Map<String, Object> saveUser(String name, String mail)
-			throws Exception {
+	public Map<String, Object> saveUser(String name, String mail) throws Exception {
 		String sql = "insert into user (name,mail) values (?,?)";
 		jdbcTemplate.update(sql, new Object[] { name, mail });
 		sql = "select * from user where mail = ?";
@@ -32,41 +31,30 @@ public class LoginSvrImpl implements ILoginSvr {
 
 	// user
 	public boolean userExist(String userName) {
-		String sql = "select count(*) from user where " + User.UserNameColumn
-				+ "=?";
-		return jdbcTemplate.queryForObject(sql,
-				new Object[] { userName.toLowerCase() }, Integer.class) > 0;
+		String sql = "select count(*) from user where " + User.UserNameColumn + "=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { userName.toLowerCase() }, Integer.class) > 0;
 	}
 
 	@Transactional
-	public void userRegister(String userName, String phone, String nick,
-			String shadow) {
-		String sql = "insert into user (" + User.UserNameColumn + ","
-				+ User.UserEmailColumn + "," + User.UserPhoneColumn + ","
-				+ User.UserNickColumn + "," + User.UserShadowColumn
-				+ ") values (?,?,?,?,?)";
-		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(),
-				userName.toLowerCase(), phone, nick, shadow });
+	public void userRegister(String userName, String phone, String nick, String shadow) {
+		String sql = "insert into user (" + User.UserNameColumn + "," + User.UserEmailColumn + "," + User.UserPhoneColumn + "," + User.UserNickColumn + "," + User.UserShadowColumn + ") values (?,?,?,?,?)";
+		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(), userName.toLowerCase(), phone, nick, shadow });
 	}
 
 	public User userGet(String key, String value) {
 		String sql = "select * from user where " + key + "=?";
-		return (User) jdbcTemplate.queryForObject(sql, new Object[] { value },
-				new User());
+		return (User) jdbcTemplate.queryForObject(sql, new Object[] { value }, new User());
 	}
 
 	@Transactional
-	public void userChangeProperty(String userid,String key,String value){
-		String sql = "update user set "+key+"=? where "+User.UserIDColumn+"=?";
-		jdbcTemplate.update(sql,new Object[]{
-				value,
-				userid});
+	public void userChangeProperty(String userid, String key, String value) {
+		String sql = "update user set " + key + "=? where " + User.UserIDColumn + "=?";
+		jdbcTemplate.update(sql, new Object[] { value, userid });
 	}
 
 	// end of user
 
-	public Map<Object, Object> userReg(String userName, String phone,
-			String nick, String shadow) {
+	public Map<Object, Object> userReg(String userName, String phone, String nick, String shadow) {
 
 		return null;
 	}

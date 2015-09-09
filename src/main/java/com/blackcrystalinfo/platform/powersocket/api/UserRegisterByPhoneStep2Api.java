@@ -27,8 +27,7 @@ import com.blackcrystalinfo.platform.util.VerifyCode;
 @Controller("/registerbyphone/step2")
 public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserRegisterByPhoneStep1Api.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep1Api.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {

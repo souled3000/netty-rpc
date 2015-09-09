@@ -33,16 +33,14 @@ import com.blackcrystalinfo.platform.util.Utils;
  */
 @Controller("/mobile/demissionFamily")
 public class DemissionFamilyApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(DemissionFamilyApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(DemissionFamilyApi.class);
 	@Autowired
 	ILoginSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		String userId = CookieUtil.gotUserIdFromCookie(req
-				.getParameter("cookie"));
+		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
@@ -56,7 +54,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 
 			// 非家庭主账号，不可以解散家庭
 			String fId = j.hget("user:family", userId);
-			if (!userId.equals(fId)){
+			if (!userId.equals(fId)) {
 				r.put(status, C0034.toString());
 				return r;
 			}
@@ -73,8 +71,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			// 删除家庭下所有用户的关系表-》family:${family}
 			j.del("family:" + userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
-			j.publish("PubCommonMsg:0x36".getBytes(),
-					Utils.genMsg(memlist, BizCode.FamilyDismiss.getValue(), Integer.parseInt(userId), ""));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyDismiss.getValue(), Integer.parseInt(userId), ""));
 
 			// 解散家庭，每个成员的设备列表都要把其他成员的设备移除掉
 			pubDeviceUsersRels(members, j);
@@ -82,9 +79,8 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
-			//DataHelper.returnBrokenJedis(j);
-			logger.error("DemissionFamily error uId:{}|status:{}|msg:{}",
-					userId, r.get("status"), e);
+			// DataHelper.returnBrokenJedis(j);
+			logger.error("DemissionFamily error uId:{}|status:{}|msg:{}", userId, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
@@ -114,8 +110,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 				Set<String> devices = j.smembers("u:" + m + ":devices");
 				for (String d : devices) {
 					StringBuilder sb = new StringBuilder();
-					sb.append(d).append("|").append(uId).append("|")
-							.append("0");
+					sb.append(d).append("|").append(uId).append("|").append("0");
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}

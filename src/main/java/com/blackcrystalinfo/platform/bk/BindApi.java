@@ -27,31 +27,31 @@ import com.blackcrystalinfo.platform.util.DataHelper;
  * @author juliana
  * 
  */
-@Path(path="/mobile/bind")
+@Path(path = "/mobile/bind")
 public class BindApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(BindApi.class);
 
 	public Object rpc(JSONObject req) throws Exception {
 		String mac = req.getString("mac");
 		String cookie = req.getString("cookie");
-		return deal(mac,cookie);
+		return deal(mac, cookie);
 	}
 
 	public Object rpc(RpcRequest req) throws Exception {
-		String mac = req.getParameter( "mac");
-		String cookie = req.getParameter( "cookie");
-		return deal(mac,cookie);
+		String mac = req.getParameter("mac");
+		String cookie = req.getParameter("cookie");
+		return deal(mac, cookie);
 	}
 
 	private Object deal(String... args) throws Exception {
 		long l = System.currentTimeMillis();
-		Map<Object,Object> r = new HashMap<Object,Object>();
+		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
 		String mac = args[0];
 		String cookie = args[1];
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		
+
 		logger.info("begin BindHandler  fId:{}|mac:{}|cookie:{}", userId, mac, cookie);
 
 		String deviceId = "";
@@ -59,7 +59,7 @@ public class BindApi extends HandlerAdapter {
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-			
+
 			deviceId = j.hget("device:mactoid", mac);
 			if (null == deviceId) {
 				r.put(status, C0003.toString());
@@ -67,15 +67,15 @@ public class BindApi extends HandlerAdapter {
 				return r;
 			}
 
-			long b1 = j.zadd(userId + "d",(double) l, deviceId);// d:device;设备加入家庭;<fid+'d'>家庭设备组的key
+			long b1 = j.zadd(userId + "d", (double) l, deviceId);// d:device;设备加入家庭;<fid+'d'>家庭设备组的key
 			if (b1 == 0) {
 				r.put(status, C0004.toString()); // 重复绑定
 				logger.info("The device has been binded! mac:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"));
 				return r;
 			} else {
-				j.zadd(userId + "u",(double) l, userId);// u:user;<fid+'u'>家庭用户组的key
+				j.zadd(userId + "u", (double) l, userId);// u:user;<fid+'u'>家庭用户组的key
 				// 保存用户所属家庭
-				j.zadd(userId, (double) l, userId);//户主添加自己到家庭
+				j.zadd(userId, (double) l, userId);// 户主添加自己到家庭
 				j.zadd(deviceId, (double) l, userId);
 			}
 
@@ -83,14 +83,14 @@ public class BindApi extends HandlerAdapter {
 			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			j.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			logger.error("Bind in error mac:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 
-		r.put(status,SUCCESS.toString());
+		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

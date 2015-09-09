@@ -37,7 +37,7 @@ public class MailSenderInfo {
 		p.put("mail.smtp.auth", validate ? "true" : "false");
 		if (Constants.MAIL_SENDER_SSL) {
 			p.put("mail.smtp.socketFactory.port", this.mailServerPort);
-			p.put("mail.smtp.socketFactory.class",  "javax.net.ssl.SSLSocketFactory");
+			p.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		}
 		return p;
 	}

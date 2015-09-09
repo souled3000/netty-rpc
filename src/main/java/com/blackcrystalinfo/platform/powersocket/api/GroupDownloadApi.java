@@ -26,8 +26,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 @Controller("/mobile/gd")
 public class GroupDownloadApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(GroupDownloadApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(GroupDownloadApi.class);
 
 	@SuppressWarnings("rawtypes")
 	@Override

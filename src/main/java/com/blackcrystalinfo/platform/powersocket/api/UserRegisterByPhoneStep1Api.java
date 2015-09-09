@@ -30,13 +30,10 @@ import com.blackcrystalinfo.platform.util.sms.SMSSender;
 @Controller("/registerbyphone/step1")
 public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserRegisterByPhoneStep1Api.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep1Api.class);
 
-	private static final int CODE_LENGTH = Integer.valueOf(Constants
-			.getProperty("validate.code.length", "6"));
-	private static final int CODE_EXPIRE = Integer.valueOf(Constants
-			.getProperty("validate.code.expire", "300"));
+	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
+	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -64,8 +61,7 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 			String key = "test:tmp:registebyphone:step1:" + phone;
 			String value = jedis.get(key);
 			if (StringUtils.isNotBlank(value)) {
-				ret.put("status", "发送太频繁了，请" + DateUtils.secToTime(CODE_EXPIRE)
-						+ "后重试！");
+				ret.put("status", "发送太频繁了，请" + DateUtils.secToTime(CODE_EXPIRE) + "后重试！");
 				return ret;
 			}
 

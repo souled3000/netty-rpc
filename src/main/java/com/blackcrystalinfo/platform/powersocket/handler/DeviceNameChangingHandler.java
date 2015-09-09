@@ -16,8 +16,7 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 
 @Controller("/api/device/changingname")
 public class DeviceNameChangingHandler extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(DeviceNameChangingHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeviceNameChangingHandler.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;

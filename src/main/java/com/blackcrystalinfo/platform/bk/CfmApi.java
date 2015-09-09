@@ -1,6 +1,5 @@
 package com.blackcrystalinfo.platform.bk;
 
-
 import static io.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -23,69 +22,72 @@ import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.DataHelper;
+
 /**
  * 用户注册邮件确认
+ * 
  * @author juliana
- *
+ * 
  */
-@Path(path="/cfm")
+@Path(path = "/cfm")
 public class CfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CfmApi.class);
+
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 
-		QueryStringDecoder decoder = new QueryStringDecoder(req.getUrl());  
-        Map<String, List<String>> parame = decoder.parameters();
-        List<String> q = parame.get("v"); // 读取从客户端传过来的参数  
-		String sequences= q.get(0);
+		QueryStringDecoder decoder = new QueryStringDecoder(req.getUrl());
+		Map<String, List<String>> parame = decoder.parameters();
+		List<String> q = parame.get("v"); // 读取从客户端传过来的参数
+		String sequences = q.get(0);
 		Jedis j = null;
 		try {
-			j= DataHelper.getJedis();
-			
-			String email = j.get(sequences+"email");
-			if(StringUtils.isBlank(email)){
+			j = DataHelper.getJedis();
+
+			String email = j.get(sequences + "email");
+			if (StringUtils.isBlank(email)) {
 				return fail();
 			}
-			
+
 			String userId = String.valueOf(j.incrBy("user:nextid", 16));
 			long intUserId = Long.parseLong(userId);
 			if (intUserId % 16 > 0) {
 				logger.info("userId can not modulo 16", userId);
 				userId = String.valueOf(intUserId - intUserId % 16);
 			}
-			
+
 			j.hset("user:mailtoid", email, userId);
 			j.hset("user:email", userId, email);
-			j.del(sequences+"email");
-			
-			String phone = j.get(sequences+"phone");
-			if (StringUtils.isNotBlank(phone)){
+			j.del(sequences + "email");
+
+			String phone = j.get(sequences + "phone");
+			if (StringUtils.isNotBlank(phone)) {
 				j.hset("user:phone", userId, phone);
-				j.del(sequences+"phone");
+				j.del(sequences + "phone");
 			}
-			
-			String nick = j.get(sequences+"nick");
-			if (StringUtils.isNotBlank(nick)){
+
+			String nick = j.get(sequences + "nick");
+			if (StringUtils.isNotBlank(nick)) {
 				j.hset("user:nick", userId, nick);
-				j.del(sequences+"nick");
+				j.del(sequences + "nick");
 			}
-			
-			String shadow = j.get(sequences+"shadow");
-			if (StringUtils.isNotBlank(shadow)){
+
+			String shadow = j.get(sequences + "shadow");
+			if (StringUtils.isNotBlank(shadow)) {
 				j.hset("user:shadow", userId, shadow);
-				j.del(sequences+"shadow");
+				j.del(sequences + "shadow");
 			}
-			
+
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			return fail();
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 		return succ();
 	}
-	
-	private Object succ(){
+
+	private Object succ() {
 		StringBuilder c = new StringBuilder();
 		c.append("<!DOCTYPE html>");
 		c.append("<html lang=\"zh-CN\">");
@@ -103,7 +105,8 @@ public class CfmApi extends HandlerAdapter {
 		setContentLength(res, res.content().readableBytes());
 		return res;
 	}
-	private Object fail(){
+
+	private Object fail() {
 		StringBuilder c = new StringBuilder();
 		c.append("<!DOCTYPE html>");
 		c.append("<html lang=\"zh-CN\">");

@@ -34,12 +34,9 @@ import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 @Controller("/step1again")
 public class UserFindPwdStep1AgainApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserFindPwdStep1AgainApi.class);
-	private static final int CODE_LENGTH = Integer.valueOf(Constants
-			.getProperty("validate.code.length", "6"));
-	private static final int CODE_EXPIRE = Integer.valueOf(Constants
-			.getProperty("validate.code.expire", "300"));
+	private static final Logger logger = LoggerFactory.getLogger(UserFindPwdStep1AgainApi.class);
+	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
+	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
 	@Autowired
 	private ILoginSvr userDao;
@@ -54,8 +51,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 
 		if (StringUtils.isBlank(destEmailAddr)) {
 			r.put(status, C0010.toString());
-			logger.info("email is null : email:{}|status:{}", destEmailAddr,
-					r.get(status));
+			logger.info("email is null : email:{}|status:{}", destEmailAddr, r.get(status));
 			return r;
 		}
 
@@ -120,11 +116,9 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 			j.setex(destEmailAddr + "-code", CODE_EXPIRE, code);
 
 			String subject = "验证码邮件";
-			String content = "请尽快使用此验证码重置您的密码：" + code + " 验证超时时间："
-					+ DateUtils.secToTime(CODE_EXPIRE);
+			String content = "请尽快使用此验证码重置您的密码：" + code + " 验证超时时间：" + DateUtils.secToTime(CODE_EXPIRE);
 
-			boolean b = SimpleMailSender.sendHtmlMail(destEmailAddr, subject,
-					content);
+			boolean b = SimpleMailSender.sendHtmlMail(destEmailAddr, subject, content);
 			if (!b) {
 				logger.info("sending Email failed!!!");
 				r.put(status, C0011.toString());
@@ -133,8 +127,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 
 			// 纪录激活次数
 			times++;
-			j.setex("user:findpwdtimes:" + userId, Constants.REGAGAIN_EXPIRE,
-					String.valueOf(times));
+			j.setex("user:findpwdtimes:" + userId, Constants.REGAGAIN_EXPIRE, String.valueOf(times));
 			r.put("findpwdtimes", times);
 			if (times >= Constants.REGAGAIN_TIMES_NOTIC) {
 				logger.info("Sending many times");
@@ -148,8 +141,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 		} finally {
 			DataHelper.returnJedis(j);
 		}
-		logger.info("response: email:{}|status:{}", destEmailAddr,
-				r.get(status));
+		logger.info("response: email:{}|status:{}", destEmailAddr, r.get(status));
 		r.put(status, SUCCESS.toString());
 		return r;
 	}

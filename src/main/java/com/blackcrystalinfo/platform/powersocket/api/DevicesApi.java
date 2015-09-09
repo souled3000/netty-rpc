@@ -28,8 +28,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 @Controller("/mobile/devices")
 public class DevicesApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(DevicesApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(DevicesApi.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;
@@ -39,8 +38,7 @@ public class DevicesApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String userId = CookieUtil.gotUserIdFromCookie(req
-				.getParameter("cookie"));
+		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 
 		Jedis j = null;
 		try {

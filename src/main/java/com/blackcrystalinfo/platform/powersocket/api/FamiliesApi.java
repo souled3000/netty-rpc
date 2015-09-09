@@ -21,14 +21,12 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/mobile/families")
 public class FamiliesApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(FamiliesApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(FamiliesApi.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		String userId = CookieUtil.gotUserIdFromCookie(req
-				.getParameter("cookie"));
+		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 
 		Jedis j = null;
 		try {
@@ -42,8 +40,7 @@ public class FamiliesApi extends HandlerAdapter {
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
 			r.put(status, SYSERROR.toString());
-			logger.error("Get the members of a family. userId:{}|status:{}",
-					userId, r.get(status), e);
+			logger.error("Get the members of a family. userId:{}|status:{}", userId, r.get(status), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
@@ -53,9 +50,7 @@ public class FamiliesApi extends HandlerAdapter {
 
 	public static void main(String[] args) {
 		/*
-		 * Set s = new HashSet(); s.add(1); s.add(16); s.add(32); Map m = new
-		 * HashMap(); m.put("families", s); System.out.println(JSON.toJSON(s));
-		 * System.out.println(JSON.toJSON(m));
+		 * Set s = new HashSet(); s.add(1); s.add(16); s.add(32); Map m = new HashMap(); m.put("families", s); System.out.println(JSON.toJSON(s)); System.out.println(JSON.toJSON(m));
 		 */
 	}
 }
