@@ -22,7 +22,7 @@ import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
-@Path(path="/mobile/unbind")
+@Path(path = "/mobile/unbind")
 public class UnbindApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UnbindApi.class);
 
@@ -33,14 +33,13 @@ public class UnbindApi extends HandlerAdapter {
 	}
 
 	public Object rpc(RpcRequest req) throws Exception {
-		String mac = req.getParameter( "mac");
-		String cookie = req.getParameter( "cookie");
+		String mac = req.getParameter("mac");
+		String cookie = req.getParameter("cookie");
 		return deal(mac, cookie);
 	}
-	
-	
+
 	private Object deal(String... args) throws Exception {
-		Map<Object,Object> r = new HashMap<Object,Object>();
+		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
 		String mac = args[0];
@@ -57,29 +56,29 @@ public class UnbindApi extends HandlerAdapter {
 				return r;
 			}
 
-			long b1 = j.zrem(family+"d", id);
+			long b1 = j.zrem(family + "d", id);
 			if (b1 == 0) {
 				r.put(status, C0005.toString());
 				return r;
 			}
-			
-			//获取家庭成员
-			Set<String> members = j.zrange(family+"u",0,-1);
-			for(String o : members){
+
+			// 获取家庭成员
+			Set<String> members = j.zrange(family + "u", 0, -1);
+			for (String o : members) {
 				StringBuilder sb = new StringBuilder();
-				//将device与family下的所有用户切断关联
+				// 将device与family下的所有用户切断关联
 				sb.append(id).append("|").append(o).append("|").append("0");
 				j.publish("PubDeviceUsers", sb.toString());
 			}
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
-			logger.error("",e);
+			// DataHelper.returnBrokenJedis(j);
+			logger.error("", e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 
-		r.put(status,SUCCESS.toString());
+		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

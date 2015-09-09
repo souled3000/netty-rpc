@@ -26,7 +26,8 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.PBKDF2;
-@Path(path="/mobile/cp")
+
+@Path(path = "/mobile/cp")
 public class UserChangePassApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserChangePassApi.class);
 
@@ -37,10 +38,10 @@ public class UserChangePassApi extends HandlerAdapter {
 		r.put(status, SYSERROR.toString());
 
 		String key = req.getHeaders().get(HttpHeaders.Names.COOKIE);
-		String cookie = req.getParameter( "cookie");
+		String cookie = req.getParameter("cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String passOld = req.getParameter( "passOld");
-		String passNew = req.getParameter( "passNew");
+		String passOld = req.getParameter("passOld");
+		String passNew = req.getParameter("passNew");
 		logger.info("UserChangePassHandler begin userId:{}|passOld:{}|passNew:{}", userId, passOld, passNew);
 
 		if (StringUtils.isBlank(passOld)) {
@@ -59,13 +60,13 @@ public class UserChangePassApi extends HandlerAdapter {
 			j = DataHelper.getJedis();
 
 			String flag = j.get("B0010" + key);
-			if(Captcha.validity)
+			if (Captcha.validity)
 				if (flag == null || !flag.equals("succ")) {
 					r.put(status, C0027.toString());
 					logger.debug("captcha fail.");
 					return r;
 				}
-			
+
 			// 1. 用户密码
 			String shadow = j.hget("user:shadow", userId);
 
@@ -82,7 +83,7 @@ public class UserChangePassApi extends HandlerAdapter {
 			j.publish("PubModifiedPasswdUser", userId);
 
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			logger.error("User change password error", e);
 			throw new InternalException(e.getMessage());
 		} finally {

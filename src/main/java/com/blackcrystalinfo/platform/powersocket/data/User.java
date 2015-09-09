@@ -60,8 +60,7 @@ public class User implements RowMapper<Object> {
 		return userName;
 	}
 
-	public boolean validate(String pwd) throws NoSuchAlgorithmException,
-			InvalidKeySpecException {
+	public boolean validate(String pwd) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		return PBKDF2.validate(pwd, shadow);
 	}
 

@@ -9,7 +9,6 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.NotEnoughDat
 import java.io.IOException;
 import java.util.List;
 
-
 import com.blackcrystalinfo.platform.util.cryto.Datagram;
 
 public class RpcRequest {
@@ -68,7 +67,8 @@ public class RpcRequest {
 	}
 
 	public final String getParameter(String name) {
-		if(params==null) return "";
+		if (params == null)
+			return "";
 		try {
 			InterfaceHttpData bodyHttpData = params.getBodyHttpData(name);
 			if (null != bodyHttpData) {
@@ -79,7 +79,7 @@ public class RpcRequest {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return "";
@@ -87,27 +87,27 @@ public class RpcRequest {
 
 	public final Datagram getDatagram() {
 		String ktm = getParameter("ktm");
-		String crc = getParameter( "crc");
-		String ctn = getParameter( "ctn");
+		String crc = getParameter("crc");
+		String ctn = getParameter("ctn");
 		ctn = ctn.replaceAll(" ", "+");
-		String ctp = getParameter( "ctp");
-		String key = getParameter( "key");
+		String ctp = getParameter("ctp");
+		String key = getParameter("key");
 
-		if(ktm==null&&crc==null&&ctn==null&&ctp==null&&key==null){
+		if (ktm == null && crc == null && ctn == null && ctp == null && key == null) {
 			return null;
 		}
-		
+
 		Datagram data = null;
 		try {
 			data = new Datagram(key, ktm, ctp, crc, ctn);
 			data.decapsulate();
 		} catch (Exception e1) {
-//			e1.printStackTrace();
+			// e1.printStackTrace();
 			return null;
 		}
 		return data;
 	}
-	
+
 	@Override
 	public String toString() {
 		if (this.params != null) {

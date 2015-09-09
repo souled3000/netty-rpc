@@ -71,8 +71,7 @@ public class MailChangeApi extends HandlerAdapter {
 			String port = Constants.SERVERPORT;
 
 			String uuid = UUID.randomUUID().toString();
-			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v="
-					+ uuid;
+			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v=" + uuid;
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("点击如下链接马上完成邮箱验证：");
@@ -84,8 +83,7 @@ public class MailChangeApi extends HandlerAdapter {
 			sb.append("<br>");
 			sb.append(linkAddr);
 
-			boolean b = SimpleMailSender.sendHtmlMail(email, subject,
-					sb.toString());
+			boolean b = SimpleMailSender.sendHtmlMail(email, subject, sb.toString());
 			if (!b) {
 				logger.info("sending Email failed!!!");
 				ret.put(status, C0011.toString());
@@ -93,15 +91,12 @@ public class MailChangeApi extends HandlerAdapter {
 			}
 
 			// 连接有效期
-			jedis.setex("user:mailActiveUUID:" + userId,
-					Constants.MAIL_ACTIVE_EXPIRE, uuid);
-			jedis.setex("user:mailActive:" + uuid,
-					Constants.MAIL_ACTIVE_EXPIRE, userId);
+			jedis.setex("user:mailActiveUUID:" + userId, Constants.MAIL_ACTIVE_EXPIRE, uuid);
+			jedis.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE, userId);
 
 			// 数据入库
 			userDao.userChangeProperty(userId, User.UserEmailColumn, email);
-			userDao.userChangeProperty(userId, User.UserPhoneableColumn,
-					"false");
+			userDao.userChangeProperty(userId, User.UserPhoneableColumn, "false");
 
 			// 返回
 			ret.put(status, ErrorCode.SUCCESS);

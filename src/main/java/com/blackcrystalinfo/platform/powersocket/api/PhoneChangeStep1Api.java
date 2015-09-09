@@ -36,19 +36,14 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 
 	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep1Api.class);
 
-	private static final int CODE_LENGTH = Integer.valueOf(Constants
-			.getProperty("validate.code.length", "6"));
-	private static final int CODE_EXPIRE = Integer.valueOf(Constants
-			.getProperty("validate.code.expire", "300"));
+	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
+	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	private static final int DO_INTV_TTL = Integer.valueOf(Constants
-			.getProperty("phonechange.step1.interval.ttl", "60"));
+	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.interval.ttl", "60"));
 
-	private static final int DO_FREQ_TTL = Integer.valueOf(Constants
-			.getProperty("phonechange.step1.frequency.ttl", "86400"));
+	private static final int DO_FREQ_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.ttl", "86400"));
 
-	private static final int DO_FREQ_MAX = Integer.valueOf(Constants
-			.getProperty("phonechange.step1.frequency.max", "5"));
+	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.max", "5"));
 
 	public static final String CODE_KEY = "ttl:user:phonechange:step1:";
 

@@ -45,8 +45,7 @@ public class PasswordDecoder implements FactoryBean<String> {
 		String str = null;
 		try {
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-			SecretKey key = keyFactory.generateSecret(new DESKeySpec(rawKey
-					.getBytes()));
+			SecretKey key = keyFactory.generateSecret(new DESKeySpec(rawKey.getBytes()));
 
 			Cipher cipher = Cipher.getInstance("DES");
 			cipher.init(Cipher.ENCRYPT_MODE, key, new SecureRandom());
@@ -67,8 +66,7 @@ public class PasswordDecoder implements FactoryBean<String> {
 		char[] chars = PWALG_SIMPLE_STRING.toCharArray();
 		Random rdm = new Random();
 		int len = code.length;
-		int shift = (len < PWALG_SIMPLE_MAXLEN) ? rdm
-				.nextInt(PWALG_SIMPLE_MAXLEN - len) : 0;
+		int shift = (len < PWALG_SIMPLE_MAXLEN) ? rdm.nextInt(PWALG_SIMPLE_MAXLEN - len) : 0;
 
 		result += hexConvert((byte) shift, chars);
 		result += hexConvert((byte) len, chars);
@@ -95,8 +93,7 @@ public class PasswordDecoder implements FactoryBean<String> {
 		String password = null;
 		try {
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-			SecretKey key = keyFactory.generateSecret(new DESKeySpec(rawKey
-					.getBytes()));
+			SecretKey key = keyFactory.generateSecret(new DESKeySpec(rawKey.getBytes()));
 
 			Cipher cipher = Cipher.getInstance("DES");
 			cipher.init(Cipher.DECRYPT_MODE, key, new SecureRandom());

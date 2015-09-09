@@ -29,8 +29,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/sepia")
 public class SepiaApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(SepiaApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(SepiaApi.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -82,8 +81,7 @@ public class SepiaApi extends HandlerAdapter {
 		out.write("sepia=" + sepia + "&code=" + code);
 		out.flush();
 		out.close();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				con.getInputStream()));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
 		System.out.println(reader.readLine());
 		reader.close();
 	}

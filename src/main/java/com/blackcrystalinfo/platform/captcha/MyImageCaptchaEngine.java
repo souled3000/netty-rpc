@@ -30,7 +30,7 @@ public class MyImageCaptchaEngine extends ListImageCaptchaEngine {
 		FontGenerator fontGenerator = new RandomFontGenerator(new Integer(14), new Integer(14), fontsList);
 
 		WordToImage wordToImage = new ComposedWordToImage(fontGenerator, backgroundGenerator, textPaster);
-		
+
 		this.addFactory(new GimpyFactory(wgen, wordToImage));
 	}
 }

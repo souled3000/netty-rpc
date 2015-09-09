@@ -41,24 +41,20 @@ import com.blackcrystalinfo.platform.util.sms.SMSSender;
 @Controller("/login")
 public class UserLoginApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserLoginApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserLoginApi.class);
 
 	@Autowired
 	ILoginSvr loginSvr;
 
-	private boolean validUser(String email, String pwd,
-			Map<Object, Object> mapping) {
+	private boolean validUser(String email, String pwd, Map<Object, Object> mapping) {
 		if (StringUtils.isBlank(pwd)) {
 			mapping.put(status, C0018.toString());
-			logger.debug("pwd is null when loging email:{}|pwd:{}|status:{}",
-					email, pwd, mapping.get(status));
+			logger.debug("pwd is null when loging email:{}|pwd:{}|status:{}", email, pwd, mapping.get(status));
 			return false;
 		}
 		if (StringUtils.isBlank(email)) {
 			mapping.put(status, C0019.toString());
-			logger.debug("email is null when loging email:{}|pwd:{}|status:{}",
-					email, pwd, mapping.get(status));
+			logger.debug("email is null when loging email:{}|pwd:{}|status:{}", email, pwd, mapping.get(status));
 			return false;
 		}
 		return true;
@@ -86,13 +82,12 @@ public class UserLoginApi extends HandlerAdapter {
 			// 3. get user id
 			User user = null;
 			String userId = "";
-			try{
+			try {
 				user = loginSvr.userGet(User.UserNameColumn, email);
 				userId = user.getId();
 			} catch (Exception e) {
 				r.put(status, C0020.toString());
-				logger.debug("User not exist. email:{}|pwd:{}|status:{}",
-						email, pwd, r.get(status));
+				logger.debug("User not exist. email:{}|pwd:{}|status:{}", email, pwd, r.get(status));
 				return r;
 			}
 			email = email.toLowerCase();
@@ -109,8 +104,7 @@ public class UserLoginApi extends HandlerAdapter {
 				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
 				r.put(status, C002E.toString());
 				r.put("ttl", ttl);
-				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}",
-						email, pwd, r.get(status));
+				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}", email, pwd, r.get(status));
 				return r;
 			}
 
@@ -118,27 +112,21 @@ public class UserLoginApi extends HandlerAdapter {
 			if (!user.validate(pwd)) {
 				times++;
 				r.put(status, C0021.toString());
-				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX
-						- times);
-				logger.debug(
-						"PBKDF2.validate Password error. email:{}|pwd:{}|status:{}",
-						email, pwd, r.get(status));
+				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX - times);
+				logger.debug("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}", email, pwd, r.get(status));
 
 				// 判断失败次数累加
-				jedis.setex("user:failedLoginTimes:" + userId,
-						Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
+				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
 
 				// 最后一次登录失败，发送邮件通知用户
 				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
 					String subject = "账户被锁定通知";
 					StringBuilder sb = new StringBuilder();
 					sb.append("您的帐户登录失败次数超过");
-					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX
-							+ "次。</b>");
+					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX + "次。</b>");
 					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + " 后重新登录");
-					SimpleMailSender
-							.sendHtmlMail(email, subject, sb.toString());
-					
+					SimpleMailSender.sendHtmlMail(email, subject, sb.toString());
+
 					// 发送短信
 					String phone = user.getPhone();
 					if (StringUtils.isNotEmpty(phone)) {
@@ -162,8 +150,7 @@ public class UserLoginApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
-			logger.error("User login error. email:{}|pwd:{}|status:{}", email,
-					pwd, r.get(status), e);
+			logger.error("User login error. email:{}|pwd:{}|status:{}", email, pwd, r.get(status), e);
 			return r;
 		}
 		return r;
@@ -172,11 +159,9 @@ public class UserLoginApi extends HandlerAdapter {
 	public static void main(String[] args) throws Exception {
 		String userId = "32";
 		String shadow = "1000:5b42403231343135303336:8c221506a25e95e82b02720e3957c98b405b40b9c2d0454e3d8a596cb4e9c01688447c9e7582e4c35aaf8c043f608d9e06cc40b1887ede5b35228eb43cc8a3a7";
-		byte[] upmd5 = MessageDigest.getInstance("MD5").digest(
-				(userId + shadow).getBytes());
+		byte[] upmd5 = MessageDigest.getInstance("MD5").digest((userId + shadow).getBytes());
 		System.out.println(ByteUtil.toHex(upmd5));
-		System.out.println(URLEncoder.encode(
-				"55E22812C947C5C7BB3E77CEE7652280", "iso-8859-1"));
+		System.out.println(URLEncoder.encode("55E22812C947C5C7BB3E77CEE7652280", "iso-8859-1"));
 		System.out.println(URLEncoder.encode("@", "iso-8859-1"));
 	}
 }

@@ -27,8 +27,7 @@ import com.guru.LicenseHelper;
 @Controller("/api/device/register")
 public class DeviceRegisterHandler extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(DeviceRegisterHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeviceRegisterHandler.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;
@@ -65,8 +64,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String name = args[4];
 		String sign = args[5];
 
-		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|sign:{}", mac, sn,
-				dv, sign);
+		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|sign:{}", mac, sn, dv, sign);
 		if (!isValidDev(mac, sign)) {
 			r.put("status", 1);
 			logger.info("Device regist failed, status:{}", r.get("status"));
@@ -101,8 +99,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			}
 			r.put("cookie", cookie);
 		} catch (Exception e) {
-			logger.error("Device regist error mac:{}|sn:{}|dv:{}", mac, sn, dv,
-					e);
+			logger.error("Device regist error mac:{}|sn:{}|dv:{}", mac, sn, dv, e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(jedis);
@@ -123,8 +120,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		}
 
 		String lic_path = Constants.DEV_REG_LIC_PATH;
-		int ret = LicenseHelper.validateLicense(mac.getBytes(),
-				new ByteArrayInputStream(sign), lic_path);
+		int ret = LicenseHelper.validateLicense(mac.getBytes(), new ByteArrayInputStream(sign), lic_path);
 		if (ret != 0) {
 			logger.error("valid failed, ret = {}", ret);
 			return false;

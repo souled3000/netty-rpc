@@ -12,8 +12,7 @@ import com.blackcrystalinfo.platform.util.Constants;
 
 @Configuration
 public class SlotServerMysql {
-	private static final Logger logger = LoggerFactory
-			.getLogger(SlotServerMysql.class);
+	private static final Logger logger = LoggerFactory.getLogger(SlotServerMysql.class);
 
 	@Bean(initMethod = "run")
 	public App app() throws InterruptedException {
@@ -25,8 +24,7 @@ public class SlotServerMysql {
 
 	public static void main(String[] args) throws Exception {
 		String prefix = "";
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-				new String[] { prefix + "server.xml", prefix + "beans.xml" });
+		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { prefix + "server.xml", prefix + "beans.xml" });
 		ctx.refresh();
 
 		ctx.close();

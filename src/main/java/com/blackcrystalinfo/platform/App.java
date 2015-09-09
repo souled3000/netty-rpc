@@ -19,8 +19,7 @@ public class App {
 	@Autowired
 	private RpcServerInitializer rpcServerInitializer;
 
-	public void setRpcServerInitializer(
-			RpcServerInitializer rpcServerInitializer) {
+	public void setRpcServerInitializer(RpcServerInitializer rpcServerInitializer) {
 		this.rpcServerInitializer = rpcServerInitializer;
 	}
 
@@ -38,9 +37,7 @@ public class App {
 			b.option(ChannelOption.SO_BACKLOG, 1024);
 			b.option(ChannelOption.SO_KEEPALIVE, true);
 			b.option(ChannelOption.TCP_NODELAY, true);
-			b.group(bossGroup, workerGroup)
-					.channel(NioServerSocketChannel.class)
-					.childHandler(rpcServerInitializer);
+			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(rpcServerInitializer);
 
 			logger.info("start...{}", port);
 			Channel ch = b.bind(port).sync().channel();

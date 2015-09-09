@@ -19,40 +19,40 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
 
-@Path(path="/mobile/quit")
+@Path(path = "/mobile/quit")
 public class QuitApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(QuitApi.class);
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = req.getParameter( "cookie");
+		String cookie = req.getParameter("cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		String fid = req.getParameter( "fid");
+		String fid = req.getParameter("fid");
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-			if(StringUtils.isBlank(fid)){
+			if (StringUtils.isBlank(fid)) {
 				r.put(status, ErrorCode.C0029);
 				return r;
 			}
 			long x = j.zrem(userId, fid);
 			long y = j.zrem(fid + "u", userId);
-			
-			if(x==0&&y>0){
+
+			if (x == 0 && y > 0) {
 				r.put(status, ErrorCode.C001A);
 				return r;
 			}
-			if(y==0&&x>0){
+			if (y == 0 && x > 0) {
 				r.put(status, ErrorCode.C001B);
 				return r;
 			}
-			if(y==0&&x==0){
+			if (y == 0 && x == 0) {
 				r.put(status, ErrorCode.C001C);
 				return r;
 			}
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
+			// DataHelper.returnBrokenJedis(j);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

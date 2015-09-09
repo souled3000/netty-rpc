@@ -83,8 +83,7 @@ public class QuitApi extends HandlerAdapter {
 				for (String o : devices) {
 					StringBuilder sb = new StringBuilder();
 					// 将uid与oper下的所有设备做关联
-					sb.append(o).append("|").append(uId).append("|")
-							.append("0");
+					sb.append(o).append("|").append(uId).append("|").append("0");
 					j.publish("PubDeviceUsers", sb.toString());
 				}
 			}
@@ -100,9 +99,7 @@ public class QuitApi extends HandlerAdapter {
 
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist,
-					BizCode.FamilyQuit.getValue(), Integer.parseInt(uId),
-					msg.toString()));
+			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {

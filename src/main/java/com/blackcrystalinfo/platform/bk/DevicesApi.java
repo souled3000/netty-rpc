@@ -27,31 +27,30 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.UdpScanner;
 
-
-@Path(path="/mobile/devices")
+@Path(path = "/mobile/devices")
 public class DevicesApi extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(DevicesApi.class);
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<Object,Object> r = new HashMap<Object,Object>();
+		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		
-		String cookie = req.getParameter( "cookie");
+
+		String cookie = req.getParameter("cookie");
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		
+
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
 
 			Set<String> familySet = j.zrange(userId, 0, -1);
-			List<Map<Object,Object>> bindedDevices = new ArrayList<Map<Object,Object>>();
+			List<Map<Object, Object>> bindedDevices = new ArrayList<Map<Object, Object>>();
 			for (String family : familySet) {
 				Set<String> devIds = j.zrange(family + "d", 0, -1);
-				
+
 				for (String id : devIds) {
-					Map<Object,Object> devData = new HashMap<Object,Object>();
+					Map<Object, Object> devData = new HashMap<Object, Object>();
 					String mac = j.hget("device:mac", id);
 					String name = j.hget("device:name", id);
 					String pwd = j.hget("device:pwd:" + userId, id);
@@ -59,41 +58,40 @@ public class DevicesApi extends HandlerAdapter {
 
 					name = (null == name ? "default" : name);
 
-					devData.put("deviceId",id);
-					try{
-						String url = UdpScanner.take()+"?deviceId="+id;
+					devData.put("deviceId", id);
+					try {
+						String url = UdpScanner.take() + "?deviceId=" + id;
 						URL _url = new URL(url);
-						HttpURLConnection con = (HttpURLConnection)_url.openConnection();
+						HttpURLConnection con = (HttpURLConnection) _url.openConnection();
 						BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
 						String udpadr = br.readLine();
 						Map dd = JSON.parseObject(udpadr);
-						if("0".equals(dd.get("status")))
-						devData.put("udpAdr", dd.get("deviceAddr"));
-					}catch(Exception e){
-						
+						if ("0".equals(dd.get("status")))
+							devData.put("udpAdr", dd.get("deviceAddr"));
+					} catch (Exception e) {
+
+					} finally {
+
 					}
-					finally{
-						
-					}
-					devData.put("mac",mac);
-					devData.put("deviceName",name);
-					devData.put("pwd",pwd);
-					devData.put("deviceType",dv);
-//					devData.put("family",family);
+					devData.put("mac", mac);
+					devData.put("deviceName", name);
+					devData.put("pwd", pwd);
+					devData.put("deviceType", dv);
+					// devData.put("family",family);
 					bindedDevices.add(devData);
 				}
 			}
 
-			r.put("bindedDevices",bindedDevices);
+			r.put("bindedDevices", bindedDevices);
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(j);
-			logger.error("",e);
+			// DataHelper.returnBrokenJedis(j);
+			logger.error("", e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 
-		r.put(status,SUCCESS.toString());
+		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

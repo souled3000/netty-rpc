@@ -14,18 +14,17 @@ import com.blackcrystalinfo.platform.exception.HandlerExistedException;
 public class LocalLauncher {
 	private static final Logger logger = LoggerFactory.getLogger(SlotServer.class);
 
-
-	public static void bindHandler() throws HandlerExistedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException{
+	public static void bindHandler() throws HandlerExistedException, IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		Properties p = new Properties();
 		p.load(ClassLoader.getSystemResourceAsStream("api.properties"));
-		for(Object key : p.keySet()){
-			String className = p.getProperty((String)key);
+		for (Object key : p.keySet()) {
+			String className = p.getProperty((String) key);
 			@SuppressWarnings("unchecked")
-			Class<IHandler> o = (Class<IHandler>)Class.forName(className);
-			HandlerManager.regHandler((String)key, o.newInstance());
+			Class<IHandler> o = (Class<IHandler>) Class.forName(className);
+			HandlerManager.regHandler((String) key, o.newInstance());
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		int port;
 		if (args.length > 0) {
@@ -34,9 +33,9 @@ public class LocalLauncher {
 			port = 8080;
 		}
 		logger.info("Start Port {}", port);
-//		CometScanner.tiktok();
+		// CometScanner.tiktok();
 		bindHandler();
 		new App(port).run();
 	}
-	
+
 }

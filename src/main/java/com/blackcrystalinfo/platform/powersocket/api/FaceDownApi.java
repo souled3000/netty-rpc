@@ -27,8 +27,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 @Controller("/mobile/facedown")
 public class FaceDownApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(FaceDownApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(FaceDownApi.class);
 
 	public Object rpc(RpcRequest req) throws Exception {
 		FullHttpResponse res = null;
@@ -61,8 +60,7 @@ public class FaceDownApi extends HandlerAdapter {
 		}
 		byte[] p = FileUtils.readFileToByteArray(f);
 		System.out.println(System.currentTimeMillis() - l);
-		res = new DefaultFullHttpResponse(HTTP_1_1, OK,
-				Unpooled.wrappedBuffer(p));
+		res = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(p));
 		res.headers().set(HttpHeaders.Names.CACHE_CONTROL, "no-store");
 		res.headers().set(HttpHeaders.Names.PRAGMA, "no-cache");
 		res.headers().set(HttpHeaders.Names.CONTENT_TYPE, "image/jpeg");

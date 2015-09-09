@@ -31,8 +31,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
  */
 @Controller("/mobile/bind")
 public class UserBindDeviceApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(UserBindDeviceApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserBindDeviceApi.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;
@@ -69,9 +68,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 
 			if (!deviceDao.exists(mac)) {
 				r.put(status, C0003.toString());
-				logger.info(
-						"There isn't this device. mac:{}|user:{}|status:{}",
-						mac, userId, r.get("status"));
+				logger.info("There isn't this device. mac:{}|user:{}|status:{}", mac, userId, r.get("status"));
 				return r;
 			}
 
@@ -79,24 +76,19 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			String owner = j.hget("device:owner", deviceId);
 			if (owner != null) {
 				r.put(status, C0004.toString());
-				logger.info(
-						"The device has been binded! mac:{}|user:{}|status:{}",
-						mac, userId, r.get("status"));
+				logger.info("The device has been binded! mac:{}|user:{}|status:{}", mac, userId, r.get("status"));
 				return r;
 			} else {
 				j.hset("device:owner", deviceId, userId);
-				j.hset("device:bindtime", deviceId,
-						String.valueOf(System.currentTimeMillis()));
+				j.hset("device:bindtime", deviceId, String.valueOf(System.currentTimeMillis()));
 				j.sadd("u:" + userId + ":devices", deviceId);
 			}
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(userId).append("|")
-					.append("1");
+			sb.append(deviceId).append("|").append(userId).append("|").append("1");
 			j.publish("PubDeviceUsers", sb.toString());
 		} catch (Exception e) {
-			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId,
-					r.get("status"), e);
+			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

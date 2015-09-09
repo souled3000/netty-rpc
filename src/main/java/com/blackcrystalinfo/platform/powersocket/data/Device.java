@@ -126,9 +126,7 @@ public class Device implements RowMapper<Object> {
 
 	}
 
-	public Device(String id, String userID, String name, String mac, String sn,
-			String encryptkey, String regtime, String parentid,
-			String device_type) {
+	public Device(String id, String userID, String name, String mac, String sn, String encryptkey, String regtime, String parentid, String device_type) {
 		this.id = id;
 		this.userid = userID;
 		this.name = name;

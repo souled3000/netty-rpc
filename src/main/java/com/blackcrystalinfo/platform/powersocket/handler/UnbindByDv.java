@@ -23,8 +23,7 @@ import com.blackcrystalinfo.platform.util.DataHelper;
  */
 @Controller("/api/device/unbindbydv")
 public class UnbindByDv extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(UnbindByDv.class);
+	private static final Logger logger = LoggerFactory.getLogger(UnbindByDv.class);
 
 	public Object rpc(JSONObject req) throws InternalException {
 		String id = req.getString("id");
@@ -52,8 +51,7 @@ public class UnbindByDv extends HandlerAdapter {
 				j.srem("u:" + owner + ":devices", deviceId);
 
 				StringBuilder sb = new StringBuilder();
-				sb.append(deviceId).append("|").append(owner).append("|")
-						.append("0");
+				sb.append(deviceId).append("|").append(owner).append("|").append("0");
 				j.publish("PubDeviceUsers", sb.toString());
 			} else {
 				logger.info("Device is not binded~~~");

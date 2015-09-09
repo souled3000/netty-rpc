@@ -13,8 +13,7 @@ import com.blackcrystalinfo.platform.powersocket.data.Device;
 @Repository
 public class DeviceDaoImpl implements IDeviceDao {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(DeviceDaoImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeviceDaoImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -28,22 +27,19 @@ public class DeviceDaoImpl implements IDeviceDao {
 	@Override
 	public Device get(Long id) {
 		String sql = "select * from device where id = ?";
-		return (Device) jdbcTemplate.queryForObject(sql, new Object[] { id },
-				new Device());
+		return (Device) jdbcTemplate.queryForObject(sql, new Object[] { id }, new Device());
 	}
 
 	@Override
 	public Device get(String mac) {
 		String sql = "select * from device where mac = ?";
-		return (Device) jdbcTemplate.queryForObject(sql, new Object[] { mac },
-				new Device());
+		return (Device) jdbcTemplate.queryForObject(sql, new Object[] { mac }, new Device());
 	}
 
 	@Override
 	public boolean exists(String mac) {
 		String sql = "select count(*) from device where mac = ?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { mac },
-				Integer.class) > 0;
+		return jdbcTemplate.queryForObject(sql, new Object[] { mac }, Integer.class) > 0;
 	}
 
 	@Override
@@ -51,12 +47,10 @@ public class DeviceDaoImpl implements IDeviceDao {
 		Long result = null;
 		String sql = "select id from device where mac = ?";
 		try {
-			result = jdbcTemplate.queryForObject(sql, new Object[] { mac },
-					Long.class);
+			result = jdbcTemplate.queryForObject(sql, new Object[] { mac }, Long.class);
 		} catch (DataAccessException e) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("device not exist, mac={}, e={}", mac,
-						e.getMessage());
+				logger.debug("device not exist, mac={}, e={}", mac, e.getMessage());
 			}
 		}
 		return result;
@@ -65,8 +59,7 @@ public class DeviceDaoImpl implements IDeviceDao {
 	@Override
 	public String getMacById(Long id) {
 		String sql = "select mac from device where id = ?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { id },
-				String.class);
+		return jdbcTemplate.queryForObject(sql, new Object[] { id }, String.class);
 	}
 
 	@Override

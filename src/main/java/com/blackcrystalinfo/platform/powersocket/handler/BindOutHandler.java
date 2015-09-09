@@ -16,8 +16,7 @@ import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 
-
-@Path(path="/api/bind/out")
+@Path(path = "/api/bind/out")
 public class BindOutHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(BindOutHandler.class);
 
@@ -31,9 +30,9 @@ public class BindOutHandler extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws InternalException {
-		String mac = req.getParameter( "mac");
-		String userId = req.getParameter( "userId");
-		String cookie = req.getParameter( "cookie");
+		String mac = req.getParameter("mac");
+		String userId = req.getParameter("userId");
+		String cookie = req.getParameter("cookie");
 		return deal(mac, userId, cookie);
 	}
 
@@ -91,7 +90,7 @@ public class BindOutHandler extends HandlerAdapter {
 
 			r.put("status", 0);
 		} catch (Exception e) {
-			//DataHelper.returnBrokenJedis(jedis);
+			// DataHelper.returnBrokenJedis(jedis);
 			logger.error("Bind out error. mac:{}|userId:{}|cookie:{}|status:{}", mac, userId, cookie, r.get("status"), e);
 			throw new InternalException(e.getMessage());
 		} finally {

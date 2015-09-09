@@ -10,8 +10,7 @@ import com.blackcrystalinfo.platform.util.httpclient.SimpleHttpClientUtil;
 
 public class SMSSender {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(SMSSender.class);
+	private static final Logger logger = LoggerFactory.getLogger(SMSSender.class);
 
 	public static boolean send(String phone, String content) {
 
@@ -24,8 +23,7 @@ public class SMSSender {
 			sb.append("&phone=").append(phone);
 			sb.append("&content=").append(content);
 
-			String ret = SimpleHttpClientUtil.sendGet(Constants.SMS_SENDER_URL,
-					sb.toString());
+			String ret = SimpleHttpClientUtil.sendGet(Constants.SMS_SENDER_URL, sb.toString());
 
 			logger.info("send ret={}", ret);
 

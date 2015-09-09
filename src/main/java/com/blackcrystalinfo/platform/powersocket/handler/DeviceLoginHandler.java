@@ -19,8 +19,7 @@ import com.blackcrystalinfo.platform.util.CookieUtil;
 
 @Controller("/api/device/login")
 public class DeviceLoginHandler extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(DeviceLoginHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
 
 	@Autowired
 	private IDeviceDao deviceDao;
@@ -55,21 +54,17 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			Long id = deviceDao.getIdByMac(mac);
 			if (null == id) {
 				r.put("status", 2);
-				logger.info("Mac does not exist. mac:{}|cookie:{}|status:{}",
-						mac, cookie, r.get("status"));
+				logger.info("Mac does not exist. mac:{}|cookie:{}|status:{}", mac, cookie, r.get("status"));
 				return r;
 			}
 			try {
 				if (!CookieUtil.verifyDeviceKey(mac, cookie, id.toString())) {
 					r.put("status", 1);
-					logger.info(
-							"mac not matched cookie mac:{}|cookie:{}|status:{}",
-							mac, cookie, r.get("status"));
+					logger.info("mac not matched cookie mac:{}|cookie:{}|status:{}", mac, cookie, r.get("status"));
 					return r;
 				}
 			} catch (Exception e) {
-				logger.error("Cookie decode error. mac:{}|cookie:{}|status:{}",
-						mac, cookie, r.get("status"));
+				logger.error("Cookie decode error. mac:{}|cookie:{}|status:{}", mac, cookie, r.get("status"));
 				return r;
 			}
 
@@ -77,19 +72,15 @@ public class DeviceLoginHandler extends HandlerAdapter {
 				deviceDao.setPidById(id, Long.valueOf(pid));
 			}
 
-			String proxyKey = CookieUtil.generateKey(id.toString(),
-					String.valueOf(System.currentTimeMillis() / 1000),
-					CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.generateKey(id.toString(), String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
 			String proxyAddr = CometScanner.take();
 
-			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey,
-					proxyKey.getBytes().length, proxyAddr);
+			logger.info("proxykey:{} | size:{} | proxyAddr:{} ", proxyKey, proxyKey.getBytes().length, proxyAddr);
 			r.put("proxyKey", proxyKey);
 			r.put("proxyAddr", proxyAddr);
 
 		} catch (Exception e) {
-			logger.error("Device login error  mac:{}|cookie:{}|status:{}|e:{}", mac,
-					cookie, r.get("status"), e);
+			logger.error("Device login error  mac:{}|cookie:{}|status:{}|e:{}", mac, cookie, r.get("status"), e);
 			return r;
 		}
 

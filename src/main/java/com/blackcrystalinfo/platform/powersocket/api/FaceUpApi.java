@@ -30,8 +30,7 @@ import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 @Controller("/mobile/faceup")
 public class FaceUpApi extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(FaceUpApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(FaceUpApi.class);
 
 	@Autowired
 	private ILoginSvr userDao;
@@ -43,15 +42,13 @@ public class FaceUpApi extends HandlerAdapter {
 		String nick = req.getParameter("nick");
 		String id = CookieUtil.gotUserIdFromCookie(cookie);
 		String facestamp = null;
-		MixedFileUpload pic = (MixedFileUpload) req.getParams()
-				.getBodyHttpData("pic");
+		MixedFileUpload pic = (MixedFileUpload) req.getParams().getBodyHttpData("pic");
 		if (pic != null && pic.get() != null) {
 			File f = new File(Constants.PIC_PATH + File.separator + id);
 			FileUtils.copyFile(pic.getFile(), f);
 
 			// 计算上传头像的MD5值
-			facestamp = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(
-					pic.get()));
+			facestamp = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(pic.get()));
 			pic.getFile().delete();
 		}
 

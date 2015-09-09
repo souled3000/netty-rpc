@@ -35,8 +35,7 @@ import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
  */
 @Controller("/regagain")
 public class RegAgainApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory
-			.getLogger(RegAgainApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegAgainApi.class);
 
 	@Autowired
 	private ILoginSvr userSvr;
@@ -81,8 +80,7 @@ public class RegAgainApi extends HandlerAdapter {
 			String port = Constants.SERVERPORT;
 
 			String uuid = UUID.randomUUID().toString();
-			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v="
-					+ uuid;
+			String linkAddr = protocol + "://" + ip + ":" + port + "/cfm?v=" + uuid;
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("点击如下链接马上完成邮箱验证：");
@@ -94,8 +92,7 @@ public class RegAgainApi extends HandlerAdapter {
 			sb.append("<br>");
 			sb.append(linkAddr);
 
-			boolean b = SimpleMailSender.sendHtmlMail(email, subject,
-					sb.toString());
+			boolean b = SimpleMailSender.sendHtmlMail(email, subject, sb.toString());
 			if (!b) {
 				logger.info("sending Email failed!!!");
 				r.put(status, C0011.toString());
@@ -104,16 +101,13 @@ public class RegAgainApi extends HandlerAdapter {
 
 			// 纪录激活次数
 			times++;
-			j.setex("user:activetimes:" + uid, Constants.REGAGAIN_EXPIRE,
-					String.valueOf(times));
+			j.setex("user:activetimes:" + uid, Constants.REGAGAIN_EXPIRE, String.valueOf(times));
 			// 连接有效期
 			String oldUUID = j.get("user:mailActiveUUID:" + uid);
 			j.del("user:mailActive:" + oldUUID); // 删除旧的激活连接
 
-			j.setex("user:mailActiveUUID:" + uid, Constants.MAIL_ACTIVE_EXPIRE,
-					uuid);
-			j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE,
-					uid);
+			j.setex("user:mailActiveUUID:" + uid, Constants.MAIL_ACTIVE_EXPIRE, uuid);
+			j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE, uid);
 			r.put("activetimes", times);
 			if (times >= Constants.REGAGAIN_TIMES_NOTIC) {
 				logger.info("Sending many times");

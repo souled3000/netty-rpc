@@ -52,13 +52,13 @@ public class SceneApi extends HandlerAdapter {
 
 			if (StringUtils.isBlank(scenename) && StringUtils.isBlank(scenecode) && StringUtils.isBlank(mac)) {
 				String f = j.hget("user:family", userId);
-				Map<String,String> sm = new HashMap<String,String>();
+				Map<String, String> sm = new HashMap<String, String>();
 				if (StringUtils.isBlank(f)) {
 					sm = j.hgetAll("scene:" + userId);
 				} else {
 					Set<String> mems = j.smembers("family:" + f);
 					for (String m : mems) {
-						Map<String,String> t = j.hgetAll("scene:" + m);
+						Map<String, String> t = j.hgetAll("scene:" + m);
 						sm.putAll(t);
 					}
 				}
@@ -68,7 +68,7 @@ public class SceneApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
-			logger.info("",e);
+			logger.info("", e);
 		} finally {
 			DataHelper.returnJedis(j);
 		}
