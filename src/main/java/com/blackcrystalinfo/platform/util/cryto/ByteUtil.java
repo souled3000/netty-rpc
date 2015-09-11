@@ -131,7 +131,7 @@ public class ByteUtil {
 		System.out.println(src.length);
 		System.out.println(ByteUtil.reverse(src));
 		
-		Map m = new HashMap();
+		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("status", 1);
 		System.out.println(writeJSON(m));
 		

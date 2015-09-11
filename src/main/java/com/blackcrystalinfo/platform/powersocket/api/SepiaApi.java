@@ -33,7 +33,7 @@ public class SepiaApi extends HandlerAdapter {
 		String code = req.getParameter( "code");
 		logger.info("sepia:{}|{}|{}",cookie,sepia,code);
 		Jedis j = DataHelper.getJedis();
-		Map ret = new HashMap();
+		Map<String, String> ret = new HashMap<String, String>();
 		ret.put("status", "ffff");
 		try{
 			String word = j.get(cookie);

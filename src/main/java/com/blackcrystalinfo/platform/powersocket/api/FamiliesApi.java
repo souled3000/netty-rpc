@@ -47,11 +47,11 @@ public class FamiliesApi extends HandlerAdapter {
 		return r;
 	}
 	public static void main(String[] args) {
-		Set s = new HashSet();
+		Set<Integer> s = new HashSet<Integer>();
 		s.add(1);
 		s.add(16);
 		s.add(32);
-		Map m = new HashMap();
+		Map<String, Set<Integer>> m = new HashMap<String, Set<Integer>>();
 		m.put("families", s);
 		System.out.println(JSON.toJSON(s));
 		System.out.println(JSON.toJSON(m));

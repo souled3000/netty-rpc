@@ -4,27 +4,25 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
+
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
-
-import com.alibaba.fastjson.JSON;
-import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 /**
  * 
  * @author j
  * 
  */
-@SuppressWarnings("restriction")
 public class CookieUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CookieUtil.class);
 	/**
@@ -135,12 +133,13 @@ public class CookieUtil {
 
 		byte[] doFinal = hmac.doFinal(mac.getBytes());
 
-		BASE64Encoder encoder = new BASE64Encoder();
-		String macEncode = encoder.encode(doFinal);
+//		BASE64Encoder encoder = new BASE64Encoder();
+//		String macEncode = encoder.encode(doFinal);
 
-		cookie = String.format("%s|%s", id, macEncode);
+//		cookie = String.format("%s|%s", id, macEncode);
+		cookie = String.format("%s|%s", id, ByteUtil.toHex(doFinal));
 
-		cookie = cookie.replace("+", "%2B");
+//		cookie = cookie.replace("+", "%2B");
 
 		return cookie;
 	}
@@ -198,7 +197,7 @@ public class CookieUtil {
 		String str = "";
 		String tempStr = "";
 
-		for (int i = 1; i < digest.length; i++) {
+		for (int i = 0; i < digest.length; i++) {
 			tempStr = (Integer.toHexString(digest[i] & 0xff));
 			if (tempStr.length() == 1) {
 				str = str + "0" + tempStr;
@@ -231,6 +230,18 @@ public class CookieUtil {
 	}
 	
 	public static void main(String[] args)throws Exception {
-		System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
+//		System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
+		System.out.println(generateDeviceKey("0000000100000064", "-8"));
+		byte[] mac =new byte[]{0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08};
+		String DEVSALT = "BLACKCRYSTALTECH_DEVICE_SALT_^@*$(#_+";
+		String strMac = ByteUtil.toHex(mac);
+		String src = strMac+DEVSALT;
+		byte[] md5 = MessageDigest.getInstance("MD5").digest(src.getBytes());
+		System.out.println(ByteUtil.toHex(md5));
+		System.out.println(md5.length);
+		System.out.println(bytetoString(md5));
+		System.out.println(ByteUtil.toHex(md5).length()/2);
+		System.out.println(StringUtils.reverse(DEVSALT));
+		
 	}
 }

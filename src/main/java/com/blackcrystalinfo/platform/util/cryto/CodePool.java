@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +28,7 @@ public final class CodePool {
 				while((s = r.readLine())!=null){
 					pool.add(s);
 				}
+				r.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
