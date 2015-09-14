@@ -77,6 +77,7 @@ public class IdentificationApi extends HandlerAdapter {
 
 			// 刷新cookie有效期
 			jedis.expire("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE);
+
 		} catch (Exception e) {
 			logger.error("Check cookie failed, e = ", e);
 			return r;

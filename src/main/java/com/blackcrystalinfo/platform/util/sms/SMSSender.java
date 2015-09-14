@@ -20,7 +20,7 @@ public class SMSSender {
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("type=").append(type);
-			sb.append("&phone=").append(phone);
+			sb.append("&phones=").append(phone);
 			sb.append("&content=").append(content);
 
 			String ret = SimpleHttpClientUtil.sendGet(Constants.SMS_SENDER_URL, sb.toString());

@@ -63,15 +63,6 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			for (String m : members) {
 				// 删除由用户找家庭的关系表-》user:family
 				j.hdel("user:family", m);
-
-				// 使用户不可以控制设备
-				Set<String> devices = j.smembers("u:" + m + ":devices");
-				for (String o : devices) {
-					StringBuilder sb = new StringBuilder();
-					// 将uid与oper下的所有设备做关联
-					sb.append(o).append("|").append(m).append("|").append("0");
-					j.publish("PubDeviceUsers", sb.toString());
-				}
 			}
 
 			// 删除户主
@@ -81,6 +72,10 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			j.del("family:" + userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyDismiss.getValue(), Integer.parseInt(userId), ""));
+
+			// 解散家庭，每个成员的设备列表都要把其他成员的设备移除掉
+			pubDeviceUsersRels(members, j);
+
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
@@ -92,4 +87,34 @@ public class DemissionFamilyApi extends HandlerAdapter {
 		}
 		return r;
 	}
+
+	/**
+	 * 解散家庭，每个成员的设备列表都要把其他成员的设备移除掉
+	 * 
+	 * @param members
+	 *            家庭成员列表
+	 * @param j
+	 *            数据库连接
+	 */
+	private void pubDeviceUsersRels(Set<String> members, Jedis j) {
+		if (null == members) {
+			return;
+		}
+
+		for (String uId : members) {
+			for (String m : members) {
+				if (m.equals(uId)) {
+					continue;
+				}
+
+				Set<String> devices = j.smembers("u:" + m + ":devices");
+				for (String d : devices) {
+					StringBuilder sb = new StringBuilder();
+					sb.append(d).append("|").append(uId).append("|").append("0");
+					j.publish("PubDeviceUsers", sb.toString());
+				}
+			}
+		}
+	}
+
 }

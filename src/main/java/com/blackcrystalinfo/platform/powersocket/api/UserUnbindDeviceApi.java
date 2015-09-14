@@ -8,6 +8,7 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -75,6 +76,9 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			StringBuilder sb = new StringBuilder();
 			sb.append(deviceId).append("|").append(userId).append("|").append("0");
 			j.publish("PubDeviceUsers", sb.toString());
+
+			// 设备绑定解绑，发布通知消息，更新用户设备关系。
+			pubDeviceUsersRels(deviceId, j.smembers("family:" + userId), j);
 		} catch (Exception e) {
 			logger.error("", e);
 			return r;
@@ -84,5 +88,30 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 
 		r.put(status, SUCCESS.toString());
 		return r;
+	}
+
+	/**
+	 * 设备解绑，发布通知消息，更新用户设备关系。
+	 * 
+	 * @param devId
+	 *            上下线设备ID
+	 * @param uIds
+	 *            用户列表
+	 * @param jedis
+	 *            redis连接
+	 */
+	private void pubDeviceUsersRels(String devId, Set<String> uIds, Jedis jedis) {
+
+		// 用户没加入家庭
+		if (null == uIds) {
+			return;
+		}
+
+		// 家庭所有成员需要更新列表
+		for (String uId : uIds) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(devId).append("|").append(uId).append("|").append("0");
+			jedis.publish("PubDeviceUsers", sb.toString());
+		}
 	}
 }
