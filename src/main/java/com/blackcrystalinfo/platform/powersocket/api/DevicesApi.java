@@ -56,16 +56,18 @@ public class DevicesApi extends HandlerAdapter {
 						Device device = deviceDao.get(Long.valueOf(id));
 						String mac = device.getMac();
 						String name = device.getName();
-						String pwd = ""; // TODO: 这个没用，但接口文档里有，先这么留着
+						String pwd = j.hget("device:ctlkey", id);
 						String dv = device.getDeviceType();
+						String addr = j.hget("device:adr", id);
 
 						name = (null == name ? "default" : name);
 
 						devData.put("deviceId", id);
 						devData.put("mac", mac);
 						devData.put("deviceName", name);
-						devData.put("pwd", pwd);
+						devData.put("devicePwd", pwd);
 						devData.put("deviceType", dv);
+						devData.put("deviceAddr", addr);
 						bindedDevices.add(devData);
 					}
 				}
@@ -77,19 +79,20 @@ public class DevicesApi extends HandlerAdapter {
 					Device device = deviceDao.get(Long.valueOf(id));
 					String mac = device.getMac();
 					String name = device.getName();
-					String pwd = ""; // TODO: 这个没用，但接口文档里有，先这么留着
+					String pwd = j.hget("device:ctlkey", id);
 					String dv = device.getDeviceType();
-					String owner = j.hget("device:owner", userId);
-					String cookie = j.hget("device:cookie", userId);
+					String owner = j.hget("device:owner", id);
+					String addr = j.hget("device:adr", id);
+
 					name = (null == name ? "default" : name);
 
 					devData.put("deviceId", id);
 					devData.put("mac", mac);
 					devData.put("deviceName", name);
-					devData.put("pwd", pwd);
+					devData.put("devicePwd", pwd);
 					devData.put("deviceType", dv);
 					devData.put("owner", owner);
-					devData.put("cookie", cookie);
+					devData.put("deviceAddr", addr);
 					bindedDevices.add(devData);
 				}
 			}

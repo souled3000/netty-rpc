@@ -79,6 +79,9 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 
 			// 设备绑定解绑，发布通知消息，更新用户设备关系。
 			pubDeviceUsersRels(deviceId, j.smembers("family:" + userId), j);
+
+			// 更新设备控制密钥
+			updateDeviceCtlKey(deviceId, j);
 		} catch (Exception e) {
 			logger.error("", e);
 			return r;
@@ -114,4 +117,12 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			jedis.publish("PubDeviceUsers", sb.toString());
 		}
 	}
+
+	private void updateDeviceCtlKey(String devId, Jedis j) {
+		// TODO 发布消息，通知设备更新控制密钥了
+		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp", devId, ctlKey);
+		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
+	}
+
 }

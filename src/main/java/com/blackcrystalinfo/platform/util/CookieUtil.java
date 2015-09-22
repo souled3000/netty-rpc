@@ -229,6 +229,14 @@ public class CookieUtil {
 		return true;
 	}
 
+	public static String generateDeviceCtlKey(String devId) {
+		String result = "";
+
+		// TODO
+
+		return result;
+	}
+
 	public static void main(String[] args) throws Exception {
 		System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
 	}

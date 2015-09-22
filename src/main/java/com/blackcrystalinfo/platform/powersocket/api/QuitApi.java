@@ -121,6 +121,9 @@ public class QuitApi extends HandlerAdapter {
 				sb.append(d).append("|").append(m).append("|").append("0");
 				j.publish("PubDeviceUsers", sb.toString());
 			}
+
+			// 更新设备控制密钥
+			updateDeviceCtlKey(d, j);
 		}
 
 		for (String m : members) {
@@ -130,7 +133,17 @@ public class QuitApi extends HandlerAdapter {
 				StringBuilder sb = new StringBuilder();
 				sb.append(d).append("|").append(uId).append("|").append("0");
 				j.publish("PubDeviceUsers", sb.toString());
+
+				// 更新设备控制密钥
+				updateDeviceCtlKey(d, j);
 			}
 		}
+	}
+
+	private void updateDeviceCtlKey(String devId, Jedis j) {
+		// TODO 发布消息，通知设备更新控制密钥了
+		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp", devId, ctlKey);
+		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
 	}
 }

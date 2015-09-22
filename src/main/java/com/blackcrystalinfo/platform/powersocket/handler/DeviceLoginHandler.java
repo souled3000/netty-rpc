@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import redis.clients.jedis.Jedis;
+
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
@@ -16,6 +18,7 @@ import com.blackcrystalinfo.platform.dao.IDeviceDao;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.util.CometScanner;
 import com.blackcrystalinfo.platform.util.CookieUtil;
+import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/api/device/login")
 public class DeviceLoginHandler extends HandlerAdapter {
@@ -49,7 +52,10 @@ public class DeviceLoginHandler extends HandlerAdapter {
 
 		logger.info("DeviceLoginHandler begin mac:{}|cookie:{}", mac, cookie);
 
+		Jedis jedis = null;
 		try {
+			jedis = DataHelper.getJedis();
+
 			// 1. 根据mac获取deviceId
 			Long id = deviceDao.getIdByMac(mac);
 			if (null == id) {
@@ -57,6 +63,13 @@ public class DeviceLoginHandler extends HandlerAdapter {
 				logger.info("Mac does not exist. mac:{}|cookie:{}|status:{}", mac, cookie, r.get("status"));
 				return r;
 			}
+
+			// 根据deviceId获取keyMd5
+			String keyMd5 = jedis.hget("device:keymd5", id.toString());
+			cookie = parseRealCookie(cookie, keyMd5);
+			r.put("keyMd5", keyMd5);
+
+			// 验证cookie
 			try {
 				if (!CookieUtil.verifyDeviceKey(mac, cookie, id.toString())) {
 					r.put("status", 1);
@@ -67,6 +80,10 @@ public class DeviceLoginHandler extends HandlerAdapter {
 				logger.error("Cookie decode error. mac:{}|cookie:{}|status:{}", mac, cookie, r.get("status"));
 				return r;
 			}
+
+			// 根据deviceId获取设备属主
+			String owner = jedis.hget("device:owner", id.toString());
+			r.put("owner", owner);
 
 			if (StringUtils.isNotBlank(pid)) {
 				deviceDao.setPidById(id, Long.valueOf(pid));
@@ -82,9 +99,27 @@ public class DeviceLoginHandler extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("Device login error  mac:{}|cookie:{}|status:{}|e:{}", mac, cookie, r.get("status"), e);
 			return r;
+		} finally {
+			DataHelper.returnJedis(jedis);
 		}
 
 		r.put("status", 0);
 		return r;
+	}
+
+	/**
+	 * AES128 Decode
+	 * 
+	 * @param cookie
+	 * @param keyMd5
+	 * @return
+	 */
+	private String parseRealCookie(String cookie, String keyMd5) {
+		String result = null;
+
+		// TODO: use keyMd5 decode the cookie
+		result = cookie;
+
+		return result;
 	}
 }

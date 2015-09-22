@@ -40,7 +40,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String pid = req.getString("pid");
 		String name = req.getString("name");
 		String sign = req.getString("sign");
-		return deal(mac, sn, dv, pid, name, sign);
+		String isUnbind = req.getString("isUnbind");
+		return deal(mac, sn, dv, pid, name, sign, isUnbind);
 	}
 
 	public Object rpc(RpcRequest req) throws InternalException {
@@ -50,7 +51,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String pid = req.getParameter("pid");
 		String name = req.getParameter("name");
 		String sign = req.getParameter("sign");
-		return deal(mac, sn, dv, pid, name, sign);
+		String isUnbind = req.getParameter("isUnbind");
+		return deal(mac, sn, dv, pid, name, sign, isUnbind);
 	}
 
 	private Object deal(String... args) throws InternalException {
@@ -63,8 +65,9 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String pid = args[3];
 		String name = args[4];
 		String sign = args[5];
+		String isUnbind = args[6];
 
-		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|sign:{}", mac, sn, dv, sign);
+		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|sign:{}|isUnbind:{}", mac, sn, dv, sign, isUnbind);
 		if (!isValidDev(mac, sign)) {
 			r.put("status", 1);
 			logger.info("Device regist failed, status:{}", r.get("status"));
@@ -93,11 +96,22 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			String cookie = "";
 			if (null != existId) {
 				cookie = CookieUtil.generateDeviceKey(mac, existId.toString());
-				String cookieMd5 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(cookie.getBytes()));
+
+				String licenseKey = parseLicenseKey(mac, sign);
+				String licenseKeyCookie = licenseKey + cookie;
+				String keyMd5 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(licenseKeyCookie.getBytes()));
 				jedis = DataHelper.getJedis();
-				jedis.hset("device:cookie", existId.toString(), cookieMd5);
+				jedis.hset("device:keymd5", existId.toString(), keyMd5);
 			}
 			r.put("cookie", cookie);
+
+			// 强制解绑
+			if ("true".equalsIgnoreCase(isUnbind)) {
+				String owner = jedis.hget("device:owner", existId.toString());
+				jedis.hdel("device:owner", existId.toString());
+				jedis.srem("u:" + owner + ":devices", existId.toString());
+			}
+
 		} catch (Exception e) {
 			logger.error("Device regist error mac:{}|sn:{}|dv:{}", mac, sn, dv, e);
 			return r;
@@ -108,6 +122,11 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		logger.info("response:  mac:{}|sn:{}|dv:{}", mac, sn, dv);
 		r.put("status", 0);
 		return r;
+	}
+
+	private String parseLicenseKey(String mac, String key) {
+		String result = "";
+		return result;
 	}
 
 	private boolean isValidDev(String mac, String key) {
