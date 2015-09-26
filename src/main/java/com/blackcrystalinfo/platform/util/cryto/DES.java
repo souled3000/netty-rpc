@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.util.cryto;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -29,7 +28,7 @@ public class DES {
 		System.err.println(data);
 		System.err.println(ByteUtil.toHex(key));
 		
-		BigInteger inte = new BigInteger(key);
+//		BigInteger inte = new BigInteger(key);
 //		System.out.println(inte);
 		System.err.println(ByteUtil.toHex(encrypt("{idn:0123456789}".getBytes(), ByteUtil.reverse(key))));
 

@@ -39,7 +39,7 @@ public class CometScanner {
 	private final static Map<String, String> PATH2URL = new ConcurrentHashMap<String, String>();
 	private final static Map<String, String> IPMAP = new HashMap<String, String>();
 
-	private static ZooKeeper zk = null;
+	private static volatile ZooKeeper zk = null;
 
 	private final static Pattern p = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+");
 

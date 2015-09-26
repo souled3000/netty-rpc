@@ -12,7 +12,7 @@ public class PBKDF2 {
 	public static String encode(String str) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		int iterations = 1000;
 		char[] chars = str.toCharArray();
-		byte[] salt = getSalt().getBytes();
+		byte[] salt = getSalt();
 
 		PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
 		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -37,10 +37,10 @@ public class PBKDF2 {
 		return diff == 0;
 	}
 
-	private static String getSalt() throws NoSuchAlgorithmException {
+	private static byte[] getSalt() throws NoSuchAlgorithmException {
 		SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 		byte[] salt = new byte[16];
 		sr.nextBytes(salt);
-		return salt.toString();
+		return salt;
 	}
 }

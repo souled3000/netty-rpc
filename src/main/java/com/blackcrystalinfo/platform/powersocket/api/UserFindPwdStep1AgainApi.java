@@ -91,7 +91,8 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter  {
 			mailInfo.setToAddress(destEmailAddr);
 			mailInfo.setSubject("验证码邮件");
 			mailInfo.setContent("请尽快使用此验证码重置您的密码:" + code);
-			boolean b = SimpleMailSender.sendTextMail(mailInfo);
+			SimpleMailSender sms = new SimpleMailSender();
+			boolean b = sms.sendTextMail(mailInfo);
 			if(!b){
 				logger.info("sending Email failed!!!");
 				r.put(status, C0011.toString());

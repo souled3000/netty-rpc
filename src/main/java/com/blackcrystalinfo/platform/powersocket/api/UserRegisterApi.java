@@ -8,17 +8,13 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
-import io.netty.handler.codec.http.HttpHeaders;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
@@ -29,6 +25,9 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 import com.blackcrystalinfo.platform.util.mail.MailSenderInfo;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
+
+import io.netty.handler.codec.http.HttpHeaders;
+import redis.clients.jedis.Jedis;
 /**
  * 用户注册
  * @author juliana
@@ -130,7 +129,8 @@ public class UserRegisterApi extends HandlerAdapter {
 			sb.append(linkAddr);
 
 			mailInfo.setContent(sb.toString());
-			boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
+			SimpleMailSender sms = new SimpleMailSender();
+			boolean b = sms.sendHtmlMail(mailInfo);
 			if(!b){
 				logger.info("sending Email failed!!!|{}",email);
 				r.put(status, C0011.toString());

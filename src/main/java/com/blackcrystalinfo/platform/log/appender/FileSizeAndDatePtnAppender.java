@@ -58,11 +58,42 @@ public class FileSizeAndDatePtnAppender extends FileAppender {
 
 	// The gmtTimeZone is used only in computeCheckPeriod() method.
 	static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
+	/**
+	 * The default maximum file size is 10MB.
+	 */
+	protected long maxFileSize = 10 * 1024 * 1024;
+
+	/**
+	 * There is one backup file by default.
+	 */
+	protected int maxBackupIndex = 1;
+
+	private long nextRollover = 0;
 
 	/**
 	 * The default constructor does nothing.
 	 */
 	public FileSizeAndDatePtnAppender() {
+	}
+	
+	/**
+	 * Instantiate a FileSizeAndDatePtnAppender and open the file designated by <code>filename</code>. The opened filename will become the ouput destination for this appender.
+	 * 
+	 * <p>
+	 * If the <code>append</code> parameter is true, the file will be appended to. Otherwise, the file desginated by <code>filename</code> will be truncated before being opened.
+	 */
+	public FileSizeAndDatePtnAppender(Layout layout, String filename, boolean append) throws IOException {
+		super(layout, filename, append);
+	}
+
+	/**
+	 * Instantiate a FileAppender and open the file designated by <code>filename</code>. The opened filename will become the output destination for this appender.
+	 * 
+	 * <p>
+	 * The file will be appended to.
+	 */
+	public FileSizeAndDatePtnAppender(Layout layout, String filename) throws IOException {
+		super(layout, filename);
 	}
 
 	/**
@@ -163,37 +194,7 @@ public class FileSizeAndDatePtnAppender extends FileAppender {
 	 * ------------------------------------------------------------------------- --------------------------------------------------------
 	 */
 
-	/**
-	 * The default maximum file size is 10MB.
-	 */
-	protected long maxFileSize = 10 * 1024 * 1024;
 
-	/**
-	 * There is one backup file by default.
-	 */
-	protected int maxBackupIndex = 1;
-
-	private long nextRollover = 0;
-
-	/**
-	 * Instantiate a FileSizeAndDatePtnAppender and open the file designated by <code>filename</code>. The opened filename will become the ouput destination for this appender.
-	 * 
-	 * <p>
-	 * If the <code>append</code> parameter is true, the file will be appended to. Otherwise, the file desginated by <code>filename</code> will be truncated before being opened.
-	 */
-	public FileSizeAndDatePtnAppender(Layout layout, String filename, boolean append) throws IOException {
-		super(layout, filename, append);
-	}
-
-	/**
-	 * Instantiate a FileAppender and open the file designated by <code>filename</code>. The opened filename will become the output destination for this appender.
-	 * 
-	 * <p>
-	 * The file will be appended to.
-	 */
-	public FileSizeAndDatePtnAppender(Layout layout, String filename) throws IOException {
-		super(layout, filename);
-	}
 
 	/**
 	 * Returns the value of the <b>MaxBackupIndex</b> option.
@@ -287,10 +288,6 @@ public class FileSizeAndDatePtnAppender extends FileAppender {
 				LogLog.error("rollOver() failed.", ioe);
 			}
 		}
-
-		/**
-		 * ---------------------------------------------------------------------
-		 */
 	}
 
 	/**

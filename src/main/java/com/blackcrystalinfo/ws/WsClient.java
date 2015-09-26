@@ -82,7 +82,7 @@ public class WsClient {
 		WsClient client = new WsClient();
 		final ChannelGroup group = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
 		client.boot(group);
-		Thread.currentThread().sleep(2000);
+		Thread.sleep(2000);
 		final ByteBuf bb = Unpooled.buffer(32);
 		bb.writeBytes(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,-0x1,-0x1,-0x1,-0x1,-0x1,-0x1,-0x1,-0x1,0x01,0x01,0x01,0x01,0x01,0x01,0x01});
 		group.writeAndFlush(new TextWebSocketFrame(proxyKey));//ws登录

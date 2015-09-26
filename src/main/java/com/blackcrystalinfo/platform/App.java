@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blackcrystalinfo.platform.codec.RpcServerInitializer;
-import com.blackcrystalinfo.platform.exception.HandlerExistedException;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;

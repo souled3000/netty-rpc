@@ -15,10 +15,10 @@ import java.util.zip.CRC32;
 
 import org.apache.commons.lang.StringUtils;
 
-import sun.misc.BASE64Encoder;
-
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+
+import sun.misc.BASE64Encoder;
 
 /**
  */
@@ -105,6 +105,7 @@ public class ByteUtil {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		String s = "938310a2bcf7111";
 		byte[] bb = reverse(ByteUtil.fromHex(s));
@@ -129,7 +130,7 @@ public class ByteUtil {
 
 		byte[] src = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
 		System.out.println(src.length);
-		System.out.println(ByteUtil.reverse(src));
+		System.out.println(ByteUtil.toHex(ByteUtil.reverse(src)));
 		
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("status", 1);

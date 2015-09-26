@@ -32,7 +32,7 @@ public class SimpleMailSender {
 	 * @param mailInfo
 	 *            待发送的邮件的信息
 	 */
-	public static boolean sendTextMail(MailSenderInfo mailInfo) {
+	public boolean sendTextMail(MailSenderInfo mailInfo) {
 		// 判断是否需要身份认证
 		MyAuthenticator authenticator = null;
 		Properties pro = mailInfo.getProperties();
@@ -74,7 +74,7 @@ public class SimpleMailSender {
 	 * @param mailInfo
 	 *            待发送的邮件信息
 	 */
-	public static boolean sendHtmlMail(MailSenderInfo mailInfo) {
+	public boolean sendHtmlMail(MailSenderInfo mailInfo) {
 		// 判断是否需要身份认证
 		MyAuthenticator authenticator = null;
 		Properties pro = mailInfo.getProperties();
@@ -137,7 +137,8 @@ public class SimpleMailSender {
 		mailInfo.setToAddress("24841337@qq.com");
 		mailInfo.setSubject("用户注册确认");
 		mailInfo.setContent("<a href='"+protocol+ "//"+ip+":"+port+"/cfm?v=" + 111+"'>激活</a>");
-		boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
+		SimpleMailSender sms = new SimpleMailSender();
+		boolean b = sms.sendHtmlMail(mailInfo);
 		System.out.println(b);
 	}
 }

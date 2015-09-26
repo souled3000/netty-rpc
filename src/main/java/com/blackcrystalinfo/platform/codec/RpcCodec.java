@@ -141,7 +141,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					}
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(JSON.toJSONBytes(ret, new SerializerFeature[0]))));
 				} else {
-					logger.error("(503)ret is null: {} | param:{}", reqUrl, rp.toString());
+					logger.error("(503)ret is null: {} | param:{}", reqUrl, rp!=null?rp.toString():rp);
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, SERVICE_UNAVAILABLE));
 				}
 			}

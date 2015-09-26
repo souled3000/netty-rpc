@@ -10,7 +10,7 @@ public final class VerifyCode {
 		char[] buf = new char[length];
 		int rnd;
 		for (int i = 0; i < length; i++) {
-			rnd = Math.abs(r.nextInt()) % src.length;
+			rnd = Math.abs(r.nextInt()% src.length) ;
 
 			buf[i] = src[rnd];
 		}

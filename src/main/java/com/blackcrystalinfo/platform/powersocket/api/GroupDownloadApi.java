@@ -72,6 +72,7 @@ public class GroupDownloadApi extends HandlerAdapter {
 		return r;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) {
 		Jedis j= DataHelper.getJedis();
 		Map<Object,Object> r = new HashMap<Object,Object>();

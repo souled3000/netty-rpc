@@ -99,7 +99,8 @@ public class RegAgainApi extends HandlerAdapter {
 			sb.append(linkAddr);
 
 			mailInfo.setContent(sb.toString());
-			boolean b = SimpleMailSender.sendHtmlMail(mailInfo);
+			SimpleMailSender sms = new SimpleMailSender();
+			boolean b = sms.sendHtmlMail(mailInfo);
 			if (!b) {
 				logger.info("sending Email failed!!!");
 				r.put(status, C0011.toString());

@@ -33,7 +33,7 @@ public class SessHandler extends HandlerAdapter {
 		}
 		return resp;
 	}
-	private class SessResponse{
+	class SessResponse{
 		private String key;
 		private int status;
 		public String getKey() {
