@@ -7,6 +7,7 @@ import static com.blackcrystalinfo.platform.util.RespField.status;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,11 @@ public class DeviceApi extends HandlerAdapter {
 
 		String deviceId = req.getParameter("deviceId");
 
+		if (StringUtils.isBlank(deviceId)) {
+			r.put(status, "deviceId不能为空");
+			return r;
+		}
+
 		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
 
 		Jedis j = null;
@@ -52,7 +58,7 @@ public class DeviceApi extends HandlerAdapter {
 
 			if (!userId.equals(owner)) {
 				// TODO 设备Id不存在
-				r.put(status, "");
+				r.put(status, "目标设备不属于当前用户");
 				return r;
 			}
 

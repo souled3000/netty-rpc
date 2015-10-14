@@ -1,6 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
@@ -20,24 +20,23 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
 import com.blackcrystalinfo.platform.util.ErrorCode;
 
 /**
- * 修改绑定手机第二步，校验旧手机发送的短信验证码
+ * 
+ * 通过手机号码找回用户密码第二步，校验短信验证码是否合法
  * 
  * @author j
  * 
  */
-@Controller("/mobile/phonechange/step2")
-public class PhoneChangeStep2Api extends HandlerAdapter {
-
-	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep2Api.class);
+@Controller("/changepwdbyphone/step2")
+public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(UserChangePassByPhoneStep2Api.class);
 
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP2_KEY = "test:tmp:phonechange:step2key:";
+	public static final String STEP2_KEY = "test:tmp:changepwdbyphone:step2key:";
 
 	@Autowired
 	private ILoginSvr userDao;
@@ -45,24 +44,41 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
-		ret.put(status, ErrorCode.SYSERROR);
+		ret.put(status, SYSERROR.toString());
 
-		// 入参解析
-		String cookie = req.getParameter("cookie");
+		// 解析参数
+		String phone = req.getParameter("phone");
 		String step1key = req.getParameter("step1key");
 		String code = req.getParameter("code");
 
-		// phone是否格式正确？用户是否存在？
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		// 校验参数
+		if (StringUtils.isBlank(phone)) {
+			ret.put("status", "手机号码不可以为空");
+			return ret;
+		}
+
+		if (StringUtils.isBlank(step1key)) {
+			ret.put("status", "、第二步凭证不可为空");
+			return ret;
+		}
+
+		if (StringUtils.isBlank(code)) {
+			ret.put("status", "验证码不可为空");
+			return ret;
+		}
+
+		// 根据手机号获取用户信息
 		User user = null;
+		String userId = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.userGet(User.UserPhoneColumn, phone);
 			if (null == user) {
 				throw new Exception("user is null");
 			}
+			userId = user.getId();
 		} catch (Exception e) {
-			logger.error("cannot find user by id.", e);
-			ret.put(status, "用户没找到");
+			logger.error("cannot find user by phone.", e);
+			ret.put("status", "用户没找到");
 			return ret;
 		}
 
@@ -71,30 +87,25 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 			jedis = DataHelper.getJedis();
 
 			// 验证第一步凭证
-			String step1keyK = PhoneChangeStep1Api.STEP1_KEY + userId;
+			String step1keyK = UserChangePassByPhoneStep1Api.STEP1_KEY + userId;
 			String step1keyV = jedis.get(step1keyK);
 			if (!StringUtils.equals(step1keyV, step1key)) {
-				ret.put(status, "修改绑定手机号码第一步凭证有误");
+				ret.put("status", "通过手机号码找回用户密码第一步凭证有误");
 				return ret;
 			}
 
 			// 获取第一步生成的code，未生成或已过期？
-			String codeV = jedis.get(PhoneChangeStep1Api.CODE_KEY + userId);
+			String codeV = jedis.get(UserChangePassByPhoneStep1Api.CODE_KEY + userId);
 			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, "无效验证码，请重新获取");
+				ret.put("status", "无效验证码，请重新获取");
 				return ret;
 			}
 
 			// 用户输入的错误？
 			if (!StringUtils.equals(code, codeV)) {
-				ret.put(status, "验证码错误，请重新输入");
+				ret.put("status", "验证码错误，请重新输入");
 				return ret;
 			}
-
-			// 输入无误,清除临时数据
-			jedis.del(PhoneChangeStep1Api.CODE_KEY + userId);
-			jedis.del(PhoneChangeStep1Api.INTV_KEY + userId);
-			jedis.del(PhoneChangeStep1Api.FREQ_KEY + userId);
 
 			// 生成第二步凭证
 			String step2keyK = STEP2_KEY + userId;
@@ -103,14 +114,14 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 
 			// 返回
 			ret.put("step2key", step2keyV);
-			ret.put(status, SUCCESS.toString());
+			ret.put("status", ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
-			logger.info("occurn exception. ", e);
-			return ret;
+			logger.error("reg by phone step1 error! ", e);
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
 		return ret;
+
 	}
 }

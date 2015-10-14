@@ -5,6 +5,7 @@ import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -15,11 +16,11 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
+import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.VerifyCode;
 
 /**
- * 手机号码注册第二步：入库
+ * 手机号码注册第二步：验证码验证
  * 
  * @author j
  * 
@@ -27,7 +28,10 @@ import com.blackcrystalinfo.platform.util.VerifyCode;
 @Controller("/registerbyphone/step2")
 public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep1Api.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep2Api.class);
+	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
+
+	public static final String STEP2_KEY = "test:tmp:registebyphone:step2key:";
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -35,10 +39,16 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 		ret.put("status", SYSERROR.toString());
 
 		String phone = req.getParameter("phone");
+		String step1key = req.getParameter("step1key");
 		String code = req.getParameter("code");
 
 		if (StringUtils.isBlank(phone)) {
 			ret.put("status", "手机号码不可以为空");
+			return ret;
+		}
+
+		if (StringUtils.isBlank(step1key)) {
+			ret.put("status", "第一步的凭证不可以为空");
 			return ret;
 		}
 
@@ -50,39 +60,33 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
-			String key = "test:tmp:registebyphone:step1:" + phone;
-			String value = jedis.get(key);
-			if (StringUtils.isBlank(value)) {
+
+			// 验证第一步凭证
+			String step1keyK = UserRegisterByPhoneStep1Api.STEP1_KEY + phone;
+			String step1keyV = jedis.get(step1keyK);
+			if (!StringUtils.equals(step1keyV, step1key)) {
+				ret.put("status", "注册第一步凭证有误");
+				return ret;
+			}
+
+			String codekey = "test:tmp:registebyphone:codekey:" + phone;
+			String codevalue = jedis.get(codekey);
+			if (StringUtils.isBlank(codevalue)) {
 				ret.put("status", "请先获取短信验证码");
 				return ret;
 			}
 
-			if (!StringUtils.equals(value, code)) {
+			if (!StringUtils.equals(codevalue, code)) {
 				ret.put("status", "短信验证码输入错误，请重新输入。");
 				return ret;
 			}
 
-			String id = jedis.hget("test:user:phone2id", phone);
-			if (StringUtils.isNotBlank(id)) {
-				ret.put("status", "手机已注册，请直接登录");
-				return ret;
-			}
+			// 生成第二步凭证
+			String step2keyK = STEP2_KEY + phone;
+			String step2keyV = UUID.randomUUID().toString();
+			jedis.setex(step2keyK, CODE_EXPIRE, step2keyV);
 
-			Long userId = jedis.incr("test:user:nextId");
-			String userKey = "test:user:" + userId;
-
-			String username = phone;
-			String password = VerifyCode.randString(10);
-
-			jedis.hset(userKey, "username", username);
-			jedis.hset(userKey, "password", password);
-
-			jedis.hset("test:user:phone2id", phone, userId.toString());
-
-			ret.put("userId", userId);
-			ret.put("username", username);
-			ret.put("password", password);
-
+			ret.put("step2key", step2keyV);
 			ret.put("status", SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);

@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
@@ -24,36 +22,38 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.CookieUtil;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
- * 修改绑定手机号码的第一步，发送短信验证码。
+ * 修改绑定手机第三步，新手机发送短信验证码
  * 
  * @author j
  * 
  */
-@Controller("/mobile/phonechange/step1")
-public class PhoneChangeStep1Api extends HandlerAdapter {
-
-	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep1Api.class);
+@Controller("/mobile/phonechange/step3")
+public class PhoneChangeStep3Api extends HandlerAdapter {
+	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep3Api.class);
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.interval.ttl", "60"));
+	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step3.interval.ttl", "60"));
 
-	private static final int DO_FREQ_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.ttl", "86400"));
+	private static final int DO_FREQ_TTL = Integer.valueOf(Constants.getProperty("phonechange.step3.frequency.ttl", "86400"));
 
-	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.max", "5"));
+	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step3.frequency.max", "5"));
 
-	public static final String CODE_KEY = "ttl:user:phonechange:step1:";
+	public static final String CODE_KEY = "ttl:user:phonechange:step3:";
 
-	public static final String INTV_KEY = "ttl:user:phonechange:step1:interval:";
+	public static final String INTV_KEY = "ttl:user:phonechange:step3:interval:";
 
-	public static final String FREQ_KEY = "ttl:user:phonechange:step1:frequency:";
+	public static final String FREQ_KEY = "ttl:user:phonechange:step3:frequency:";
 
-	public static final String STEP1_KEY = "test:tmp:phonechange:step1key:";
+	public static final String STEP3_KEY = "test:tmp:phonechange:step3key:";
+
+	public static final String STEP3_PHONE = "test:tmp:phonechange:step3phone:";
 
 	@Autowired
 	private ILoginSvr userDao;
@@ -61,10 +61,22 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
-		ret.put(status, SYSERROR.toString());
+		ret.put(status, ErrorCode.SYSERROR);
 
-		// 入参解析：cookie
+		// 入参解析：cookie， phone
 		String cookie = req.getParameter("cookie");
+		String step2key = req.getParameter("step2key");
+		String phone = req.getParameter("phone");
+
+		if (StringUtils.isBlank(phone)) {
+			ret.put(status, "手机号码不可以为空");
+			return ret;
+		}
+
+		if (StringUtils.isBlank(step2key)) {
+			ret.put(status, "第一步的凭证不可以为空");
+			return ret;
+		}
 
 		// phone是否格式正确？用户是否存在？
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
@@ -81,19 +93,31 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 			return ret;
 		}
 
-		// 用户已经绑定手机号码？
+		// 新旧手机号一致？
 		String oldPhone = user.getPhone();
+		if (oldPhone.equals(phone)) {
+			ret.put(status, "新手机号与旧手机号一致，请绑定其他手机号");
+			return ret;
+		}
 
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
 
+			// 验证第二步凭证
+			String step2keyK = PhoneChangeStep2Api.STEP2_KEY + userId;
+			String step2keyV = jedis.get(step2keyK);
+			if (!StringUtils.equals(step2keyV, step2key)) {
+				ret.put(status, "修改绑定手机号码第一步凭证有误");
+				return ret;
+			}
+
 			// 发送验证码次数是否太频繁，是否超限？
 			String interV = "";
 			String frequV = "";
 
-			interV = jedis.get(INTV_KEY + userId);
-			frequV = jedis.get(FREQ_KEY + userId);
+			interV = jedis.get(INTV_KEY);
+			frequV = jedis.get(FREQ_KEY);
 
 			if (StringUtils.isNotBlank(interV)) {
 				ret.put(status, "频繁操作,请稍后再试");
@@ -132,17 +156,21 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 			// 提交
 			trans.exec();
 
-			// 生成第一步凭证
-			String step1keyK = STEP1_KEY + userId;
-			String step1keyV = UUID.randomUUID().toString();
-			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
+			// 生成第三步凭证
+			String step3keyK = STEP3_KEY + userId;
+			String step3keyV = UUID.randomUUID().toString();
+			jedis.setex(step3keyK, CODE_EXPIRE, step3keyV);
+
+			// 临时存储新手机号码
+			String step3phoneK = STEP3_PHONE + userId;
+			String step3phoneV = phone;
+			jedis.setex(step3phoneK, CODE_EXPIRE, step3phoneV);
 
 			// 返回
 			ret.put("code", code);
-			ret.put("step1key", step1keyV);
-			ret.put(status, SUCCESS.toString());
+			ret.put("step3key", step3keyV);
+			ret.put(status, ErrorCode.SUCCESS);
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {

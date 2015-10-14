@@ -41,6 +41,12 @@ public class LoginSvrImpl implements ILoginSvr {
 		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(), userName.toLowerCase(), phone, nick, shadow });
 	}
 
+	@Transactional
+	public void userRegister(String userName, String email, String phone, String nick, String shadow) {
+		String sql = "insert into user (" + User.UserNameColumn + "," + User.UserEmailColumn + "," + User.UserPhoneColumn + "," + User.UserNickColumn + "," + User.UserShadowColumn + ") values (?,?,?,?,?)";
+		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(), email.toLowerCase(), phone, nick, shadow });
+	}
+
 	public User userGet(String key, String value) {
 		String sql = "select * from user where " + key + "=?";
 		return (User) jdbcTemplate.queryForObject(sql, new Object[] { value }, new User());
@@ -58,4 +64,5 @@ public class LoginSvrImpl implements ILoginSvr {
 
 		return null;
 	}
+
 }

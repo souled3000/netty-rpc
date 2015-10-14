@@ -15,6 +15,8 @@ public interface ILoginSvr {
 
 	void userRegister(String userName, String phone, String nick, String shadow);
 
+	void userRegister(String userName, String email, String phone, String nick, String shadow);
+
 	void userChangeProperty(String userid, String key, String value);
 
 	User userGet(String key, String userName);
