@@ -1,7 +1,13 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0039;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0042;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,25 +41,25 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		String phone = req.getParameter("phone");
 		String step1key = req.getParameter("step1key");
 		String code = req.getParameter("code");
 
 		if (StringUtils.isBlank(phone)) {
-			ret.put("status", "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(step1key)) {
-			ret.put("status", "第一步的凭证不可以为空");
+			ret.put(status, C0040.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(code)) {
-			ret.put("status", "验证码不可以为空");
+			ret.put(status, C0039.toString());
 			return ret;
 		}
 
@@ -65,19 +71,19 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 			String step1keyK = UserRegisterByPhoneStep1Api.STEP1_KEY + phone;
 			String step1keyV = jedis.get(step1keyK);
 			if (!StringUtils.equals(step1keyV, step1key)) {
-				ret.put("status", "注册第一步凭证有误");
+				ret.put(status, C0041.toString());
 				return ret;
 			}
 
 			String codekey = "test:tmp:registebyphone:codekey:" + phone;
 			String codevalue = jedis.get(codekey);
 			if (StringUtils.isBlank(codevalue)) {
-				ret.put("status", "请先获取短信验证码");
+				ret.put(status, C0042.toString());
 				return ret;
 			}
 
 			if (!StringUtils.equals(codevalue, code)) {
-				ret.put("status", "短信验证码输入错误，请重新输入。");
+				ret.put(status, C0042.toString());
 				return ret;
 			}
 
@@ -87,7 +93,7 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 			jedis.setex(step2keyK, CODE_EXPIRE, step2keyV);
 
 			ret.put("step2key", step2keyV);
-			ret.put("status", SUCCESS.toString());
+			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

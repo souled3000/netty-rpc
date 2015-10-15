@@ -1,5 +1,12 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0037;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0038;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0044;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
@@ -69,12 +76,12 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 		String phone = req.getParameter("phone");
 
 		if (StringUtils.isBlank(phone)) {
-			ret.put(status, "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(step2key)) {
-			ret.put(status, "第一步的凭证不可以为空");
+			ret.put(status, C0040.toString());
 			return ret;
 		}
 
@@ -89,14 +96,14 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by id.", e);
-			ret.put(status, "用户没找到");
+			ret.put(status, ErrorCode.C0006.toString());
 			return ret;
 		}
 
 		// 新旧手机号一致？
 		String oldPhone = user.getPhone();
 		if (oldPhone.equals(phone)) {
-			ret.put(status, "新手机号与旧手机号一致，请绑定其他手机号");
+			ret.put(status, C0044.toString());
 			return ret;
 		}
 
@@ -108,7 +115,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			String step2keyK = PhoneChangeStep2Api.STEP2_KEY + userId;
 			String step2keyV = jedis.get(step2keyK);
 			if (!StringUtils.equals(step2keyV, step2key)) {
-				ret.put(status, "修改绑定手机号码第一步凭证有误");
+				ret.put(status, C0041.toString());
 				return ret;
 			}
 
@@ -120,13 +127,13 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			frequV = jedis.get(FREQ_KEY);
 
 			if (StringUtils.isNotBlank(interV)) {
-				ret.put(status, "频繁操作,请稍后再试");
+				ret.put(status, C0037.toString());
 				return ret;
 			}
 
 			if (StringUtils.isNotBlank(frequV)) {
 				if (Integer.valueOf(frequV) >= DO_FREQ_MAX) {
-					ret.put(status, "已达操作上限,请稍后再试");
+					ret.put(status, C002C.toString());
 					return ret;
 				}
 			} else {
@@ -141,7 +148,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 
 			// 发送验证码是否成功？
 			if (!SMSSender.send(oldPhone, "验证码【" + code + "】")) {
-				ret.put(status, "发送验证码失败");
+				ret.put(status, C0038.toString());
 				return ret;
 			}
 			;
@@ -167,7 +174,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			jedis.setex(step3phoneK, CODE_EXPIRE, step3phoneV);
 
 			// 返回
-			ret.put("code", code);
+			// ret.put("code", code);
 			ret.put("step3key", step3keyV);
 			ret.put(status, ErrorCode.SUCCESS);
 		} catch (Exception e) {

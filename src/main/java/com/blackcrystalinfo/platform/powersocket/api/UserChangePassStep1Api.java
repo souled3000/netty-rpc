@@ -1,7 +1,10 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C000F;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +46,8 @@ public class UserChangePassStep1Api extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		String cookie = req.getParameter("cookie");
 		String passOld = req.getParameter("passOld");
@@ -60,7 +63,7 @@ public class UserChangePassStep1Api extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by phone.", e);
-			ret.put("status", "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -73,7 +76,7 @@ public class UserChangePassStep1Api extends HandlerAdapter {
 
 			// 校验密码是否正确
 			if (!PBKDF2.validate(passOld, shadow)) {
-				ret.put("status", "旧密码错误");
+				ret.put(status, C000F.toString());
 				return ret;
 			}
 
@@ -83,7 +86,7 @@ public class UserChangePassStep1Api extends HandlerAdapter {
 			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
 
 			ret.put("step1key", step1keyV);
-			ret.put("status", SUCCESS.toString());
+			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

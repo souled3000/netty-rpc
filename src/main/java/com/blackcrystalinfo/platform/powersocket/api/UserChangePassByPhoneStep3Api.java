@@ -1,5 +1,10 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0043;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -48,17 +53,17 @@ public class UserChangePassByPhoneStep3Api extends HandlerAdapter {
 
 		// 校验参数
 		if (StringUtils.isBlank(phone)) {
-			ret.put("status", "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(step2key)) {
-			ret.put("status", "、第二步凭证不可为空");
+			ret.put(status, C0040.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(password)) {
-			ret.put("status", "登录密码不可为空");
+			ret.put(status, C0043.toString());
 			return ret;
 		}
 
@@ -73,7 +78,7 @@ public class UserChangePassByPhoneStep3Api extends HandlerAdapter {
 			userId = user.getId();
 		} catch (Exception e) {
 			logger.error("cannot find user by phone.", e);
-			ret.put("status", "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -85,7 +90,7 @@ public class UserChangePassByPhoneStep3Api extends HandlerAdapter {
 			String step2keyK = UserChangePassByPhoneStep2Api.STEP2_KEY + userId;
 			String step2keyV = jedis.get(step2keyK);
 			if (!StringUtils.equals(step2keyV, step2key)) {
-				ret.put("status", "通过手机号码找回用户密码第一步凭证有误");
+				ret.put(status, C0041.toString());
 				return ret;
 			}
 
@@ -95,7 +100,7 @@ public class UserChangePassByPhoneStep3Api extends HandlerAdapter {
 			jedis.publish("PubModifiedPasswdUser", userId);
 
 			// 返回
-			ret.put("status", SUCCESS.toString());
+			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

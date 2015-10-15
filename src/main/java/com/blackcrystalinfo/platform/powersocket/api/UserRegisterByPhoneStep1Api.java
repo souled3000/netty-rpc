@@ -1,6 +1,11 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0036;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0037;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +24,6 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
@@ -45,13 +49,13 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		String phone = req.getParameter("phone");
 
 		if (StringUtils.isBlank(phone)) {
-			ret.put("status", "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
@@ -63,22 +67,22 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 			// 判断用户是否已经注册
 			boolean exist = userDao.userExist(phone);
 			if (exist) {
-				ret.put("status", "手机已注册，请直接登录");
+				ret.put(status, C0036.toString());
 				return ret;
 			}
 
 			String codekey = "test:tmp:registebyphone:codekey:" + phone;
 			String value = jedis.get(codekey);
 			if (StringUtils.isNotBlank(value)) {
-				ret.put("status", "发送太频繁了，请" + DateUtils.secToTime(CODE_EXPIRE) + "后重试！");
+				ret.put(status, C0037.toString());
 				return ret;
 			}
 
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);
 			if (!SMSSender.send(phone, code)) {
-				 ret.put("status", "发送短信验证码失败！");
-				 return ret;
+				ret.put(status, C0038.toString());
+				return ret;
 			}
 
 			// 记录短信验证码
@@ -89,9 +93,9 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 			String step1keyV = UUID.randomUUID().toString();
 			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
 
-			ret.put("code", code);
+			//ret.put("code", code);
 			ret.put("step1key", step1keyV);
-			ret.put("status", ErrorCode.SUCCESS.toString());
+			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

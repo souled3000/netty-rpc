@@ -1,5 +1,8 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0042;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
@@ -55,7 +58,7 @@ public class PhoneChangeStep4Api extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by id.", e);
-			ret.put(status, "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -67,23 +70,23 @@ public class PhoneChangeStep4Api extends HandlerAdapter {
 			String step3keyK = PhoneChangeStep3Api.STEP3_KEY + userId;
 			String step3keyV = jedis.get(step3keyK);
 			if (!StringUtils.equals(step3keyV, step3key)) {
-				ret.put(status, "修改绑定手机号码第三步凭证有误");
+				ret.put(status, C0040.toString());
 				return ret;
 			}
-			
+
 			String step3phoneK = PhoneChangeStep3Api.STEP3_PHONE + userId;
 			String step3phoneV = jedis.get(step3phoneK);
-			
+
 			// 获取第三步生成的code，未生成或已过期？
 			String codeV = jedis.get(PhoneChangeStep3Api.CODE_KEY + userId);
 			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, "无效验证码，请重新获取");
+				ret.put(status, C0042.toString());
 				return ret;
 			}
 
 			// 用户输入的错误？
 			if (!StringUtils.equals(code, codeV)) {
-				ret.put(status, "验证码错误，请重新输入");
+				ret.put(status, C0042.toString());
 				return ret;
 			}
 

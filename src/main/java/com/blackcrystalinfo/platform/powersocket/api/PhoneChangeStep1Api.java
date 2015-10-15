@@ -1,5 +1,9 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0037;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -77,7 +81,7 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by id.", e);
-			ret.put(status, "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -96,13 +100,13 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 			frequV = jedis.get(FREQ_KEY + userId);
 
 			if (StringUtils.isNotBlank(interV)) {
-				ret.put(status, "频繁操作,请稍后再试");
+				ret.put(status, C0037.toString());
 				return ret;
 			}
 
 			if (StringUtils.isNotBlank(frequV)) {
 				if (Integer.valueOf(frequV) >= DO_FREQ_MAX) {
-					ret.put(status, "已达操作上限,请稍后再试");
+					ret.put(status, C002C.toString());
 					return ret;
 				}
 			} else {
@@ -117,7 +121,7 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 
 			// 发送验证码是否成功？
 			if (!SMSSender.send(oldPhone, "验证码【" + code + "】")) {
-				ret.put(status, "发送验证码失败");
+				ret.put(status, C0038.toString());
 				return ret;
 			}
 			;
@@ -138,11 +142,10 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
 
 			// 返回
-			ret.put("code", code);
+			// ret.put("code", code);
 			ret.put("step1key", step1keyV);
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {

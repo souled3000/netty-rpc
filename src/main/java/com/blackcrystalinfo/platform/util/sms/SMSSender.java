@@ -14,12 +14,6 @@ public class SMSSender {
 
 	public static boolean send(String phone, String content) {
 
-		// TODO 为了调试，此处不给手机发送短信
-		boolean isDebug = true;
-		if (isDebug) {
-			return true;
-		}
-
 		logger.info("send SMS: phone={}, content={}", phone, content);
 		try {
 			String type = "submit";

@@ -1,5 +1,12 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0039;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0042;
+import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
@@ -21,7 +28,6 @@ import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.ErrorCode;
 
 /**
  * 
@@ -53,17 +59,17 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 
 		// 校验参数
 		if (StringUtils.isBlank(phone)) {
-			ret.put("status", "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(step1key)) {
-			ret.put("status", "、第二步凭证不可为空");
+			ret.put(status, C0040.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(code)) {
-			ret.put("status", "验证码不可为空");
+			ret.put(status, C0039.toString());
 			return ret;
 		}
 
@@ -78,7 +84,7 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 			userId = user.getId();
 		} catch (Exception e) {
 			logger.error("cannot find user by phone.", e);
-			ret.put("status", "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -90,20 +96,20 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 			String step1keyK = UserChangePassByPhoneStep1Api.STEP1_KEY + userId;
 			String step1keyV = jedis.get(step1keyK);
 			if (!StringUtils.equals(step1keyV, step1key)) {
-				ret.put("status", "通过手机号码找回用户密码第一步凭证有误");
+				ret.put(status, C0041.toString());
 				return ret;
 			}
 
 			// 获取第一步生成的code，未生成或已过期？
 			String codeV = jedis.get(UserChangePassByPhoneStep1Api.CODE_KEY + userId);
 			if (StringUtils.isBlank(codeV)) {
-				ret.put("status", "无效验证码，请重新获取");
+				ret.put(status, C0042.toString());
 				return ret;
 			}
 
 			// 用户输入的错误？
 			if (!StringUtils.equals(code, codeV)) {
-				ret.put("status", "验证码错误，请重新输入");
+				ret.put(status, C0042.toString());
 				return ret;
 			}
 
@@ -114,7 +120,7 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 
 			// 返回
 			ret.put("step2key", step2keyV);
-			ret.put("status", ErrorCode.SUCCESS.toString());
+			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

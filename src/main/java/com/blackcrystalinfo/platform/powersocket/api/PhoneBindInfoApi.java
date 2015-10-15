@@ -1,7 +1,9 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,8 +29,8 @@ public class PhoneBindInfoApi extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		// 入参解析：cookie， phone
 		String cookie = req.getParameter("cookie");
@@ -44,7 +46,7 @@ public class PhoneBindInfoApi extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by id.", e);
-			ret.put("status", "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -55,7 +57,7 @@ public class PhoneBindInfoApi extends HandlerAdapter {
 		String phoneable = user.getPhoneable();
 		ret.put("phoneable", "true".equalsIgnoreCase(phoneable));
 
-		ret.put("status", SUCCESS.toString());
+		ret.put(status, SUCCESS.toString());
 		return ret;
 	}
 }

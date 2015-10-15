@@ -1,7 +1,10 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +41,8 @@ public class UserChangePassStep2Api extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		String cookie = req.getParameter("cookie");
 		String step1key = req.getParameter("step1key");
@@ -56,7 +59,7 @@ public class UserChangePassStep2Api extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by phone.", e);
-			ret.put("status", "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 
@@ -68,7 +71,7 @@ public class UserChangePassStep2Api extends HandlerAdapter {
 			String step1keyK = UserChangePassStep1Api.STEP1_KEY + userId;
 			String step1keyV = jedis.get(step1keyK);
 			if (!StringUtils.equals(step1keyV, step1key)) {
-				ret.put("status", "通过旧密码修改登录密码第一步凭证有误");
+				ret.put(status, C0041.toString());
 				return ret;
 			}
 
@@ -77,7 +80,7 @@ public class UserChangePassStep2Api extends HandlerAdapter {
 			userDao.userChangeProperty(userId, User.UserShadowColumn, newShadow);
 			jedis.publish("PubModifiedPasswdUser", userId);
 
-			ret.put("status", SUCCESS.toString());
+			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

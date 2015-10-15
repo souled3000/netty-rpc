@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0003;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0005;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
@@ -44,7 +46,7 @@ public class DeviceApi extends HandlerAdapter {
 		String deviceId = req.getParameter("deviceId");
 
 		if (StringUtils.isBlank(deviceId)) {
-			r.put(status, "deviceId不能为空");
+			r.put(status, C0003.toString());
 			return r;
 		}
 
@@ -55,10 +57,8 @@ public class DeviceApi extends HandlerAdapter {
 			j = DataHelper.getJedis();
 
 			String owner = j.hget("device:owner", deviceId);
-
 			if (!userId.equals(owner)) {
-				// TODO 设备Id不存在
-				r.put(status, "目标设备不属于当前用户");
+				r.put(status, C0005.toString());
 				return r;
 			}
 
@@ -79,14 +79,13 @@ public class DeviceApi extends HandlerAdapter {
 			devData.put("deviceType", dv);
 			devData.put("deviceAddr", addr);
 			r.put("deviceInfo", devData);
+			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			logger.error("", e);
-			return r;
+			logger.error("get device info error.", e);
 		} finally {
 			DataHelper.returnJedis(j);
 		}
 
-		r.put(status, SUCCESS.toString());
 		return r;
 	}
 }

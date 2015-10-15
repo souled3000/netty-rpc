@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,8 +24,8 @@ public class UserLogApi extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		// 入参解析：cookie
 		String cookie = req.getParameter("cookie");
@@ -47,7 +48,7 @@ public class UserLogApi extends HandlerAdapter {
 		}
 
 		ret.put("userlogs", userlogs);
-		ret.put("status", ErrorCode.SUCCESS.toString());
+		ret.put(status, ErrorCode.SUCCESS.toString());
 		return ret;
 	}
 

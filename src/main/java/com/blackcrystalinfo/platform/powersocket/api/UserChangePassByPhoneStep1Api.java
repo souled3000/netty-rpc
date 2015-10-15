@@ -1,5 +1,9 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0037;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.util.RespField.status;
 
@@ -21,7 +25,6 @@ import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.Constants;
 import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
@@ -54,7 +57,7 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 		String phone = req.getParameter("phone");
 
 		if (StringUtils.isBlank(phone)) {
-			ret.put(status, "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
@@ -67,7 +70,7 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 			}
 		} catch (Exception e) {
 			logger.error("cannot find user by phone.", e);
-			ret.put(status, "用户没找到");
+			ret.put(status, C0006.toString());
 			return ret;
 		}
 		String userId = user.getId();
@@ -80,14 +83,14 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);
 			if (!SMSSender.send(phone, code)) {
-				ret.put(status, "发送短信验证码失败！");
+				ret.put(status, C0038.toString());
 				return ret;
 			}
 
 			String codekey = CODE_KEY + userId;
 			String value = jedis.get(codekey);
 			if (StringUtils.isNotBlank(value)) {
-				ret.put(status, "发送太频繁了，请" + DateUtils.secToTime(CODE_EXPIRE) + "后重试！");
+				ret.put(status, C0037.toString());
 				return ret;
 			}
 
@@ -99,7 +102,7 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 			String step1keyV = UUID.randomUUID().toString();
 			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
 
-			ret.put("code", code);
+			// ret.put("code", code);
 			ret.put("step1key", step1keyV);
 			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {

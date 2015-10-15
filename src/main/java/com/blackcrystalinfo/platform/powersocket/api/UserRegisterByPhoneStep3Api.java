@@ -1,7 +1,12 @@
 package com.blackcrystalinfo.platform.powersocket.api;
 
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
+import static com.blackcrystalinfo.platform.util.ErrorCode.C0043;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.util.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +24,7 @@ import com.blackcrystalinfo.platform.RpcRequest;
 import com.blackcrystalinfo.platform.powersocket.data.User;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
 import com.blackcrystalinfo.platform.util.DataHelper;
+import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.PBKDF2;
 
 /**
@@ -37,25 +43,25 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put("status", SYSERROR.toString());
+		Map<Object, Object> ret = new HashMap<Object, Object>();
+		ret.put(status, SYSERROR.toString());
 
 		String phone = req.getParameter("phone");
 		String step2key = req.getParameter("step2key");
 		String password = req.getParameter("password");
 
 		if (StringUtils.isBlank(phone)) {
-			ret.put("status", "手机号码不可以为空");
+			ret.put(status, C0035.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(step2key)) {
-			ret.put("status", "注册第二步凭证不可以为空");
+			ret.put(status, C0040.toString());
 			return ret;
 		}
 
 		if (StringUtils.isBlank(password)) {
-			ret.put("status", "密码不可以为空");
+			ret.put(status, C0043.toString());
 			return ret;
 		}
 
@@ -67,14 +73,14 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 			String step2keyK = UserRegisterByPhoneStep2Api.STEP2_KEY + phone;
 			String step2keyV = jedis.get(step2keyK);
 			if (!StringUtils.equals(step2keyV, step2key)) {
-				ret.put("status", "注册第二步凭证有误");
+				ret.put(status, C0041.toString());
 				return ret;
 			}
 
 			// 手机号是否已经注册
 			boolean exist = loginSvr.userExist(phone);
 			if (exist) {
-				ret.put("status", "手机已注册，请直接登录");
+				ret.put(status, ErrorCode.C0036.toString());
 				logger.debug("phone has been registed. phone:{}", phone);
 				return ret;
 			}
@@ -84,7 +90,7 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 			String userId = loginSvr.userGet(User.UserNameColumn, phone).getId();
 
 			ret.put("uID", userId);
-			ret.put("status", SUCCESS.toString());
+			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {
