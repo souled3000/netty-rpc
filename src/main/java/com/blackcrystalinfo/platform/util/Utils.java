@@ -1,19 +1,12 @@
 package com.blackcrystalinfo.platform.util;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0006;
-import static com.blackcrystalinfo.platform.util.RespField.status;
-
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 import redis.clients.jedis.Jedis;
-
-import com.alibaba.fastjson.JSON;
-import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 public class Utils {
 

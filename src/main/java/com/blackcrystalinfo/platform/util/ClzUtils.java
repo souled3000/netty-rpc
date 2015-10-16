@@ -40,7 +40,7 @@ public class ClzUtils {
 
 	/**
 	 * 取得某个接口下所有实现这个接口的类
-	 * */
+	 */
 	public static List<Class<?>> getAllClassByInterface(Class<?> c) {
 		List<Class<?>> returnClassList = null;
 
@@ -193,20 +193,21 @@ public class ClzUtils {
 			}
 		});
 		// 循环所有文件
-		for (File file : dirfiles) {
-			// 如果是目录 则继续扫描
-			if (file.isDirectory()) {
-				findAndAddClassesInPackageByFile(packageName + "." + file.getName(), file.getAbsolutePath(), recursive, classes);
-			} else {
-				// 如果是java类文件 去掉后面的.class 只留下类名
-				String className = file.getName().substring(0, file.getName().length() - 6);
-				try {
-					// 添加到集合中去
-					classes.add(Class.forName(packageName + '.' + className));
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
+		if (dirfiles != null && dirfiles.length > 0)
+			for (File file : dirfiles) {
+				// 如果是目录 则继续扫描
+				if (file.isDirectory()) {
+					findAndAddClassesInPackageByFile(packageName + "." + file.getName(), file.getAbsolutePath(), recursive, classes);
+				} else {
+					// 如果是java类文件 去掉后面的.class 只留下类名
+					String className = file.getName().substring(0, file.getName().length() - 6);
+					try {
+						// 添加到集合中去
+						classes.add(Class.forName(packageName + '.' + className));
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
 				}
 			}
-		}
 	}
 }

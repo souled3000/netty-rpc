@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.util.cryto;
 
-import com.blackcrystalinfo.platform.util.StringUtil;
-
 public class RC4 {
 	public static String HloveyRC4(String aInput, String aKey) {
 		int[] iS = new int[256];
@@ -53,7 +51,7 @@ public class RC4 {
 
 		// 打印加密后的字符串
 		System.out.println(str);
-		System.out.println(StringUtil.toHex(str.getBytes()));
+		System.out.println(ByteUtil.toHex(str.getBytes()));
 
 		// 打印解密后的字符串
 		System.out.println(HloveyRC4(str, key));

@@ -8,14 +8,9 @@ package com.blackcrystalinfo.platform.util.cryto;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
-
-import org.apache.commons.lang.StringUtils;
-
-import sun.misc.BASE64Encoder;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
@@ -43,22 +38,6 @@ public class ByteUtil {
 		}
 
 		return buf.toString().toUpperCase();
-	}
-
-	/**
-	 * 将byte数组变为可显示的字符串
-	 * 
-	 * @param b
-	 * @return
-	 */
-	public static String byte2String(byte[] b) {
-		StringBuilder sb = new StringBuilder(b.length + b.length - 1);
-		for (int i = 0; i < b.length; i++) {
-			sb.append(b[i]);
-			if (i < b.length - 1)
-				sb.append(",");
-		}
-		return sb.toString();
 	}
 
 	public static byte[] fromHex(String hex) {
@@ -105,42 +84,18 @@ public class ByteUtil {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
-		String s = "938310a2bcf7111";
-		byte[] bb = reverse(ByteUtil.fromHex(s));
-		System.out.println(ByteUtil.toHex(bb));
+		byte[] src = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D };
+		System.out.println(ByteUtil.toHex(src));
 
 		System.out.println(crc("{idn:\"01292838\"}"));
 
-		System.out.println("9bT4cGXR/7/OuPrFTVrVWHZJik4aQyLW310g/TM7s3H35jDLvgkkXq/9HPHPQRVVg5sCQ9Cy7Vxt".length());
-
-		s = "{\"cookie\":\"-5|FjQL3sHhII0BprdPdutBvKLb1vbkIaMBVeLQc2RshKY=\",\"status\":0,\"statusMsg\":\"\"}";
-
-		BASE64Encoder encoder = new BASE64Encoder();
-
-		String ss = encoder.encode(s.getBytes());
-		System.out.println(encoder.encode(s.getBytes()));
-		System.out.println(encoder.encodeBuffer(s.getBytes()));
-		System.out.println(StringUtils.escape(encoder.encode(s.getBytes())));
-		System.out.println(StringUtils.remove(StringUtils.escape(encoder.encode(s.getBytes())), "\\n"));
-		System.out.println(ss.replaceAll("\\s", ""));
-
-		System.out.println();
-
-		byte[] src = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-		System.out.println(src.length);
-		System.out.println(ByteUtil.reverse(src));
+		System.out.println(ByteUtil.toHex(src));
 
 		Map m = new HashMap();
 		m.put("status", 1);
 		System.out.println(writeJSON(m));
 	}
 
-	public static byte[] reverse(byte[] src) {
-		ByteBuffer bb = ByteBuffer.allocate(src.length);
-		bb.order(ByteOrder.LITTLE_ENDIAN);
-		bb.put(src);
-		bb.slice();
-		return ByteUtil.fromHex(Long.toHexString(bb.getLong(0)));
-	}
 }

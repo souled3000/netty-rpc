@@ -22,7 +22,6 @@ import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
  * @author j
  * 
  */
-@SuppressWarnings("restriction")
 public class CookieUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CookieUtil.class);
 	/**

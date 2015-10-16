@@ -23,7 +23,6 @@ import com.blackcrystalinfo.platform.util.DataHelper;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
-@SuppressWarnings("restriction")
 @Controller("/octopus.jpg")
 public class OctopusApi extends HandlerAdapter {
 	@Override

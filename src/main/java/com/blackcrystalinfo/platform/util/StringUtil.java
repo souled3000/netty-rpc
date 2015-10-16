@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-@SuppressWarnings("restriction")
 public class StringUtil {
 	public static byte[] fromHex(String hex) {
 		byte[] bytes = new byte[hex.length() / 2];

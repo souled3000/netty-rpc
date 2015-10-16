@@ -5,15 +5,15 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.exception.InternalException;
 import com.blackcrystalinfo.platform.powersocket.api.CometAdrApi;
 import com.blackcrystalinfo.platform.util.CometScanner;
 
-@Path(path = "/api/geli/getUrl")
+@Controller("/api/geli/getUrl")
 public class GeLiWebsocketHandler extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(CometAdrApi.class);

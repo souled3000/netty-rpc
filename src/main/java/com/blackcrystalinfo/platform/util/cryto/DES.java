@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.util.cryto;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -19,24 +18,15 @@ public class DES {
 	public static void main(String[] args) throws Exception {
 		String data = "3zX7k8/nJs9PM0RGdiqoaQ==";
 		BASE64Decoder decoder = new BASE64Decoder();
-		BASE64Encoder encoder = new BASE64Encoder();
 		byte[] d2 = decoder.decodeBuffer(data);
 		// byte[] d2 = ByteUtil.fromHex("1bb8a518a94218ace05c0ac2513e27a5");
 
 		System.out.println(ByteUtil.toHex(d2));
 		byte[] key = ByteUtil.fromHex("543bd41e2c9f10c7");
-		// System.out.println(Long.parseLong(key,16));
 		System.err.println(data);
 		System.err.println(ByteUtil.toHex(key));
 
-		BigInteger inte = new BigInteger(key);
-		// System.out.println(inte);
-		System.err.println(ByteUtil.toHex(encrypt("{idn:0123456789}".getBytes(), ByteUtil.reverse(key))));
-
-		System.out.println("---------------" + encoder.encode(encrypt("{idn:0123456789}".getBytes(), ByteUtil.reverse(key))));
-
 		System.err.println(new String(decrypt(d2, key)));
-
 	}
 
 	/**

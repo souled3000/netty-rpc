@@ -16,17 +16,16 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import redis.clients.jedis.Jedis;
+import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.HandlerAdapter;
 import com.blackcrystalinfo.platform.RpcRequest;
-import com.blackcrystalinfo.platform.annotation.Path;
 import com.blackcrystalinfo.platform.util.DataHelper;
-
 import com.blackcrystalinfo.platform.util.PBKDF2;
 
-@Path(path = "/step2")
+import redis.clients.jedis.Jedis;
+
+@Controller("/step2")
 public class UserFindPwdStep2Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserFindPwdStep2Api.class);
 
