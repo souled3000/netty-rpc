@@ -31,7 +31,7 @@
 		<property name="url" value="${jdbc.url}" />
 		<property name="username" value="${jdbc.username}" />
 		<property name="password">
-			<bean class="com.blackcrystalinfo.platform.util.PasswordDecoder">
+			<bean class="com.blackcrystalinfo.platform.common.PasswordDecoder">
 				<property name="code" value="${jdbc.password}" />
 			</bean>
 		</property>
