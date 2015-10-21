@@ -31,7 +31,7 @@ public class DeviceCtlKeySynchApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceCtlKeySynchApi.class);
 
 	@Autowired
-	private IDeviceSrv deviceDao;
+	private IDeviceSrv deviceSrc;
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
@@ -54,7 +54,7 @@ public class DeviceCtlKeySynchApi extends HandlerAdapter {
 		try {
 
 			jedis = DataHelper.getJedis();
-			Long id = deviceDao.getIdByMac(mac);
+			Long id = deviceSrc.getIdByMac(mac);
 			if (id == null) {
 				r.put("status", 1);
 				logger.error("Device not exist, mac:{}", mac);

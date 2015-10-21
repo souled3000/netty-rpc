@@ -25,7 +25,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
 
 	@Autowired
-	private IDeviceSrv deviceDao;
+	private IDeviceSrv deviceSrv;
 
 	@Override
 	public Object rpc(JSONObject req) throws InternalException {
@@ -57,7 +57,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			jedis = DataHelper.getJedis();
 
 			// 1. 根据mac获取deviceId
-			Long id = deviceDao.getIdByMac(mac);
+			Long id = deviceSrv.getIdByMac(mac);
 			if (null == id) {
 				r.put("status", 2);
 				logger.info("Mac does not exist. mac:{}|cookie:{}|status:{}", mac, cookie, r.get("status"));
@@ -86,7 +86,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			r.put("owner", owner);
 
 			if (StringUtils.isNotBlank(pid)) {
-				deviceDao.setPidById(id, Long.valueOf(pid));
+				deviceSrv.setPidById(id, Long.valueOf(pid));
 			}
 
 			String proxyKey = CookieUtil.generateKey(id.toString(), String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);

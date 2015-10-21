@@ -36,7 +36,7 @@ public class DeviceApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceApi.class);
 
 	@Autowired
-	private IDeviceSrv deviceDao;
+	private IDeviceSrv deviceSrv;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -63,7 +63,7 @@ public class DeviceApi extends HandlerAdapter {
 			}
 
 			Map<Object, Object> devData = new HashMap<Object, Object>();
-			Device device = deviceDao.get(deviceId);
+			Device device = deviceSrv.get(deviceId);
 			String mac = device.getMac();
 			String name = device.getName();
 			String pwd = j.hget("device:ctlkey", deviceId);

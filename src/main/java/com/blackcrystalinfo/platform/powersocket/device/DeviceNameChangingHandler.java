@@ -19,7 +19,7 @@ public class DeviceNameChangingHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceNameChangingHandler.class);
 
 	@Autowired
-	private IDeviceSrv deviceDao;
+	private IDeviceSrv deviceSrv;
 
 	public Object rpc(JSONObject req) throws InternalException {
 		String mac = req.getString("mac");
@@ -40,13 +40,13 @@ public class DeviceNameChangingHandler extends HandlerAdapter {
 		logger.info("chang name begin, mac:{}|name:{}", mac, name);
 
 		try {
-			Long id = deviceDao.getIdByMac(mac);
+			Long id = deviceSrv.getIdByMac(mac);
 			if (id == null) {
 				r.put("status", 1);
 				logger.error("Device not exist, mac:{}", mac);
 				return r;
 			}
-			deviceDao.setNameById(id, name);
+			deviceSrv.setNameById(id, name);
 		} catch (Exception e) {
 			r.put("status", -1);
 			logger.error("change name error, mac:{}|name:{}|e:{}", mac, name, e);

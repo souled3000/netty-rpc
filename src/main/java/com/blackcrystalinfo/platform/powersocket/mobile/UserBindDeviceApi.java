@@ -35,7 +35,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserBindDeviceApi.class);
 
 	@Autowired
-	private IDeviceSrv deviceDao;
+	private IDeviceSrv deviceSrv;
 
 	public Object rpc(JSONObject req) throws Exception {
 		String mac = req.getString("mac");
@@ -67,13 +67,13 @@ public class UserBindDeviceApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			if (!deviceDao.exists(mac)) {
+			if (!deviceSrv.exists(mac)) {
 				r.put(status, C0003.toString());
 				logger.info("There isn't this device. mac:{}|user:{}|status:{}", mac, userId, r.get("status"));
 				return r;
 			}
 
-			deviceId = String.valueOf(deviceDao.getIdByMac(mac));
+			deviceId = String.valueOf(deviceSrv.getIdByMac(mac));
 			String owner = j.hget("device:owner", deviceId);
 			if (owner != null) {
 				r.put(status, C0004.toString());

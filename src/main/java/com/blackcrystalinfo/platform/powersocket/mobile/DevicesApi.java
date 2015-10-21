@@ -31,7 +31,7 @@ public class DevicesApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DevicesApi.class);
 
 	@Autowired
-	private IDeviceSrv deviceDao;
+	private IDeviceSrv deviceSrv;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -53,7 +53,7 @@ public class DevicesApi extends HandlerAdapter {
 					for (String id : devices) {
 						Map<Object, Object> devData = new HashMap<Object, Object>();
 
-						Device device = deviceDao.get(Long.valueOf(id));
+						Device device = deviceSrv.get(Long.valueOf(id));
 						String mac = device.getMac();
 						String name = device.getName();
 						String pwd = j.hget("device:ctlkey", id);
@@ -76,7 +76,7 @@ public class DevicesApi extends HandlerAdapter {
 				for (String id : devices) {
 					Map<Object, Object> devData = new HashMap<Object, Object>();
 
-					Device device = deviceDao.get(Long.valueOf(id));
+					Device device = deviceSrv.get(Long.valueOf(id));
 					String mac = device.getMac();
 					String name = device.getName();
 					String pwd = j.hget("device:ctlkey", id);
