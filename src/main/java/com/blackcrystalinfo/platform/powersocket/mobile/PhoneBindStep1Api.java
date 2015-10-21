@@ -1,7 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
+import com.blackcrystalinfo.platform.common.Constants;
+import com.blackcrystalinfo.platform.common.CookieUtil;
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
-import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**

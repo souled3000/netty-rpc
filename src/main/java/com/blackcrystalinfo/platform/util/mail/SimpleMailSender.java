@@ -18,7 +18,7 @@ import javax.mail.internet.MimeMultipart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blackcrystalinfo.platform.util.Constants;
+import com.blackcrystalinfo.platform.common.Constants;
 
 /**
  * 简单邮件（不带附件的邮件）发送器

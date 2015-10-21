@@ -1,11 +1,11 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0011;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C002B;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C002D;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0011;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002B;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002D;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +18,13 @@ import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.common.Constants;
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
-import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.ErrorCode;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 /**

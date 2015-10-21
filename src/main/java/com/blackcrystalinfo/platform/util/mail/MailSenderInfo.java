@@ -5,7 +5,7 @@ package com.blackcrystalinfo.platform.util.mail;
  */
 import java.util.Properties;
 
-import com.blackcrystalinfo.platform.util.Constants;
+import com.blackcrystalinfo.platform.common.Constants;
 
 public class MailSenderInfo {
 	// 发送邮件的服务器的IP和端口

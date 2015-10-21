@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blackcrystalinfo.platform.powersocket.mobile.CometAdrApi;
+import com.blackcrystalinfo.platform.server.CometScanner;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.InternalException;
-import com.blackcrystalinfo.platform.util.CometScanner;
 
 public class GeliIPRefreshHandler extends HandlerAdapter {
 

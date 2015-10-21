@@ -1,13 +1,13 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C002C;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0035;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0037;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0038;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0040;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0041;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0044;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0041;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0044;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +22,15 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
+import com.blackcrystalinfo.platform.common.Constants;
+import com.blackcrystalinfo.platform.common.CookieUtil;
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
+import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
-import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.ErrorCode;
-import com.blackcrystalinfo.platform.util.VerifyCode;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**

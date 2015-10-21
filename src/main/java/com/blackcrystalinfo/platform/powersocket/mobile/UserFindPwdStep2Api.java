@@ -1,14 +1,14 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0012;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0013;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0014;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0015;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0016;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0017;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0012;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0013;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0014;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0015;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0016;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0017;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.PBKDF2;
 
 import redis.clients.jedis.Jedis;
 

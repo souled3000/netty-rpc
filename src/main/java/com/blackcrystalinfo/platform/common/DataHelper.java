@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.util;
+package com.blackcrystalinfo.platform.common;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

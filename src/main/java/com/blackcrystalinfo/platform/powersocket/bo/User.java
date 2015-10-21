@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.PBKDF2;
+import com.blackcrystalinfo.platform.common.CookieUtil;
+import com.blackcrystalinfo.platform.common.PBKDF2;
 
 public class User implements RowMapper<Object> {
 	public static final String UserIDColumn = "id";

@@ -12,13 +12,13 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSONObject;
+import com.blackcrystalinfo.platform.common.CookieUtil;
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.server.CometScanner;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
 import com.blackcrystalinfo.platform.service.InternalException;
-import com.blackcrystalinfo.platform.util.CometScanner;
-import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/api/device/login")
 public class DeviceLoginHandler extends HandlerAdapter {

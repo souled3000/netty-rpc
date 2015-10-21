@@ -20,15 +20,15 @@ import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.common.Constants;
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.DateUtils;
+import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
-import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.DateUtils;
-import com.blackcrystalinfo.platform.util.Utils;
 
 /**
  * 用户注册邮件确认

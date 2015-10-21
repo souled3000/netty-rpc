@@ -1,10 +1,10 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0025;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0026;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0025;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0026;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
-import com.blackcrystalinfo.platform.util.CookieUtil;
 
 /**
  * 修改用户昵称

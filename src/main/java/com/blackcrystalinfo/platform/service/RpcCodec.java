@@ -1,7 +1,7 @@
 package com.blackcrystalinfo.platform.service;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
 import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static io.netty.handler.codec.http.HttpHeaders.setContentLength;

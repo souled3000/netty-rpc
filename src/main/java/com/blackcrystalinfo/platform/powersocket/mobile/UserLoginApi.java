@@ -1,13 +1,13 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0018;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0019;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0020;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0021;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C002E;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0018;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0019;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0020;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0021;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002E;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.common.Constants;
+import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.ILoginSvr;
-import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.DataHelper;
-import com.blackcrystalinfo.platform.util.DateUtils;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;

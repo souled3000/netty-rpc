@@ -1,10 +1,11 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.C001D;
-import static com.blackcrystalinfo.platform.util.ErrorCode.C0027;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
 import io.netty.handler.codec.http.HttpHeaders;
+
+import static com.blackcrystalinfo.platform.common.ErrorCode.C001D;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0027;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -23,9 +24,9 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
+import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.util.DataHelper;
 
 @Controller("/sepia")
 public class SepiaApi extends HandlerAdapter {

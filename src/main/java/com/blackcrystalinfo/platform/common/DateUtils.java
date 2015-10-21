@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.util;
+package com.blackcrystalinfo.platform.common;
 
 public class DateUtils {
 

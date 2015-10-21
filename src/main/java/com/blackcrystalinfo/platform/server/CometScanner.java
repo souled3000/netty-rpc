@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.util;
+package com.blackcrystalinfo.platform.server;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,6 +24,8 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.blackcrystalinfo.platform.common.Constants;
 
 public class CometScanner {
 	private static final Logger logger = LoggerFactory.getLogger(CometScanner.class);

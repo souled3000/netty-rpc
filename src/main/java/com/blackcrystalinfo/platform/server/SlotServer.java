@@ -7,8 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.blackcrystalinfo.platform.util.CometScanner;
-import com.blackcrystalinfo.platform.util.Constants;
+import com.blackcrystalinfo.platform.common.Constants;
 
 @Configuration
 public class SlotServer {

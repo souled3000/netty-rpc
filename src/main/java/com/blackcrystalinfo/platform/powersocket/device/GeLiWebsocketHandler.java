@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.powersocket.mobile.CometAdrApi;
+import com.blackcrystalinfo.platform.server.CometScanner;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.InternalException;
-import com.blackcrystalinfo.platform.util.CometScanner;
 
 @Controller("/api/geli/getUrl")
 public class GeLiWebsocketHandler extends HandlerAdapter {

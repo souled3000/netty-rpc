@@ -1,8 +1,8 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.util.ErrorCode.SUCCESS;
-import static com.blackcrystalinfo.platform.util.ErrorCode.SYSERROR;
-import static com.blackcrystalinfo.platform.util.RespField.status;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
+import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
+import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.common.CookieUtil;
+import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.util.CookieUtil;
-import com.blackcrystalinfo.platform.util.DataHelper;
 
 /**
  * 情景模式

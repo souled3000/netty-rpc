@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.util;
+package com.blackcrystalinfo.platform.common;
 
 import java.util.HashMap;
 import java.util.Map;

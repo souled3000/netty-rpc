@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.util;
+package com.blackcrystalinfo.platform.common;
 
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
