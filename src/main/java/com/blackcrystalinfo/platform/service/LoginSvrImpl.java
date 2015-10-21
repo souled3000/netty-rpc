@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.blackcrystalinfo.platform.powersocket.data.User;
+import com.blackcrystalinfo.platform.powersocket.bo.User;
 
 @Repository
 public class LoginSvrImpl implements ILoginSvr {

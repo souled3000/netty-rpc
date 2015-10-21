@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.blackcrystalinfo.platform.annotation.Path;
+import com.blackcrystalinfo.platform.server.Path;
 
 /**
  * 类相关的工具类

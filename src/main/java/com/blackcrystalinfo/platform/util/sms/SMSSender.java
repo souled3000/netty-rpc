@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blackcrystalinfo.platform.util.Constants;
-import com.blackcrystalinfo.platform.util.httpclient.SimpleHttpClientUtil;
 
 public class SMSSender {
 
@@ -23,7 +22,7 @@ public class SMSSender {
 			sb.append("&phones=").append(phone);
 			sb.append("&content=").append(content);
 
-			String ret = SimpleHttpClientUtil.sendGet(Constants.SMS_SENDER_URL, sb.toString());
+			String ret = SimpleHttpClientUtil.beg(Constants.SMS_SENDER_URL, sb.toString());
 
 			logger.info("send ret={}", ret);
 
@@ -36,6 +35,11 @@ public class SMSSender {
 	}
 
 	public static void main(String[] args) {
-		SMSSender.send("18612455087", "hello_cj");
+//		SMSSender.send("18612455087", "hello_cj");
+		System.out.println(1-0.9);
+		char x = '李';
+		System.out.println(x);
+		System.out.println((int)x);
+		
 	}
 }
