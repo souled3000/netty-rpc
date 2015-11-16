@@ -20,18 +20,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
-import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
-import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
-import com.blackcrystalinfo.platform.util.sms.SMSSender;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 用户登陆
@@ -44,17 +41,17 @@ public class UserLoginApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserLoginApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
-	private boolean validUser(String email, String pwd, Map<Object, Object> mapping) {
+	private boolean validUser(String phone, String pwd, Map<Object, Object> mapping) {
 		if (StringUtils.isBlank(pwd)) {
 			mapping.put(status, C0018.toString());
-			logger.debug("pwd is null when loging email:{}|pwd:{}|status:{}", email, pwd, mapping.get(status));
+			logger.debug("pwd is null when loging email:{}|pwd:{}|status:{}", phone, pwd, mapping.get(status));
 			return false;
 		}
-		if (StringUtils.isBlank(email)) {
+		if (StringUtils.isBlank(phone)) {
 			mapping.put(status, C0019.toString());
-			logger.debug("email is null when loging email:{}|pwd:{}|status:{}", email, pwd, mapping.get(status));
+			logger.debug("email is null when loging email:{}|pwd:{}|status:{}", phone, pwd, mapping.get(status));
 			return false;
 		}
 		return true;
@@ -65,13 +62,11 @@ public class UserLoginApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
 		// 1. get param from request
-		String email = req.getParameter("email");
+		String phone = req.getParameter("phone");
 		String pwd = req.getParameter("passwd");
 
-		logger.debug("UserLoginHandler begin email:{}|pwd:{}", email, pwd);
-
 		// 2. valid the user
-		if (!validUser(email, pwd, r)) {
+		if (!validUser(phone, pwd, r)) {
 			return r;
 		}
 
@@ -83,14 +78,14 @@ public class UserLoginApi extends HandlerAdapter {
 			User user = null;
 			String userId = "";
 			try {
-				user = loginSvr.userGet(User.UserNameColumn, email);
+				user = loginSvr.getUser(User.UserPhoneColumn, phone);
 				userId = user.getId();
 			} catch (Exception e) {
 				r.put(status, C0020.toString());
-				logger.debug("User not exist. email:{}|pwd:{}|status:{}", email, pwd, r.get(status));
+				logger.error("",e);
 				return r;
 			}
-			email = email.toLowerCase();
+			phone = phone.toLowerCase();
 
 			// 4. 获取登录失败次数
 			int times = -1;
@@ -104,7 +99,7 @@ public class UserLoginApi extends HandlerAdapter {
 				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
 				r.put(status, C002E.toString());
 				r.put("ttl", ttl);
-				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}", email, pwd, r.get(status));
+				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status));
 				return r;
 			}
 
@@ -113,26 +108,26 @@ public class UserLoginApi extends HandlerAdapter {
 				times++;
 				r.put(status, C0021.toString());
 				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX - times);
-				logger.debug("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}", email, pwd, r.get(status));
+				logger.debug("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status));
 
 				// 判断失败次数累加
 				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
 
-				// 最后一次登录失败，发送邮件通知用户
-				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
-					String subject = "账户被锁定通知";
-					StringBuilder sb = new StringBuilder();
-					sb.append("您的帐户登录失败次数超过");
-					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX + "次。</b>");
-					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + " 后重新登录");
-					SimpleMailSender.sendHtmlMail(email, subject, sb.toString());
-
-					// 发送短信
-					String phone = user.getPhone();
-					if (StringUtils.isNotEmpty(phone)) {
-						SMSSender.send(phone, sb.toString());
-					}
-				}
+//				// 最后一次登录失败，发送邮件通知用户
+//				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
+//					String subject = "账户被锁定通知";
+//					StringBuilder sb = new StringBuilder();
+//					sb.append("您的帐户登录失败次数超过");
+//					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX + "次。</b>");
+//					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + " 后重新登录");
+//					SimpleMailSender.sendHtmlMail(phone, subject, sb.toString());
+//
+//					// 发送短信
+//					String phone = user.getPhone();
+//					if (StringUtils.isNotEmpty(phone)) {
+//						SMSSender.send(phone, sb.toString());
+//					}
+//				}
 				return r;
 			}
 
@@ -150,7 +145,7 @@ public class UserLoginApi extends HandlerAdapter {
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
-			logger.error("User login error. email:{}|pwd:{}|status:{}", email, pwd, r.get(status), e);
+			logger.error("User login error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status), e);
 			return r;
 		}
 		return r;

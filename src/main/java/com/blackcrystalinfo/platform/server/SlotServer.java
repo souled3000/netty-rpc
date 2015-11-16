@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.blackcrystalinfo.platform.common.Constants;
 
@@ -29,7 +28,6 @@ public class SlotServer {
 				ctx.refresh();
 				ctx.close();
 				logger.info("stop...{}",Constants.SERVER_PORT);
-				super.run();
 			}
 		});
 	}

@@ -23,7 +23,7 @@ import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 
@@ -37,7 +37,7 @@ public class UserChangePassStep2Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserChangePassStep2Api.class);
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -52,7 +52,7 @@ public class UserChangePassStep2Api extends HandlerAdapter {
 
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.getUser(User.UserIDColumn, userId);
 
 			if (null == user) {
 				throw new Exception("user is null");

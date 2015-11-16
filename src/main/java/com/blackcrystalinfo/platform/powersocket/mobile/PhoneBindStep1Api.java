@@ -22,7 +22,7 @@ import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
@@ -52,7 +52,7 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 	public static final String FREQ_KEY = "ttl:user:phonebind:step1:frequency:";
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -67,7 +67,7 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.getUser(User.UserIDColumn, userId);
 
 			if (null == user) {
 				throw new Exception("user is null");

@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
@@ -26,7 +27,7 @@ import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
@@ -43,11 +44,11 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String CODE_KEY = "test:tmp:changepwdbyphone:codekey:";
-	public static final String STEP1_KEY = "test:tmp:changepwdbyphone:step1key:";
+	public static final String CODE_KEY = "B0037:codekey:";
+	public static final String STEP1_KEY = "B0037:step1key:";
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -63,7 +64,7 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserPhoneColumn, phone);
+			user = userDao.getUser(User.UserPhoneColumn, phone);
 
 			if (null == user) {
 				throw new Exception("user is null");
@@ -93,10 +94,24 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 				ret.put(status, C0037.toString());
 				return ret;
 			}
-
+			String codekeycount = "B0037:" + userId + ":count";
+			int count=0;
+			if (jedis.exists(codekeycount)){
+				count = Integer.valueOf(jedis.get(codekeycount));
+				
+				if (count == 6) {
+					ret.put(status, C002C.toString());
+					return ret;
+				}
+			}
+			
 			// 记录短信验证码
 			jedis.setex(codekey, CODE_EXPIRE, code);
-
+			if (!jedis.exists(codekeycount))
+				jedis.setex(codekeycount, 24 * 60 * 60, "1");
+			else
+				jedis.incr(codekeycount);
+			ret.put("count", count);
 			// 生成第一步凭证
 			String step1keyK = STEP1_KEY + userId;
 			String step1keyV = UUID.randomUUID().toString();

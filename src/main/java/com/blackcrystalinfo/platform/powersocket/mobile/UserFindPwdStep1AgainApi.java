@@ -29,7 +29,7 @@ import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 @Controller("/step1again")
@@ -39,7 +39,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -65,7 +65,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 				return r;
 			}
 
-			User user = userDao.userGet(User.UserNameColumn, destEmailAddr);
+			User user = userDao.getUser(User.UserNameColumn, destEmailAddr);
 			String userId = user.getId();
 
 			// bug:未激活的邮箱不可以找回密码

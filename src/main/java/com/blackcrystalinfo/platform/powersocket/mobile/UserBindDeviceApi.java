@@ -132,8 +132,8 @@ public class UserBindDeviceApi extends HandlerAdapter {
 
 	private void updateDeviceCtlKey(String devId, Jedis j) {
 		// TODO 发布消息，通知设备更新控制密钥了
-		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp", devId, ctlKey);
-		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
+		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
 	}
 }

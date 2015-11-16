@@ -27,7 +27,7 @@ import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 邀请家庭
@@ -39,7 +39,7 @@ public class InvitationApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(InvitationApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr userSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -50,7 +50,7 @@ public class InvitationApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			User user = loginSvr.userGet(User.UserIDColumn, uId);
+			User user = userSvr.getUser(User.UserIDColumn, uId);
 			if (null == user) {
 				r.put(status, C0006.toString());
 				logger.info("There is not this user. uId:{}|oper:{}|status:{}", uId, oper, r.get("status"));
@@ -77,19 +77,19 @@ public class InvitationApi extends HandlerAdapter {
 				return r;
 			}
 
-			User operator = loginSvr.userGet(User.UserIDColumn, oper);
-			User familyUser = loginSvr.userGet(User.UserIDColumn, uId);
+			User operator = userSvr.getUser(User.UserIDColumn, oper);
+			User amember = userSvr.getUser(User.UserIDColumn, uId);
 
-			String mnick = operator.getNick();
-			String nick = familyUser.getNick();
+			String hnick = operator.getNick();
+			String nick = amember.getNick();
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
 			mm.put("hostId", oper);
-			mm.put("hostNick", mnick);
+			mm.put("hostNick", StringUtils.isBlank(hnick)?operator.getPhone():hnick);
 			mm.put("mId", uId);
-			mm.put("mNick", nick);
+			mm.put("mNick", StringUtils.isBlank(nick)?amember.getPhone():nick);
 			msg.append(JSON.toJSON(mm));
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uId + "|", BizCode.FamilyInvite.getValue(), Integer.parseInt(uId), msg.toString()));
+			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(uId + "|", BizCode.FamilyInvite.getValue(), Integer.parseInt(uId), msg.toString()));
 
 			// 用户确认加入家庭是有时效限制的
 			j.setex("user:invitationfamily:" + uId, Constants.USER_INVITATION_CFM_EXPIRE, oper);

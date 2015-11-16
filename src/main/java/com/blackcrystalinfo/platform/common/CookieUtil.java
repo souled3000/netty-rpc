@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,17 +231,22 @@ public class CookieUtil {
 		return true;
 	}
 
-	public static String generateDeviceCtlKey(String devId) {
-		String result = "";
-
-		// TODO
-
-		return result;
+	public static byte[] generateDeviceCtlKey(String devId) {
+		UUID u = UUID.nameUUIDFromBytes(NumberByte.int2Byte(Integer.valueOf(devId)));
+		byte[] dst= new byte[16];
+		byte[] src =NumberByte.long2Byte(u.getLeastSignificantBits());
+		System.arraycopy(src, 0, dst, 0, 8);
+		src = NumberByte.long2Byte(u.getMostSignificantBits());
+		System.arraycopy(src, 0, dst, 8, 8);
+		return dst;
 	}
 
 	public static void main(String[] args) throws Exception {
-//		System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
-		System.out.println(Hex.encodeHexString(new byte[] {0x01,0x02,0x0e}));
+		// System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
+		System.out.println(Hex.encodeHexString(new byte[] { 0x01, 0x02, 0x0e }));
 		System.out.println(Hex.encodeHexString(Hex.decodeHex("01020e".toCharArray())));
+		byte[] b = generateDeviceCtlKey("-29");
+		System.out.println(Hex.encodeHexString(b));
+		
 	}
 }

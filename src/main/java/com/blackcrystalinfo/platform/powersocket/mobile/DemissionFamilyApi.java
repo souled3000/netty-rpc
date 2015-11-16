@@ -1,6 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0034;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
@@ -16,16 +15,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
-import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 
@@ -35,7 +34,7 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 public class DemissionFamilyApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DemissionFamilyApi.class);
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -44,13 +43,6 @@ public class DemissionFamilyApi extends HandlerAdapter {
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-
-			User user = loginSvr.userGet(User.UserIDColumn, userId);
-			String userEmail = user.getEmail();
-			if (null == userEmail) {
-				r.put(status, C0006.toString());
-				return r;
-			}
 
 			// 非家庭主账号，不可以解散家庭
 			String fId = j.hget("user:family", userId);
@@ -71,7 +63,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			// 删除家庭下所有用户的关系表-》family:${family}
 			j.del("family:" + userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyDismiss.getValue(), Integer.parseInt(userId), ""));
+			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(memlist, BizCode.FamilyDismiss.getValue(), Integer.parseInt(userId), ""));
 
 			// 解散家庭，每个成员的设备列表都要把其他成员的设备移除掉
 			pubDeviceUsersRels(members, j);
@@ -122,9 +114,9 @@ public class DemissionFamilyApi extends HandlerAdapter {
 
 	private void updateDeviceCtlKey(String devId, Jedis j) {
 		// TODO 发布消息，通知设备更新控制密钥了
-		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp", devId, ctlKey);
-		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
+		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
 	}
 
 }

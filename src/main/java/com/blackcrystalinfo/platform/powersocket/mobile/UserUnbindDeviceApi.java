@@ -30,7 +30,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserUnbindDeviceApi.class);
 
 	@Autowired
-	private IDeviceSrv deviceSrv;
+	private IDeviceSrv deviceDao;
 
 	public Object rpc(JSONObject req) throws Exception {
 		String mac = req.getString("mac");
@@ -58,12 +58,12 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			if (!deviceSrv.exists(mac)) {
+			if (!deviceDao.exists(mac)) {
 				r.put(status, C0003.toString());
 				return r;
 			}
 
-			String deviceId = String.valueOf(deviceSrv.getIdByMac(mac));
+			String deviceId = String.valueOf(deviceDao.getIdByMac(mac));
 			String owner = j.hget("device:owner", deviceId);
 			if (owner == null || !StringUtils.equals(owner, userId)) {
 				r.put(status, C0005.toString());
@@ -120,9 +120,9 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 
 	private void updateDeviceCtlKey(String devId, Jedis j) {
 		// TODO 发布消息，通知设备更新控制密钥了
-		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp", devId, ctlKey);
-		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
+		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
 	}
 
 }

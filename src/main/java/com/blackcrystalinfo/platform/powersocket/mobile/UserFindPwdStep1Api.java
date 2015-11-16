@@ -34,7 +34,7 @@ import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 @Controller("/step1")
@@ -44,7 +44,7 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -82,7 +82,7 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 			// 用户是否存在
 			User user = null;
 			try {
-				user = userDao.userGet(User.UserEmailColumn, destEmailAddr);
+				user = userDao.getUser(User.UserEmailColumn, destEmailAddr);
 			} catch (Exception ex) {
 				user = null;
 			}

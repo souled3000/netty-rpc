@@ -3,6 +3,8 @@ package com.blackcrystalinfo.platform.service;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 
 @Repository
-public class LoginSvrImpl implements ILoginSvr {
-
+public class UserSvrImpl implements IUserSvr {
+	private static final Logger logger = LoggerFactory.getLogger(UserSvrImpl.class);
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -29,14 +31,14 @@ public class LoginSvrImpl implements ILoginSvr {
 		return jdbcTemplate.queryForMap(sql, new Object[] { mail });
 	}
 
-	// user
+	@Transactional(readOnly = true)
 	public boolean userExist(String userName) {
 		String sql = "select count(*) from user where " + User.UserNameColumn + "=?";
 		return jdbcTemplate.queryForObject(sql, new Object[] { userName.toLowerCase() }, Integer.class) > 0;
 	}
 
 	@Transactional
-	public void userRegister(String userName, String phone, String nick, String shadow) {
+	public void saveUser(String userName, String phone, String nick, String shadow) {
 		String sql = "insert into user (" + User.UserNameColumn + "," + User.UserEmailColumn + "," + User.UserPhoneColumn + "," + User.UserNickColumn + "," + User.UserShadowColumn + ") values (?,?,?,?,?)";
 		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(), userName.toLowerCase(), phone, nick, shadow });
 	}
@@ -47,15 +49,27 @@ public class LoginSvrImpl implements ILoginSvr {
 		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(), email.toLowerCase(), phone, nick, shadow });
 	}
 
-	public User userGet(String key, String value) {
-		String sql = "select * from user where " + key + "=?";
-		return (User) jdbcTemplate.queryForObject(sql, new Object[] { value }, new User());
+	@Transactional
+	public void saveUser(String userName, String phone, String shadow) {
+		String sql = "insert into user (" + User.UserNameColumn + "," + User.UserPhoneColumn + "," + User.UserShadowColumn + ") values (?,?,?)";
+		jdbcTemplate.update(sql, new Object[] { userName.toLowerCase(), phone, shadow });
+	}
+
+	@Transactional(readOnly = true)
+	public User getUser(String key, String value) {
+		String sql = "select * from user where " + key + " = ?";
+		try {
+			return (User) jdbcTemplate.queryForObject(sql, new Object[]{value}, new User());
+		} catch (Exception e) {
+			logger.error("",e);
+		}
+		return null;
 	}
 
 	@Transactional
 	public void userChangeProperty(String userid, String key, String value) {
 		String sql = "update user set " + key + "=? where " + User.UserIDColumn + "=?";
-		jdbcTemplate.update(sql, new Object[] { value, userid });
+		jdbcTemplate.update(sql, value, userid);
 	}
 
 	// end of user

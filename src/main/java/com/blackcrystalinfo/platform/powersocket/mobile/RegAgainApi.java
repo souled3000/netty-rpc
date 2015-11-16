@@ -24,7 +24,7 @@ import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 /**
@@ -38,7 +38,7 @@ public class RegAgainApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(RegAgainApi.class);
 
 	@Autowired
-	private ILoginSvr userSvr;
+	private IUserSvr userSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -50,7 +50,7 @@ public class RegAgainApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			User user = userSvr.userGet(User.UserIDColumn, uid);
+			User user = userSvr.getUser(User.UserIDColumn, uid);
 
 			// 判断邮件是否已经激活
 			String actived = user.getEmailable();

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.Utils;
@@ -25,7 +26,7 @@ import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 
@@ -35,7 +36,7 @@ import com.blackcrystalinfo.platform.service.ILoginSvr;
 public class DemissionApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DemissionApi.class);
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -51,8 +52,8 @@ public class DemissionApi extends HandlerAdapter {
 			User familyUser = null;
 
 			try {
-				user = loginSvr.userGet(User.UserIDColumn, userId);
-				familyUser = loginSvr.userGet(User.UserIDColumn, family);
+				user = loginSvr.getUser(User.UserIDColumn, userId);
+				familyUser = loginSvr.getUser(User.UserIDColumn, family);
 			} catch (Exception ex) {
 				user = null;
 			}
@@ -89,7 +90,7 @@ public class DemissionApi extends HandlerAdapter {
 			members.add(userId);
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyRemoveMember.getValue(), Integer.parseInt(userId), msg.toString()));
+			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(memlist, BizCode.FamilyRemoveMember.getValue(), Integer.parseInt(userId), msg.toString()));
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
@@ -143,8 +144,8 @@ public class DemissionApi extends HandlerAdapter {
 
 	private void updateDeviceCtlKey(String devId, Jedis j) {
 		// TODO 发布消息，通知设备更新控制密钥了
-		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp", devId, ctlKey);
-		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
+		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
 	}
 }

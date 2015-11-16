@@ -24,14 +24,14 @@ import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 @Controller("/mobile")
 public class IdentificationApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAdapter.class);
 
 	@Autowired
-	private ILoginSvr loginSvr;
+	private IUserSvr loginSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -47,25 +47,25 @@ public class IdentificationApi extends HandlerAdapter {
 			// cookie过期了
 			if (StringUtils.isBlank(cookieNew)) {
 				r.put(status, C0002.toString());
-				logger.info("the cookie is expire");
 				return r;
 			}
 
 			// 一个账户只能同时在一台机器上登录
 			if (!cookie.equals(cookieNew)) {
+				logger.info("subm:"+cookie);
+				logger.info("last:"+cookieNew);
 				r.put(status, C0031.toString());
-				logger.info("cookie is older then stored, userid={} cookie={}, cookieNew={}", userId, cookie, cookieNew);
 				return r;
 			}
 
 			User user = null;
 			String shadow = null;
 			try {
-				user = loginSvr.userGet(User.UserIDColumn, userId);
+				user = loginSvr.getUser(User.UserIDColumn, userId);
 				shadow = user.getShadow();
 			} catch (Exception e) {
 				r.put(status, C0001.toString());
-				logger.info("failed validating user {}", r.get(status));
+				logger.error("",e);
 				return r;
 			}
 
@@ -79,7 +79,7 @@ public class IdentificationApi extends HandlerAdapter {
 			jedis.expire("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE);
 
 		} catch (Exception e) {
-			logger.error("Check cookie failed, e = ", e);
+			logger.error("Check cookie failed", e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(jedis);

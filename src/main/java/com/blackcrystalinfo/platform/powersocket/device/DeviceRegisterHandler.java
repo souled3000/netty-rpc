@@ -74,11 +74,12 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			return r;
 		}
 
+		String cookie = "";
 		Jedis jedis = null;
 		try {
 			// 1. 设备MAC是否已被注册
-			Long existId = deviceSrv.getIdByMac(mac);
-			if (null == existId) {
+			Long id = deviceSrv.getIdByMac(mac);
+			if (null == id) {
 
 				Long lPid = null;
 				Integer iDv = null;
@@ -90,26 +91,26 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				}
 
 				deviceSrv.regist(mac, sn, name, lPid, iDv);
-				existId = deviceSrv.getIdByMac(mac);
+				id = deviceSrv.getIdByMac(mac);
 			}
 
-			String cookie = "";
-			if (null != existId) {
-				cookie = CookieUtil.generateDeviceKey(mac, existId.toString());
+			if (null != id) {
+				cookie = CookieUtil.generateDeviceKey(mac, id.toString());
 
 				String licenseKey = parseLicenseKey(mac, sign);
 				String licenseKeyCookie = licenseKey + cookie;
 				String keyMd5 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(licenseKeyCookie.getBytes()));
 				jedis = DataHelper.getJedis();
-				jedis.hset("device:keymd5", existId.toString(), keyMd5);
+				jedis.hset("device:keymd5", id.toString(), keyMd5);
 			}
+			r.put("id", id);
 			r.put("cookie", cookie);
 
 			// 强制解绑
 			if ("true".equalsIgnoreCase(isUnbind)) {
-				String owner = jedis.hget("device:owner", existId.toString());
-				jedis.hdel("device:owner", existId.toString());
-				jedis.srem("u:" + owner + ":devices", existId.toString());
+				String owner = jedis.hget("device:owner", id.toString());
+				jedis.hdel("device:owner", id.toString());
+				jedis.srem("u:" + owner + ":devices", id.toString());
 			}
 
 		} catch (Exception e) {

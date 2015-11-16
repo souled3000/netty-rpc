@@ -70,7 +70,7 @@ public class DeviceCtlKeySynchApi extends HandlerAdapter {
 				return r;
 			}
 
-			jedis.publish("PubDevCtlKeyUpdate", id + "|" + tmp);
+			jedis.publish("PubDevCommonMsg", id + "|" + tmp);
 		} catch (Exception e) {
 			r.put("status", -1);
 			logger.error("synch ctl key error, mac:{}|e:{}", mac, e);

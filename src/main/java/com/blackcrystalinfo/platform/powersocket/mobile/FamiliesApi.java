@@ -11,19 +11,23 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-
-import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
+import com.blackcrystalinfo.platform.service.IUserSvr;
+
+import redis.clients.jedis.Jedis;
 
 @Controller("/mobile/families")
 public class FamiliesApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(FamiliesApi.class);
-
+	@Autowired
+	IUserSvr userSvr;
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -35,27 +39,21 @@ public class FamiliesApi extends HandlerAdapter {
 			String fId = j.hget("user:family", userId);
 			Set<String> familySet = j.smembers("family:" + fId);
 			r.put("fId", fId);
-			r.put("families", familySet);
 
 			// TODO: 需要跟手机协商，如果这个地方把成员的详细信息获取到，就不用挨个获取了
 			Set<Map<String, Object>> members = new HashSet<Map<String, Object>>();
 			for (String uId : familySet) {
 				Map<String, Object> member = new HashMap<String, Object>();
-
-				String nick = "";
-				String username = "";
-				String mobile = "";
-				String email = "";
-				String family = "";
+				User user = userSvr.getUser(User.UserIDColumn, uId);
 				String facestamp = j.hget("user:facestamp", uId);
-
 				member.put("uId", uId);
-				member.put("nick", nick);
-				member.put("username", username);
-				member.put("mobile", mobile);
-				member.put("email", email);
-				member.put("family", family);
-				member.put("facestamp", facestamp);
+				member.put("nick", user.getNick()==null?user.getPhone():user.getNick());
+				member.put("username", user.getUserName());
+				member.put("mobile", user.getPhone());
+				member.put("email", user.getEmail()==null?"":user.getEmail());
+				member.put("family", fId);
+				member.put("facestamp", facestamp==null?"":facestamp);
+				members.add(member);
 			}
 			r.put("members", members);
 

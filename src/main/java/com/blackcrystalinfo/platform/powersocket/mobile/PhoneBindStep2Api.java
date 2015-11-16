@@ -19,7 +19,7 @@ import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 绑定手机第二步，确定绑定
@@ -32,7 +32,7 @@ public class PhoneBindStep2Api extends HandlerAdapter {
 	private Logger logger = LoggerFactory.getLogger(PhoneBindStep2Api.class);
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -48,7 +48,7 @@ public class PhoneBindStep2Api extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.getUser(User.UserIDColumn, userId);
 
 			if (null == user) {
 				throw new Exception("user is null");

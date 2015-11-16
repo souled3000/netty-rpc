@@ -169,6 +169,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 
 	private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
 		if (res.getStatus().code() != 200) {
+			res.headers().add(req.headers());
 			ByteBuf buf = Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8);
 			res.content().writeBytes(buf);
 			buf.release();

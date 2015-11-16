@@ -145,5 +145,8 @@ public class User implements RowMapper<Object> {
 	public void setPhoneable(String phoneable) {
 		this.phoneable = phoneable;
 	}
-
+	public static void main(String[] args) {
+		int a =Integer.valueOf("-5");
+		System.out.println(a);
+	}
 }

@@ -31,7 +31,7 @@ import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
 
 /**
@@ -45,7 +45,7 @@ public class UserRegisterApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserRegisterApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	private boolean validUser(String email, String phone, String pwd, Map<Object, Object> mapping) {
 		logger.debug("UserRegisterHandler begin email:{}|phone:{}|passwd:{}", email, phone, pwd);
@@ -142,10 +142,10 @@ public class UserRegisterApi extends HandlerAdapter {
 			}
 
 			// 5. register the user
-			loginSvr.userRegister(email, phone, nick, PBKDF2.encode(pwd));
+			loginSvr.saveUser(email, phone, nick, PBKDF2.encode(pwd));
 
 			// 6. get the user id
-			String userId = loginSvr.userGet(User.UserNameColumn, email).getId();
+			String userId = loginSvr.getUser(User.UserNameColumn, email).getId();
 			r.put("uid", userId);
 
 			// 7. send the email for register

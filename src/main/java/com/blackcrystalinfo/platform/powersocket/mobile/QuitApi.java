@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.Utils;
@@ -26,7 +27,7 @@ import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 
@@ -37,7 +38,7 @@ public class QuitApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(QuitApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -63,8 +64,8 @@ public class QuitApi extends HandlerAdapter {
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
 
-			User user = loginSvr.userGet(User.UserIDColumn, uId);
-			User familyUser = loginSvr.userGet(User.UserIDColumn, fId);
+			User user = loginSvr.getUser(User.UserIDColumn, uId);
+			User familyUser = loginSvr.getUser(User.UserIDColumn, fId);
 			String hostNick = familyUser.getNick();
 			String nick = user.getNick();
 
@@ -91,7 +92,7 @@ public class QuitApi extends HandlerAdapter {
 
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
+			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
@@ -142,8 +143,8 @@ public class QuitApi extends HandlerAdapter {
 
 	private void updateDeviceCtlKey(String devId, Jedis j) {
 		// TODO 发布消息，通知设备更新控制密钥了
-		String ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp", devId, ctlKey);
-		j.publish("PubDevCtlKeyUpdate", devId + "|" + ctlKey);
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
+		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
+		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
 	}
 }

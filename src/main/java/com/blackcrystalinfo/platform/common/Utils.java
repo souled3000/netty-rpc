@@ -103,7 +103,7 @@ public class Utils {
 
 	public static void main(String[] args) throws Exception {
 		Jedis j = DataHelper.getJedis();
-		j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg("-32,-48|", 5, Integer.parseInt("48"), "黄河"));
+		j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg("-32,-48|", 5, Integer.parseInt("48"), "黄河"));
 		DataHelper.returnJedis(j);
 	}
 }

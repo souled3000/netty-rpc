@@ -25,16 +25,25 @@ import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 @Controller("/mobile/faceup")
 public class FaceUpApi extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(FaceUpApi.class);
-
+	private static MessageDigest md5;
+	static{
+		try{
+			md5= MessageDigest.getInstance("MD5");
+		}catch (Exception e){
+			
+		}finally{
+			
+		}
+	}
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object rpc(RpcRequest req) throws Exception {
@@ -50,7 +59,7 @@ public class FaceUpApi extends HandlerAdapter {
 			FileUtils.copyFile(pic.getFile(), f);
 
 			// 计算上传头像的MD5值
-			facestamp = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(pic.get()));
+			facestamp = ByteUtil.toHex(md5.digest(pic.get()));
 			pic.getFile().delete();
 		}
 

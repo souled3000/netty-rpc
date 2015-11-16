@@ -22,7 +22,7 @@ import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 修改绑定手机第四步，验证新手机号码，旧手机解绑，新手机绑定
@@ -35,7 +35,7 @@ public class PhoneChangeStep4Api extends HandlerAdapter {
 	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep4Api.class);
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -51,7 +51,7 @@ public class PhoneChangeStep4Api extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.getUser(User.UserIDColumn, userId);
 
 			if (null == user) {
 				throw new Exception("user is null");
@@ -101,7 +101,7 @@ public class PhoneChangeStep4Api extends HandlerAdapter {
 			userDao.userChangeProperty(userId, User.UserPhoneableColumn, "true");
 
 			// 返回
-			ret.put(status, ErrorCode.SUCCESS);
+			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
 			logger.info("occurn exception. ", e);
 			return ret;

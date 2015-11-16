@@ -28,7 +28,7 @@ import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 用户注册邮件确认
@@ -41,7 +41,7 @@ public class CfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(CfmApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -59,7 +59,7 @@ public class CfmApi extends HandlerAdapter {
 				return fail();
 			}
 
-			User user = loginSvr.userGet(User.UserIDColumn, uid);
+			User user = loginSvr.getUser(User.UserIDColumn, uid);
 			String email = user.getEmail();
 			if (StringUtils.isBlank(email)) {
 				return fail();
@@ -68,7 +68,7 @@ public class CfmApi extends HandlerAdapter {
 			j.del("user:activetimes:" + uid);
 			j.del("user:mailActiveUUID:" + uid); // 激活了，用户-》UUID 这个记录要删除
 			j.del("user:mailActive:" + sequences); // 激活了，这个链接就没用了，下次调用直接fail
-			j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(uid + "|", BizCode.UserActivateSuccess.getValue(), Integer.parseInt(uid), ""));
+			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(uid + "|", BizCode.UserActivateSuccess.getValue(), Integer.parseInt(uid), ""));
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
 			e.printStackTrace();

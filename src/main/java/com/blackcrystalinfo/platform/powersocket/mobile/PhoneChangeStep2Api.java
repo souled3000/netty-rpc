@@ -25,7 +25,7 @@ import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 修改绑定手机第二步，校验旧手机发送的短信验证码
@@ -43,7 +43,7 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 	public static final String STEP2_KEY = "test:tmp:phonechange:step2key:";
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -59,7 +59,7 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.getUser(User.UserIDColumn, userId);
 			if (null == user) {
 				throw new Exception("user is null");
 			}

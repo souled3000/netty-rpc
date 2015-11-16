@@ -27,7 +27,7 @@ import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 
@@ -45,7 +45,7 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 	public static final String STEP2_KEY = "test:tmp:changepwdbyphone:step2key:";
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -77,7 +77,7 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 		User user = null;
 		String userId = null;
 		try {
-			user = userDao.userGet(User.UserPhoneColumn, phone);
+			user = userDao.getUser(User.UserPhoneColumn, phone);
 			if (null == user) {
 				throw new Exception("user is null");
 			}

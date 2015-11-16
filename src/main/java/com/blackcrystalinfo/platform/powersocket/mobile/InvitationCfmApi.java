@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.Utils;
@@ -25,7 +26,7 @@ import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 邀请家庭确认
@@ -37,7 +38,7 @@ public class InvitationCfmApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(InvitationCfmApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -61,8 +62,8 @@ public class InvitationCfmApi extends HandlerAdapter {
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
 
-			User operUser = loginSvr.userGet(User.UserIDColumn, oper);
-			User familyUser = loginSvr.userGet(User.UserIDColumn, uId);
+			User operUser = loginSvr.getUser(User.UserIDColumn, oper);
+			User familyUser = loginSvr.getUser(User.UserIDColumn, uId);
 
 			String mnick = operUser.getNick();
 			String nick = familyUser.getNick();
@@ -86,12 +87,12 @@ public class InvitationCfmApi extends HandlerAdapter {
 				Set<String> members = j.smembers("family:" + oper);
 				String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
-				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(memlist, BizCode.FamilyAddSuccess.getValue(), Long.parseLong(uId), msg.toString()));
+				j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(memlist, BizCode.FamilyAddSuccess.getValue(), Long.parseLong(uId), msg.toString()));
 
 				// 发布通知：用户设备列表更新
 				pubDeviceUsersRels(uId, members, j);
 			} else {
-				j.publish("PubCommonMsg:0x36".getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue(), Long.parseLong(uId), msg.toString()));
+				j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue(), Long.parseLong(uId), msg.toString()));
 
 			}
 

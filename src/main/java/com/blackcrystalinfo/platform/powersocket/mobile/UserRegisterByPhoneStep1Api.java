@@ -1,5 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
+import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0036;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
@@ -17,16 +18,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 手机号码注册第一步：发送短信验证码
@@ -42,10 +43,8 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP1_KEY = "test:tmp:registebyphone:step1key:";
-
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -71,8 +70,19 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 
-			String codekey = "test:tmp:registebyphone:codekey:" + phone;
-			String value = jedis.get(codekey);
+			String frequency = "B0029:" + phone + ":frequency";
+			String daily = "B0029:" + phone + ":daily";
+			int count = 0;
+			if (jedis.exists(daily)) {
+				count = Integer.valueOf(jedis.get(daily));
+
+				if (count == 6) {
+					ret.put(status, C002C.toString());
+					return ret;
+				}
+			}
+
+			String value = jedis.get(frequency);
 			if (StringUtils.isNotBlank(value)) {
 				ret.put(status, C0037.toString());
 				return ret;
@@ -85,15 +95,20 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 
-			// 记录短信验证码
-			jedis.setex(codekey, CODE_EXPIRE, code);
+			if (!jedis.exists(daily)) {
+				jedis.setex(daily, 24 * 60 * 60, "1");
+			} else {
+				jedis.incr(daily);
+			}
+			if (!jedis.exists(frequency)) {
+				jedis.setex(frequency, 30, "1");
+			}
+			ret.put("count", ++count);
 
-			// 生成第一步凭证
-			String step1keyK = STEP1_KEY + phone;
 			String step1keyV = UUID.randomUUID().toString();
-			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
+			jedis.setex(step1keyV, CODE_EXPIRE, code);
 
-			//ret.put("code", code);
+			ret.put("code", code);
 			ret.put("step1key", step1keyV);
 			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {

@@ -43,7 +43,7 @@ public class DeviceApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String deviceId = req.getParameter("deviceId");
+		String deviceId = req.getParameter("id");
 
 		if (StringUtils.isBlank(deviceId)) {
 			r.put(status, C0003.toString());

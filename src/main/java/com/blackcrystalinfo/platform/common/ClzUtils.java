@@ -28,6 +28,11 @@ public class ClzUtils {
 		// for (Class clas : classes) {
 		// System.out.println(clas.getName());
 		// }
+		
+		String s = "aadfdfsdfsadgsgsgshg1341234125151235sdfg234t213t23t53";
+		s = s.replaceAll("(?<=\\w\\w)(?=(\\w\\w)+)$", ",");
+		System.out.println(s);
+		
 		List<Class<?>> clzs = ClzUtils.getClasses("com.blackcrystalinfo.platform.powersocket");
 		for (Class<?> clz : clzs) {
 			if (clz.isAnnotationPresent(Path.class)) {
@@ -36,6 +41,7 @@ public class ClzUtils {
 			}
 		}
 
+		
 	}
 
 	/**

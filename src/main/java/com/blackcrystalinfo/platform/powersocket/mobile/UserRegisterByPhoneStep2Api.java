@@ -1,9 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0039;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0041;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0042;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
@@ -18,12 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 手机号码注册第二步：验证码验证
@@ -37,7 +36,7 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep2Api.class);
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP2_KEY = "test:tmp:registebyphone:step2key:";
+	public static final String STEP2_KEY = "B0029:2:";
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -59,7 +58,7 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 		}
 
 		if (StringUtils.isBlank(code)) {
-			ret.put(status, C0039.toString());
+			ret.put(status, ErrorCode.C0037.toString());
 			return ret;
 		}
 
@@ -68,21 +67,9 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 			jedis = DataHelper.getJedis();
 
 			// 验证第一步凭证
-			String step1keyK = UserRegisterByPhoneStep1Api.STEP1_KEY + phone;
-			String step1keyV = jedis.get(step1keyK);
-			if (!StringUtils.equals(step1keyV, step1key)) {
-				ret.put(status, C0041.toString());
-				return ret;
-			}
+			String code2 = jedis.get(step1key);
 
-			String codekey = "test:tmp:registebyphone:codekey:" + phone;
-			String codevalue = jedis.get(codekey);
-			if (StringUtils.isBlank(codevalue)) {
-				ret.put(status, C0042.toString());
-				return ret;
-			}
-
-			if (!StringUtils.equals(codevalue, code)) {
+			if (!StringUtils.equals(code2, code)) {
 				ret.put(status, C0042.toString());
 				return ret;
 			}

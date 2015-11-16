@@ -31,7 +31,7 @@ import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.service.InternalException;
 
 /**
@@ -44,7 +44,7 @@ public class UserChangePassApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserChangePassApi.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	private boolean valid(String userEmail, String passOld, String passNew, Map<Object, Object> r) {
 		if (StringUtils.isBlank(userEmail)) {
@@ -97,7 +97,7 @@ public class UserChangePassApi extends HandlerAdapter {
 				}
 
 			// 0. 根据用户邮箱，查找用户ID
-			User user = loginSvr.userGet(User.UserNameColumn, userEmail);
+			User user = loginSvr.getUser(User.UserNameColumn, userEmail);
 
 			String userId = user.getId();
 

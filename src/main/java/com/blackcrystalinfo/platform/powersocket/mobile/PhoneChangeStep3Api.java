@@ -30,7 +30,7 @@ import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
@@ -52,18 +52,18 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 
 	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step3.frequency.max", "5"));
 
-	public static final String CODE_KEY = "ttl:user:phonechange:step3:";
+	public static final String CODE_KEY = "B0034:";
 
-	public static final String INTV_KEY = "ttl:user:phonechange:step3:interval:";
+	public static final String INTV_KEY = "B0034:interval:";
 
-	public static final String FREQ_KEY = "ttl:user:phonechange:step3:frequency:";
+	public static final String FREQ_KEY = "B0034:frequency:";
 
-	public static final String STEP3_KEY = "test:tmp:phonechange:step3key:";
+	public static final String STEP3_KEY = "B0034:step3key:";
 
-	public static final String STEP3_PHONE = "test:tmp:phonechange:step3phone:";
+	public static final String STEP3_PHONE = "B0034:step3phone:";
 
 	@Autowired
-	private ILoginSvr userDao;
+	private IUserSvr userDao;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -89,7 +89,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		User user = null;
 		try {
-			user = userDao.userGet(User.UserIDColumn, userId);
+			user = userDao.getUser(User.UserIDColumn, userId);
 
 			if (null == user) {
 				throw new Exception("user is null");
@@ -147,7 +147,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			trans.setex(CODE_KEY + userId, CODE_EXPIRE, code);
 
 			// 发送验证码是否成功？
-			if (!SMSSender.send(oldPhone, "验证码【" + code + "】")) {
+			if (!SMSSender.send(phone, "验证码【" + code + "】")) {
 				ret.put(status, C0038.toString());
 				return ret;
 			}
@@ -174,9 +174,9 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			jedis.setex(step3phoneK, CODE_EXPIRE, step3phoneV);
 
 			// 返回
-			// ret.put("code", code);
+			ret.put("count", frequV);
 			ret.put("step3key", step3keyV);
-			ret.put(status, ErrorCode.SUCCESS);
+			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
 			logger.info("occurn exception. ", e);
 			return ret;

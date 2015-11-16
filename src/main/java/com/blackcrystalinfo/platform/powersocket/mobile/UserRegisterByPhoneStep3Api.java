@@ -25,7 +25,7 @@ import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
-import com.blackcrystalinfo.platform.service.ILoginSvr;
+import com.blackcrystalinfo.platform.service.IUserSvr;
 
 /**
  * 手机号码注册第三步：入库
@@ -39,7 +39,7 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep3Api.class);
 
 	@Autowired
-	ILoginSvr loginSvr;
+	IUserSvr loginSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -86,10 +86,10 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 			}
 
 			// 注册用户信息
-			loginSvr.userRegister(phone, "", phone, "", PBKDF2.encode(password));
-			String userId = loginSvr.userGet(User.UserNameColumn, phone).getId();
+			loginSvr.saveUser(phone, phone, PBKDF2.encode(password));
+			String userId = loginSvr.getUser(User.UserNameColumn, phone).getId();
 
-			ret.put("uID", userId);
+			ret.put("uId", userId);
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
