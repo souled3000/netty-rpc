@@ -63,7 +63,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 	public static final String STEP3_PHONE = "B0034:step3phone:";
 
 	@Autowired
-	private IUserSvr userDao;
+	private IUserSvr userSrv;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -89,7 +89,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
 		User user = null;
 		try {
-			user = userDao.getUser(User.UserIDColumn, userId);
+			user = userSrv.getUser(User.UserIDColumn, userId);
 
 			if (null == user) {
 				throw new Exception("user is null");
@@ -107,6 +107,11 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			return ret;
 		}
 
+		if (userSrv.canUse(phone)){
+			ret.put(status, ErrorCode.C0036.toString());
+			return ret;
+		}
+		
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();

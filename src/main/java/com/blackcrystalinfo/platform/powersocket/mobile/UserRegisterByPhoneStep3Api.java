@@ -26,6 +26,7 @@ import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
+import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
 /**
  * 手机号码注册第三步：入库
@@ -91,6 +92,7 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 
 			ret.put("uId", userId);
 			ret.put(status, SUCCESS.toString());
+			SMSSender.send(phone, "注册成功");
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);
 		} finally {

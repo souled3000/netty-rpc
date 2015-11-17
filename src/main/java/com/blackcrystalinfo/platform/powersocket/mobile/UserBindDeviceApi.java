@@ -10,19 +10,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.EndianUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.alibaba.fastjson.JSONObject;
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 添加设备到家庭
@@ -93,7 +95,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			pubDeviceUsersRels(deviceId, j.smembers("family:" + userId), j);
 
 			// 更新设备控制密钥
-			updateDeviceCtlKey(deviceId, j);
+			pushMsg2Dev(Long.valueOf(userId),Long.valueOf(deviceId), j);
 		} catch (Exception e) {
 			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId, r.get("status"), e);
 			return r;
@@ -108,12 +110,9 @@ public class UserBindDeviceApi extends HandlerAdapter {
 	/**
 	 * 设备绑定解绑，发布通知消息，更新用户设备关系。
 	 * 
-	 * @param devId
-	 *            上下线设备ID
-	 * @param uIds
-	 *            用户列表
-	 * @param jedis
-	 *            redis连接
+	 * @param devId 上下线设备ID
+	 * @param uIds 用户列表
+	 * @param jedis redis连接
 	 */
 	private void pubDeviceUsersRels(String devId, Set<String> uIds, Jedis jedis) {
 
@@ -130,10 +129,18 @@ public class UserBindDeviceApi extends HandlerAdapter {
 		}
 	}
 
-	private void updateDeviceCtlKey(String devId, Jedis j) {
-		// TODO 发布消息，通知设备更新控制密钥了
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
-		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
+	private void pushMsg2Dev(Long userId,Long devId, Jedis j) {
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey("");
+		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
+		byte[] ctn = new byte[25];
+		EndianUtils.writeSwappedLong(ctn, 0, devId);
+		System.arraycopy(new byte[]{0x03}, 0, ctn, 8, 1);
+		System.arraycopy(ctlKey, 0, ctn, 9, 16);
+		j.publish(Constants.DEVCOMMONMSGCODE.getBytes(), ctn);
+		ctn = new byte[17];
+		EndianUtils.writeSwappedLong(ctn, 0, devId);
+		System.arraycopy(new byte[]{0x01}, 0, ctn, 8, 1);
+		EndianUtils.writeSwappedLong(ctn, 9, userId);
+		j.publish(Constants.DEVCOMMONMSGCODE.getBytes(), ctn);
 	}
 }

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.EndianUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSONObject;
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -81,7 +83,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			pubDeviceUsersRels(deviceId, j.smembers("family:" + userId), j);
 
 			// 更新设备控制密钥
-			updateDeviceCtlKey(deviceId, j);
+			pushMsg2Dev(Long.valueOf(userId),Long.valueOf(deviceId), j);
 		} catch (Exception e) {
 			logger.error("", e);
 			return r;
@@ -118,11 +120,19 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 		}
 	}
 
-	private void updateDeviceCtlKey(String devId, Jedis j) {
-		// TODO 发布消息，通知设备更新控制密钥了
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
-		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
+	private void pushMsg2Dev(Long userId,Long devId, Jedis j) {
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey("");
+		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
+		byte[] ctn = new byte[25];
+		EndianUtils.writeSwappedLong(ctn, 0, devId);
+		System.arraycopy(new byte[]{0x03}, 0, ctn, 8, 1);
+		System.arraycopy(ctlKey, 0, ctn, 9, 16);
+		j.publish(Constants.DEVCOMMONMSGCODE.getBytes(), ctn);
+		ctn = new byte[17];
+		EndianUtils.writeSwappedLong(ctn, 0, devId);
+		System.arraycopy(new byte[]{0x02}, 0, ctn, 8, 1);
+		EndianUtils.writeSwappedLong(ctn, 9, userId);
+		j.publish(Constants.DEVCOMMONMSGCODE.getBytes(), ctn);
 	}
 
 }

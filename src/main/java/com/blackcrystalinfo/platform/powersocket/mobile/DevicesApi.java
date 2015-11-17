@@ -67,7 +67,7 @@ public class DevicesApi extends HandlerAdapter {
 						devData.put("deviceName", name);
 						devData.put("devicePwd", pwd);
 						devData.put("deviceType", dv);
-						devData.put("deviceAddr", addr);
+						devData.put("deviceAddr", StringUtils.isNotBlank(addr)?addr:"");
 						bindedDevices.add(devData);
 					}
 				}
@@ -92,7 +92,7 @@ public class DevicesApi extends HandlerAdapter {
 					devData.put("devicePwd", pwd);
 					devData.put("deviceType", dv);
 					devData.put("owner", owner);
-					devData.put("deviceAddr", addr);
+					devData.put("deviceAddr", StringUtils.isNotBlank(addr)?addr:"");
 					bindedDevices.add(devData);
 				}
 			}

@@ -20,4 +20,5 @@ public interface IUserSvr {
 	void userChangeProperty(String userid, String key, String value);
 
 	User getUser(String key, String userName);
+	public boolean canUse(String phone);
 }

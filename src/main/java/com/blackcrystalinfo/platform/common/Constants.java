@@ -5,6 +5,7 @@ public class Constants extends ConfigurableConstants {
 	static {
 		init("sys.properties");
 	}
+	public static String DEVCOMMONMSGCODE = "PubCommonMsg:0x34";
 	public static String COMMONMSGCODE = "PubCommonMsg:0x35";
 	public static String SERVERIP = getProperty("server.ip", "");
 	public static String SERVERPORT = getProperty("server.port", "");

@@ -37,6 +37,12 @@ public class UserSvrImpl implements IUserSvr {
 		return jdbcTemplate.queryForObject(sql, new Object[] { userName.toLowerCase() }, Integer.class) > 0;
 	}
 
+	@Transactional(readOnly = true)
+	public boolean canUse(String phone){
+		String sql = "select count(*) from user where phone = ?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { phone }, Integer.class) == 0;
+	}
+	
 	@Transactional
 	public void saveUser(String userName, String phone, String nick, String shadow) {
 		String sql = "insert into user (" + User.UserNameColumn + "," + User.UserEmailColumn + "," + User.UserPhoneColumn + "," + User.UserNickColumn + "," + User.UserShadowColumn + ") values (?,?,?,?,?)";

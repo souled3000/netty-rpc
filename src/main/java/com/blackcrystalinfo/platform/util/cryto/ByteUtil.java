@@ -14,6 +14,7 @@ import java.util.zip.CRC32;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  */
@@ -77,6 +78,8 @@ public class ByteUtil {
 			JSONSerializer serializer = new JSONSerializer(out);
 			// serializer.config(SerializerFeature.QuoteFieldNames, false);
 			// serializer.config(SerializerFeature.UseSingleQuotes, true);
+			serializer.config(SerializerFeature.WriteNullStringAsEmpty, true);
+			serializer.config(SerializerFeature.WriteNonStringKeyAsString, true);
 			serializer.write(t);
 			return out.toString();
 		} finally {
@@ -84,7 +87,6 @@ public class ByteUtil {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
 		byte[] src = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D };
 		System.out.println(ByteUtil.toHex(src));
@@ -93,9 +95,14 @@ public class ByteUtil {
 
 		System.out.println(ByteUtil.toHex(src));
 
-		Map m = new HashMap();
-		m.put("status", 1);
+		Map<String,String> m = new HashMap<String,String>();
+		m.put("status", "1");
+		m.put("key", "");
+		m.put("key2", null);
 		System.out.println(writeJSON(m));
+		
+		
+		
 	}
 
 }

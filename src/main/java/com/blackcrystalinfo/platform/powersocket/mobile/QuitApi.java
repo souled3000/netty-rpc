@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.EndianUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,7 @@ public class QuitApi extends HandlerAdapter {
 			}
 
 			// 更新设备控制密钥
-			updateDeviceCtlKey(d, j);
+			pushMsg2Dev(Long.valueOf(d), j);
 		}
 
 		for (String m : members) {
@@ -136,15 +137,18 @@ public class QuitApi extends HandlerAdapter {
 				j.publish("PubDeviceUsers", sb.toString());
 
 				// 更新设备控制密钥
-				updateDeviceCtlKey(d, j);
+				pushMsg2Dev(Long.valueOf(d), j);
 			}
 		}
 	}
 
-	private void updateDeviceCtlKey(String devId, Jedis j) {
-		// TODO 发布消息，通知设备更新控制密钥了
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(devId);
-		j.hset("device:ctlkey:tmp".getBytes(), devId.getBytes(), ctlKey);
-		j.publish("PubDevCommonMsg", devId + "|" + ctlKey);
+	private void pushMsg2Dev(Long devId, Jedis j) {
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey("");
+		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
+		byte[] ctn = new byte[25];
+		EndianUtils.writeSwappedLong(ctn, 0, devId);
+		System.arraycopy(new byte[]{0x03}, 0, ctn, 8, 1);
+		System.arraycopy(ctlKey, 0, ctn, 9, 16);
+		j.publish(Constants.DEVCOMMONMSGCODE.getBytes(), ctn);
 	}
 }
