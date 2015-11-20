@@ -65,7 +65,7 @@ public class RegAgainApi extends HandlerAdapter {
 			Long ttl = j.ttl("user:activetimes:" + uid);
 			if (null != activetimes && !"".equals(activetimes)) {
 				times = Integer.valueOf(activetimes);
-				if (times >= Constants.REGAGAIN_TIMES_MAX) {
+				if (times >= Constants.DAILYTHRESHOLD) {
 					// 达到操作上限，不发送邮件
 					logger.warn("Activing email had to the upper limit.");
 					r.put("ttl", ttl);

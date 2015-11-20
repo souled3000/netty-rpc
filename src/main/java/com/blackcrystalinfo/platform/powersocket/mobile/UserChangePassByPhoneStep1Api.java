@@ -62,24 +62,33 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 			return ret;
 		}
 
-		User user = null;
-		try {
-			user = userDao.getUser(User.UserPhoneColumn, phone);
-
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by phone.", e);
+		User user = userDao.getUser(User.UserPhoneColumn, phone);
+		if (null == user) {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
+		
 		String userId = user.getId();
-
+		
 		Jedis jedis = null;
 
 		try {
 			jedis = DataHelper.getJedis();
+			
+			String daily = "B0037:"+user.getId()+":daily";
+			String threshold = jedis.get(daily);
+			Integer dailyThreshold = Integer.valueOf(threshold==null?"0":threshold);
+			if(dailyThreshold>=2){
+				ret.put(status, ErrorCode.C0046.toString());
+				return ret;
+			}
+			
+			String codekey = CODE_KEY + userId;
+			String value = jedis.get(codekey);
+			if (StringUtils.isNotBlank(value)) {
+				ret.put(status, C0037.toString());
+				return ret;
+			}
 
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);
@@ -88,25 +97,19 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 
-			String codekey = CODE_KEY + userId;
-			String value = jedis.get(codekey);
-			if (StringUtils.isNotBlank(value)) {
-				ret.put(status, C0037.toString());
-				return ret;
-			}
 			String codekeycount = "B0037:" + userId + ":count";
-			int count=0;
-			if (jedis.exists(codekeycount)){
+			int count = 0;
+			if (jedis.exists(codekeycount)) {
 				count = Integer.valueOf(jedis.get(codekeycount));
-				
-				if (count == 6) {
+
+				if (count >= Constants.DAILYTHRESHOLD) {
 					ret.put(status, C002C.toString());
 					return ret;
 				}
 			}
-			
+
 			// 记录短信验证码
-			jedis.setex(codekey, CODE_EXPIRE, code);
+			jedis.setex(codekey, 30, code);
 			if (!jedis.exists(codekeycount))
 				jedis.setex(codekeycount, 24 * 60 * 60, "1");
 			else

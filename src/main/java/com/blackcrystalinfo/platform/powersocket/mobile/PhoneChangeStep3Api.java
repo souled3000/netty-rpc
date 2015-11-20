@@ -19,9 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
-
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
@@ -32,6 +29,9 @@ import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 /**
  * 修改绑定手机第三步，新手机发送短信验证码
@@ -46,7 +46,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step3.interval.ttl", "60"));
+	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step3.interval.ttl", "30"));
 
 	private static final int DO_FREQ_TTL = Integer.valueOf(Constants.getProperty("phonechange.step3.frequency.ttl", "86400"));
 
@@ -63,7 +63,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 	public static final String STEP3_PHONE = "B0034:step3phone:";
 
 	@Autowired
-	private IUserSvr userSrv;
+	private IUserSvr userSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -87,15 +87,8 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 
 		// phone是否格式正确？用户是否存在？
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		User user = null;
-		try {
-			user = userSrv.getUser(User.UserIDColumn, userId);
-
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by id.", e);
+		User user = userSvr.getUser(User.UserIDColumn, userId);
+		if (null == user) {
 			ret.put(status, ErrorCode.C0006.toString());
 			return ret;
 		}
@@ -107,11 +100,12 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			return ret;
 		}
 
-		if (userSrv.canUse(phone)){
+		// 手机号是否已经注册
+		if (userSvr.userExist(phone)) {
 			ret.put(status, ErrorCode.C0036.toString());
 			return ret;
 		}
-		
+
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
@@ -128,8 +122,8 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			String interV = "";
 			String frequV = "";
 
-			interV = jedis.get(INTV_KEY);
-			frequV = jedis.get(FREQ_KEY);
+			interV = jedis.get(INTV_KEY+userId);
+			frequV = jedis.get(FREQ_KEY+userId);
 
 			if (StringUtils.isNotBlank(interV)) {
 				ret.put(status, C0037.toString());

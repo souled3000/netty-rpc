@@ -5,7 +5,7 @@ public class Constants extends ConfigurableConstants {
 	static {
 		init("sys.properties");
 	}
-	public static String DEVCOMMONMSGCODE = "PubCommonMsg:0x34";
+	public static String DEVCOMMONMSGCODE = "PubDevCommonMsg:0x34";
 	public static String COMMONMSGCODE = "PubCommonMsg:0x35";
 	public static String SERVERIP = getProperty("server.ip", "");
 	public static String SERVERPORT = getProperty("server.port", "");
@@ -28,7 +28,7 @@ public class Constants extends ConfigurableConstants {
 	public static int SERVER_PORT = Integer.valueOf(getProperty("server.port", "8080"));
 
 	public static int REGAGAIN_TIMES_NOTIC = Integer.valueOf(getProperty("regagain.times.notic", "3"));
-	public static int REGAGAIN_TIMES_MAX = Integer.valueOf(getProperty("regagain.times.max", "5"));
+	public static int DAILYTHRESHOLD = Integer.valueOf(getProperty("regagain.times.max", "5"));
 	public static int REGAGAIN_EXPIRE = Integer.valueOf(getProperty("regagain.expire", "86400"));
 
 	public static int FAILED_LOGIN_TIMES_MAX = Integer.valueOf(getProperty("failed.login.times.max", "3"));

@@ -44,4 +44,14 @@ public class PBKDF2 {
 		return salt;
 	}
 
+	public static void main(String[] args) throws Exception {
+		String password = "lchj";
+		System.out.println(PBKDF2.encode(password));
+		System.out.println(PBKDF2.encode(password));
+
+		String pwd = "xxx";
+		String p = "yyy";
+		boolean b = PBKDF2.validate(p, PBKDF2.encode(pwd));
+		System.out.println(b);
+	}
 }

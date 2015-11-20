@@ -99,7 +99,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 			ttl = j.ttl("user:findpwdtimes:" + user.getId());
 			if (null != findpwdtimes && !"".equals(findpwdtimes)) {
 				times = Integer.valueOf(findpwdtimes);
-				if (times >= Constants.REGAGAIN_TIMES_MAX) {
+				if (times >= Constants.DAILYTHRESHOLD) {
 					// 达到操作上限，不发送邮件
 					logger.warn("Find password email had to the upper limit.");
 					r.put("ttl", ttl);

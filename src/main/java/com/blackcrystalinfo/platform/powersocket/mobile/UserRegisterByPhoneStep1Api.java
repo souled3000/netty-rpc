@@ -42,9 +42,10 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
+	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.max", "5"));
 
 	@Autowired
-	private IUserSvr userDao;
+	private IUserSvr usrSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -63,20 +64,18 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 
-			// 判断用户是否已经注册
-			boolean exist = userDao.userExist(phone);
-			if (exist) {
+			if (usrSvr.userExist(phone)) {
 				ret.put(status, C0036.toString());
 				return ret;
 			}
 
 			String frequency = "B0029:" + phone + ":frequency";
 			String daily = "B0029:" + phone + ":daily";
-			int count = 0;
-			if (jedis.exists(daily)) {
+			int count = 1;
+			boolean b = jedis.exists(daily);
+			if (b) {
 				count = Integer.valueOf(jedis.get(daily));
-
-				if (count == 6) {
+				if (count >= DO_FREQ_MAX) {
 					ret.put(status, C002C.toString());
 					return ret;
 				}
@@ -95,15 +94,15 @@ public class UserRegisterByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 
-			if (!jedis.exists(daily)) {
-				jedis.setex(daily, 24 * 60 * 60, "1");
+			if (!b) {
+				jedis.setex(daily, 24 * 60 * 60, count+"");
 			} else {
-				jedis.incr(daily);
+				count=jedis.incr(daily).intValue();
 			}
 			if (!jedis.exists(frequency)) {
 				jedis.setex(frequency, 30, "1");
 			}
-			ret.put("count", ++count);
+			ret.put("count", count);
 
 			String step1keyV = UUID.randomUUID().toString();
 			jedis.setex(step1keyV, CODE_EXPIRE, code);

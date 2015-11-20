@@ -49,18 +49,7 @@ public class PhoneChangeStep4Api extends HandlerAdapter {
 
 		// phone是否格式正确？用户是否存在？
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		User user = null;
-		try {
-			user = userDao.getUser(User.UserIDColumn, userId);
-
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by id.", e);
-			ret.put(status, C0006.toString());
-			return ret;
-		}
+//		User user = userDao.getUser(User.UserIDColumn, userId);
 
 		Jedis jedis = null;
 		try {

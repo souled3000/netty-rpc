@@ -24,6 +24,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -74,23 +75,24 @@ public class UserChangePassByPhoneStep2Api extends HandlerAdapter {
 		}
 
 		// 根据手机号获取用户信息
-		User user = null;
-		String userId = null;
-		try {
-			user = userDao.getUser(User.UserPhoneColumn, phone);
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-			userId = user.getId();
-		} catch (Exception e) {
-			logger.error("cannot find user by phone.", e);
+		User user = userDao.getUser(User.UserPhoneColumn, phone);
+		if (null == user) {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
-
+		String userId = user.getId();
 		Jedis jedis = null;
+		
 		try {
 			jedis = DataHelper.getJedis();
+
+			String daily = "B0037:" + user.getId() + ":daily";
+			String threshold = jedis.get(daily);
+			Integer dailyThreshold = Integer.valueOf(threshold == null ? "0" : threshold);
+			if (dailyThreshold >= 2) {
+				ret.put(status, ErrorCode.C0046.toString());
+				return ret;
+			}
 
 			// 验证第一步凭证
 			String step1keyK = UserChangePassByPhoneStep1Api.STEP1_KEY + userId;

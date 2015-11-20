@@ -16,9 +16,6 @@ public interface IUserSvr {
 	void saveUser(String userName, String phone, String nick, String shadow);
 	void saveUser(String userName, String phone, String shadow);
 	void userRegister(String userName, String email, String phone, String nick, String shadow);
-
 	void userChangeProperty(String userid, String key, String value);
-
 	User getUser(String key, String userName);
-	public boolean canUse(String phone);
 }

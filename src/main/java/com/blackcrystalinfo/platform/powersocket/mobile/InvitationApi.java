@@ -16,18 +16,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 邀请家庭
@@ -50,13 +51,17 @@ public class InvitationApi extends HandlerAdapter {
 		try {
 			j = DataHelper.getJedis();
 
-			User user = userSvr.getUser(User.UserIDColumn, uId);
-			if (null == user) {
+			User candidate = userSvr.getUser(User.UserIDColumn, uId);
+			if (null == candidate) {
 				r.put(status, C0006.toString());
-				logger.info("There is not this user. uId:{}|oper:{}|status:{}", uId, oper, r.get("status"));
 				return r;
 			}
 
+			if(oper.equals(uId)){
+				r.put(status, ErrorCode.C0047.toString());
+				return r;
+			}
+			
 			// 判断oper与uid是否为主
 			// 如果oper是主或，oper与uid都不为主，可以进行邀请操作
 			// 如果oper不是主，而oper是主，则不允许邀请操作
@@ -64,30 +69,27 @@ public class InvitationApi extends HandlerAdapter {
 			String operFamily = j.hget("user:family", oper);
 			String uFamily = j.hget("user:family", uId);
 
-			// 操作员是另的家庭的成员，不具有添加成员的权限
+			// 操作员是别的家庭的成员，不具有添加成员的权限
 			if (StringUtils.isNotBlank(operFamily) && !StringUtils.equals(operFamily, oper)) {
 				r.put(status, C001E.toString());
 				return r;
 			}
 
-			if (StringUtils.isBlank(uFamily)) {
-
-			} else {
+			if (!StringUtils.isBlank(uFamily)) {
 				r.put(status, C001F.toString());
 				return r;
 			}
 
 			User operator = userSvr.getUser(User.UserIDColumn, oper);
-			User amember = userSvr.getUser(User.UserIDColumn, uId);
 
 			String hnick = operator.getNick();
-			String nick = amember.getNick();
+			String nick = candidate.getNick();
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
 			mm.put("hostId", oper);
 			mm.put("hostNick", StringUtils.isBlank(hnick)?operator.getPhone():hnick);
 			mm.put("mId", uId);
-			mm.put("mNick", StringUtils.isBlank(nick)?amember.getPhone():nick);
+			mm.put("mNick", StringUtils.isBlank(nick)?candidate.getPhone():nick);
 			msg.append(JSON.toJSON(mm));
 			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(uId + "|", BizCode.FamilyInvite.getValue(), Integer.parseInt(uId), msg.toString()));
 

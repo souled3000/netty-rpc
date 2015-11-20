@@ -130,7 +130,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long userId,Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey("");
+		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(String.valueOf(devId));
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

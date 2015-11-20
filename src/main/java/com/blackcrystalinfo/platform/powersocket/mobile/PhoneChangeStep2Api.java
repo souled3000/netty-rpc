@@ -40,10 +40,10 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP2_KEY = "test:tmp:phonechange:step2key:";
+	public static final String STEP2_KEY = "B0033:step2key:";
 
 	@Autowired
-	private IUserSvr userDao;
+	private IUserSvr usrSrv;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -57,14 +57,8 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 
 		// phone是否格式正确？用户是否存在？
 		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		User user = null;
-		try {
-			user = userDao.getUser(User.UserIDColumn, userId);
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by id.", e);
+		User user = usrSrv.getUser(User.UserIDColumn, userId);
+		if (null == user) {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
@@ -72,19 +66,18 @@ public class PhoneChangeStep2Api extends HandlerAdapter {
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
+			// 获取第一步生成的code，未生成或已过期？
+			String codeV = jedis.get(PhoneChangeStep1Api.CODE_KEY + userId);
+			if (StringUtils.isBlank(codeV)) {
+				ret.put(status, ErrorCode.C0040.toString());
+				return ret;
+			}
 
 			// 验证第一步凭证
 			String step1keyK = PhoneChangeStep1Api.STEP1_KEY + userId;
 			String step1keyV = jedis.get(step1keyK);
 			if (!StringUtils.equals(step1keyV, step1key)) {
 				ret.put(status, C0041.toString());
-				return ret;
-			}
-
-			// 获取第一步生成的code，未生成或已过期？
-			String codeV = jedis.get(PhoneChangeStep1Api.CODE_KEY + userId);
-			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, C0042.toString());
 				return ret;
 			}
 

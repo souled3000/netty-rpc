@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0036;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0041;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0043;
@@ -40,7 +41,7 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep3Api.class);
 
 	@Autowired
-	IUserSvr loginSvr;
+	IUserSvr usrSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -50,7 +51,10 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 		String phone = req.getParameter("phone");
 		String step2key = req.getParameter("step2key");
 		String password = req.getParameter("password");
-
+		if (usrSvr.userExist(phone)) {
+			ret.put(status, C0036.toString());
+			return ret;
+		}
 		if (StringUtils.isBlank(phone)) {
 			ret.put(status, C0035.toString());
 			return ret;
@@ -79,7 +83,7 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 			}
 
 			// 手机号是否已经注册
-			boolean exist = loginSvr.userExist(phone);
+			boolean exist = usrSvr.userExist(phone);
 			if (exist) {
 				ret.put(status, ErrorCode.C0036.toString());
 				logger.debug("phone has been registed. phone:{}", phone);
@@ -87,8 +91,8 @@ public class UserRegisterByPhoneStep3Api extends HandlerAdapter {
 			}
 
 			// 注册用户信息
-			loginSvr.saveUser(phone, phone, PBKDF2.encode(password));
-			String userId = loginSvr.getUser(User.UserNameColumn, phone).getId();
+			usrSvr.saveUser(phone, phone, PBKDF2.encode(password));
+			String userId = usrSvr.getUser(User.UserNameColumn, phone).getId();
 
 			ret.put("uId", userId);
 			ret.put(status, SUCCESS.toString());

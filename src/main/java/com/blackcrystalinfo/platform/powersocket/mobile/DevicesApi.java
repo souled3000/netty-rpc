@@ -67,6 +67,8 @@ public class DevicesApi extends HandlerAdapter {
 						devData.put("deviceName", name);
 						devData.put("devicePwd", pwd);
 						devData.put("deviceType", dv);
+						String owner = j.hget("device:owner", id);
+						devData.put("owner", owner);
 						devData.put("deviceAddr", StringUtils.isNotBlank(addr)?addr:"");
 						bindedDevices.add(devData);
 					}

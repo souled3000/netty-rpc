@@ -88,7 +88,7 @@ public class UserLoginApi extends HandlerAdapter {
 			phone = phone.toLowerCase();
 
 			// 4. 获取登录失败次数
-			int times = -1;
+			int times = 0;
 			String strTimes = jedis.get("user:failedLoginTimes:" + userId);
 			if (StringUtils.isNotBlank(strTimes)) {
 				times = Integer.valueOf(strTimes);

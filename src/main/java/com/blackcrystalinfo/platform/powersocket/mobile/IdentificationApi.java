@@ -31,7 +31,7 @@ public class IdentificationApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(HandlerAdapter.class);
 
 	@Autowired
-	private IUserSvr loginSvr;
+	private IUserSvr usrSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -61,7 +61,7 @@ public class IdentificationApi extends HandlerAdapter {
 			User user = null;
 			String shadow = null;
 			try {
-				user = loginSvr.getUser(User.UserIDColumn, userId);
+				user = usrSvr.getUser(User.UserIDColumn, userId);
 				shadow = user.getShadow();
 			} catch (Exception e) {
 				r.put(status, C0001.toString());

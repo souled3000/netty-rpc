@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
@@ -23,6 +21,8 @@ import com.blackcrystalinfo.platform.service.IDeviceSrv;
 import com.blackcrystalinfo.platform.service.InternalException;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 import com.guru.LicenseHelper;
+
+import redis.clients.jedis.Jedis;
 
 @Controller("/api/device/register")
 public class DeviceRegisterHandler extends HandlerAdapter {
@@ -67,7 +67,6 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String sign = args[5];
 		String isUnbind = args[6];
 
-		logger.info("Device regist begin mac:{}|sn:{}|dv:{}|sign:{}|isUnbind:{}", mac, sn, dv, sign, isUnbind);
 		if (!isValidDev(mac, sign)) {
 			r.put("status", 1);
 			logger.info("Device regist failed, status:{}", r.get("status"));
@@ -77,6 +76,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String cookie = "";
 		Jedis jedis = null;
 		try {
+			jedis = DataHelper.getJedis();
 			// 1. 设备MAC是否已被注册
 			Long id = deviceSrv.getIdByMac(mac);
 			if (null == id) {
@@ -89,8 +89,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				if (StringUtils.isNotBlank(dv)) {
 					iDv = Integer.valueOf(dv);
 				}
-
-				deviceSrv.regist(mac, sn, name, lPid, iDv);
+				id = jedis.decr("dvpk");
+				deviceSrv.regist(id ,mac, sn, name, lPid, iDv);
 				id = deviceSrv.getIdByMac(mac);
 			}
 
@@ -100,7 +100,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 				String licenseKey = parseLicenseKey(mac, sign);
 				String licenseKeyCookie = licenseKey + cookie;
 				String keyMd5 = ByteUtil.toHex(MessageDigest.getInstance("MD5").digest(licenseKeyCookie.getBytes()));
-				jedis = DataHelper.getJedis();
+				
 				jedis.hset("device:keymd5", id.toString(), keyMd5);
 			}
 			r.put("id", id);
@@ -119,8 +119,6 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
-
-		logger.info("response:  mac:{}|sn:{}|dv:{}", mac, sn, dv);
 		r.put("status", 0);
 		return r;
 	}

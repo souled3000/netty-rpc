@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.common;
 
+import java.util.Set;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -40,4 +42,15 @@ public class DataHelper {
 		}
 	}
 
+	public static void main(String[] args) throws Exception{
+//		Jedis j = DataHelper.getJedis();
+//		Set<String> keys =j.keys("B0029*");
+//		for(String key:keys){
+//			j.del(key);
+//		}
+//		DataHelper.returnJedis(j);
+		
+		Integer i = Integer.valueOf(null);
+		System.out.println(i);
+	}
 }

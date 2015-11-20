@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -68,26 +69,24 @@ public class UserChangePassByPhoneStep3Api extends HandlerAdapter {
 		}
 
 		// 根据手机号获取用户信息
-		User user = null;
-		String userId = null;
-		try {
-			user = userDao.getUser(User.UserPhoneColumn, phone);
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-			userId = user.getId();
-		} catch (Exception e) {
-			logger.error("cannot find user by phone.", e);
+		User user =userDao.getUser(User.UserPhoneColumn, phone);
+		if (null == user) {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
+//		if (PBKDF2.validate(password, user.getShadow())) {
+//			ret.put(status, ErrorCode.C0045.toString());
+//			return ret;
+//		}
+		
+		String daily = "B0037:"+user.getId()+":daily";
 
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
 
 			// 验证第二步凭证
-			String step2keyK = UserChangePassByPhoneStep2Api.STEP2_KEY + userId;
+			String step2keyK = UserChangePassByPhoneStep2Api.STEP2_KEY + user.getId();
 			String step2keyV = jedis.get(step2keyK);
 			if (!StringUtils.equals(step2keyV, step2key)) {
 				ret.put(status, C0041.toString());
@@ -96,13 +95,15 @@ public class UserChangePassByPhoneStep3Api extends HandlerAdapter {
 
 			// 生成新密码
 			String newShadow = PBKDF2.encode(password);
-			userDao.userChangeProperty(userId, User.UserShadowColumn, newShadow);
-			jedis.publish("PubModifiedPasswdUser", userId);
-
+			userDao.userChangeProperty(user.getId(), User.UserShadowColumn, newShadow);
+			jedis.publish("PubModifiedPasswdUser", user.getId());
+			jedis.del("B0037:" + user.getId() + ":count");
+			jedis.incr(daily);
+			jedis.expire(daily,24*60*60);
 			// 返回
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			logger.error("reg by phone step1 error! ", e);
+			throw e;
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}

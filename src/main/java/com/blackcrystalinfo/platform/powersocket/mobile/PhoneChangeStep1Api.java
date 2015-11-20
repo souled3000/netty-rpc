@@ -1,6 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
@@ -58,32 +57,16 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 	public static final String STEP1_KEY = "B0032:step1key:";
 
 	@Autowired
-	private IUserSvr userDao;
+	private IUserSvr usrSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
 		ret.put(status, SYSERROR.toString());
 
-		// 入参解析：cookie
-		String cookie = req.getParameter("cookie");
+		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		User user = usrSvr.getUser(User.UserIDColumn, userId);
 
-		// phone是否格式正确？用户是否存在？
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
-		User user = null;
-		try {
-			user = userDao.getUser(User.UserIDColumn, userId);
-
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by id.", e);
-			ret.put(status, C0006.toString());
-			return ret;
-		}
-
-		// 用户已经绑定手机号码？
 		String oldPhone = user.getPhone();
 
 		Jedis j = null;
@@ -93,9 +76,10 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 			// 发送验证码次数是否太频繁，是否超限？
 			String frequV = "";
 
+			long times = 1L;
 			frequV = j.get(FREQ_KEY + userId);
-
-			if (StringUtils.isNotBlank(frequV)) {
+			boolean b = StringUtils.isNotBlank(frequV);
+			if (b) {
 				if (Integer.valueOf(frequV) >= DO_FREQ_MAX) {
 					ret.put(status, C002C.toString());
 					return ret;
@@ -107,19 +91,18 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 
 			// 生成验证码，服务器端临时存储
 			String code = VerifyCode.randString(CODE_LENGTH);
+			ret.put("code", code);
 			j.setex(CODE_KEY + userId, CODE_EXPIRE, code);
 
 			// 发送验证码是否成功？
-			if (!SMSSender.send(oldPhone, "验证码【" + code + "】")) {
+			if (!SMSSender.send(oldPhone, code)) {
 				ret.put(status, C0038.toString());
 				return ret;
 			}
-			;
 
 			// 更新状态记录
 
-			long times = 1L;
-			if(j.exists(FREQ_KEY + userId)){
+			if(!b){
 				times = j.incr(FREQ_KEY + userId);
 			}else{
 				j.setex(FREQ_KEY + userId, DO_FREQ_TTL, "1");

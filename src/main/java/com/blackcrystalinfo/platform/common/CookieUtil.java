@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.EndianUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,6 +248,12 @@ public class CookieUtil {
 		System.out.println(Hex.encodeHexString(Hex.decodeHex("01020e".toCharArray())));
 		byte[] b = generateDeviceCtlKey("-29");
 		System.out.println(Hex.encodeHexString(b));
+		byte[] ctn = new byte[8];
+		EndianUtils.writeSwappedLong(ctn, 0, -1L);
+		System.out.println(Hex.encodeHexString(ctn));
+		
+		String s = CookieUtil.gotUserIdFromCookie("OXwzMDB8MTQ0ODAwNjMyNjA5N3xlNjhjZTcxZjcwODU5YmRmZmYzMDIzOGFjYjA1ODcxMWYzZWQ4Yg==-D49ABECA71C325905426D5795257E500");
+		System.out.println(s);
 		
 	}
 }
