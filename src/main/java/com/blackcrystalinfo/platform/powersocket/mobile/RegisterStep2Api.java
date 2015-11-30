@@ -33,10 +33,10 @@ import redis.clients.jedis.Jedis;
  * @author j
  * 
  */
-@Controller("/registerbyphone/step2")
-public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
+@Controller("/rp/2")
+public class RegisterStep2Api extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserRegisterByPhoneStep2Api.class);
+	private static final Logger logger = LoggerFactory.getLogger(RegisterStep2Api.class);
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
 	public static final String STEP2_KEY = "B0029:2:";
@@ -60,12 +60,10 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 			ret.put(status, C0035.toString());
 			return ret;
 		}
-
 		if (StringUtils.isBlank(step1key)) {
 			ret.put(status, C0040.toString());
 			return ret;
 		}
-
 		if (StringUtils.isBlank(code)) {
 			ret.put(status, ErrorCode.C0037.toString());
 			return ret;
@@ -77,7 +75,10 @@ public class UserRegisterByPhoneStep2Api extends HandlerAdapter {
 
 			// 验证第一步凭证
 			String code2 = jedis.get(step1key);
-
+			if (StringUtils.isBlank(code2)) {
+				ret.put(status, C0040.toString());
+				return ret;
+			}
 			if (!StringUtils.equals(code2, code)) {
 				ret.put(status, C0042.toString());
 				return ret;

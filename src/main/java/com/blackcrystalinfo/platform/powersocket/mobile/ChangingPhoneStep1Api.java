@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -34,15 +33,15 @@ import redis.clients.jedis.Jedis;
  * @author j
  * 
  */
-@Controller("/mobile/phonechange/step1")
-public class PhoneChangeStep1Api extends HandlerAdapter {
+@Controller("/mobile/cp/1")
+public class ChangingPhoneStep1Api extends HandlerAdapter {
 
-	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep1Api.class);
+	private Logger logger = LoggerFactory.getLogger(ChangingPhoneStep1Api.class);
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.interval.ttl", "60"));
+//	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.interval.ttl", "60"));
 
 	private static final int DO_FREQ_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.ttl", "86400"));
 
@@ -64,7 +63,7 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
 		ret.put(status, SYSERROR.toString());
 
-		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String userId = req.getUserId();
 		User user = usrSvr.getUser(User.UserIDColumn, userId);
 
 		String oldPhone = user.getPhone();
@@ -91,7 +90,6 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 
 			// 生成验证码，服务器端临时存储
 			String code = VerifyCode.randString(CODE_LENGTH);
-			ret.put("code", code);
 			j.setex(CODE_KEY + userId, CODE_EXPIRE, code);
 
 			// 发送验证码是否成功？
@@ -102,19 +100,17 @@ public class PhoneChangeStep1Api extends HandlerAdapter {
 
 			// 更新状态记录
 
-			if(!b){
+			if(b){
 				times = j.incr(FREQ_KEY + userId);
 			}else{
 				j.setex(FREQ_KEY + userId, DO_FREQ_TTL, "1");
 			}
 
 			// 生成第一步凭证
-			String step1keyK = STEP1_KEY + userId;
 			String step1keyV = UUID.randomUUID().toString();
-			j.setex(step1keyK, CODE_EXPIRE, step1keyV);
+			j.setex(STEP1_KEY + userId, CODE_EXPIRE, step1keyV);
 
 			// 返回
-			// ret.put("code", code);
 			ret.put("count", times);
 			ret.put("step1key", step1keyV);
 			ret.put(status, SUCCESS.toString());

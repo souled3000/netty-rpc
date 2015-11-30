@@ -16,14 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.Device;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
+
+import redis.clients.jedis.Jedis;
 
 @Controller("/mobile/devices")
 public class DevicesApi extends HandlerAdapter {
@@ -38,7 +37,7 @@ public class DevicesApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String userId = req.getUserId();
 
 		Jedis j = null;
 		try {

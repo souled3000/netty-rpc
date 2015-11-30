@@ -40,7 +40,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String userId = req.getUserId();
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
@@ -53,6 +53,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			}
 
 			Set<String> members = j.smembers("family:" + userId);
+			members.add(userId);
 			for (String m : members) {
 				// 删除由用户找家庭的关系表-》user:family
 				j.hdel("user:family", m);
@@ -114,7 +115,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

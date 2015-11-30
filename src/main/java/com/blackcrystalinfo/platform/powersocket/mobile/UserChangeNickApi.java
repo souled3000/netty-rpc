@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -40,7 +39,7 @@ public class UserChangeNickApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
 		String cookie = req.getParameter("cookie");
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		String nick = req.getParameter("nick");
 
 		logger.info("UserChangeNickHandler begin userId:{}|cookie:{}|nick:{}", userId, cookie, nick);

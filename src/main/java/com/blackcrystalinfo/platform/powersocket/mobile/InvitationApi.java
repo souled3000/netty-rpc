@@ -18,7 +18,6 @@ import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.Utils;
@@ -45,7 +44,7 @@ public class InvitationApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
-		String oper = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String oper = req.getUserId();
 		String uId = req.getParameter("uId");
 		Jedis j = null;
 		try {
@@ -94,7 +93,7 @@ public class InvitationApi extends HandlerAdapter {
 			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(uId + "|", BizCode.FamilyInvite.getValue(), Integer.parseInt(uId), msg.toString()));
 
 			// 用户确认加入家庭是有时效限制的
-			j.setex("user:invitationfamily:" + uId, Constants.USER_INVITATION_CFM_EXPIRE, oper);
+//			j.setex("user:invitationfamily:" + uId, Constants.USER_INVITATION_CFM_EXPIRE, oper);
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {

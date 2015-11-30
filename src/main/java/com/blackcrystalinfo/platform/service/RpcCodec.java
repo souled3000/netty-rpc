@@ -131,7 +131,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 				} else {
 					ret = handler.rpc(rp);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error("(400) {} ", reqUrl, e);
 				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
 			} finally {

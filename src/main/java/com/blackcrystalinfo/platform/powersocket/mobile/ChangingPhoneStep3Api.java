@@ -5,7 +5,6 @@ import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0041;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0044;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
@@ -20,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
@@ -39,9 +37,9 @@ import redis.clients.jedis.Transaction;
  * @author j
  * 
  */
-@Controller("/mobile/phonechange/step3")
-public class PhoneChangeStep3Api extends HandlerAdapter {
-	private Logger logger = LoggerFactory.getLogger(PhoneChangeStep3Api.class);
+@Controller("/mobile/cp/3")
+public class ChangingPhoneStep3Api extends HandlerAdapter {
+	private Logger logger = LoggerFactory.getLogger(ChangingPhoneStep3Api.class);
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
@@ -71,7 +69,6 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 		ret.put(status, ErrorCode.SYSERROR);
 
 		// 入参解析：cookie， phone
-		String cookie = req.getParameter("cookie");
 		String step2key = req.getParameter("step2key");
 		String phone = req.getParameter("phone");
 
@@ -86,7 +83,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 		}
 
 		// phone是否格式正确？用户是否存在？
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		User user = userSvr.getUser(User.UserIDColumn, userId);
 		if (null == user) {
 			ret.put(status, ErrorCode.C0006.toString());
@@ -111,10 +108,9 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			jedis = DataHelper.getJedis();
 
 			// 验证第二步凭证
-			String step2keyK = PhoneChangeStep2Api.STEP2_KEY + userId;
+			String step2keyK = ChangingPhoneStep2Api.STEP2_KEY + userId;
 			String step2keyV = jedis.get(step2keyK);
 			if (!StringUtils.equals(step2keyV, step2key)) {
-				ret.put(status, C0041.toString());
 				return ret;
 			}
 
@@ -146,7 +142,7 @@ public class PhoneChangeStep3Api extends HandlerAdapter {
 			trans.setex(CODE_KEY + userId, CODE_EXPIRE, code);
 
 			// 发送验证码是否成功？
-			if (!SMSSender.send(phone, "验证码【" + code + "】")) {
+			if (!SMSSender.send(phone, code)) {
 				ret.put(status, C0038.toString());
 				return ret;
 			}

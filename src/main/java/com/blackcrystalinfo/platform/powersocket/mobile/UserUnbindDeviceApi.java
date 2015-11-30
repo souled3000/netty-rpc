@@ -17,15 +17,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
-import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
+
+import redis.clients.jedis.Jedis;
 
 @Controller("/mobile/unbind")
 public class UserUnbindDeviceApi extends HandlerAdapter {
@@ -34,24 +33,13 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 	@Autowired
 	private IDeviceSrv deviceDao;
 
-	public Object rpc(JSONObject req) throws Exception {
-		String mac = req.getString("mac");
-		String cookie = req.getString("cookie");
-		return deal(mac, cookie);
-	}
 
 	public Object rpc(RpcRequest req) throws Exception {
 		String mac = req.getParameter("mac");
-		String cookie = req.getParameter("cookie");
-		return deal(mac, cookie);
-	}
-
-	private Object deal(String... args) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String mac = args[0];
-		String userId = CookieUtil.gotUserIdFromCookie(args[1]);
+		String userId = req.getUserId();
 
 		// 手机端需要mac区分绑定解绑的是哪个设备，这里给返回。是不是很奇葩。。。
 		r.put("mac", mac);
@@ -121,7 +109,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long userId,Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

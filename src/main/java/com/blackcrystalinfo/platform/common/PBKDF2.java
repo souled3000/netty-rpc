@@ -7,6 +7,8 @@ import java.security.spec.InvalidKeySpecException;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.apache.commons.codec.binary.Hex;
+
 public class PBKDF2 {
 
 	public static String encode(String str) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -39,7 +41,7 @@ public class PBKDF2 {
 
 	private static byte[] getSalt() throws NoSuchAlgorithmException {
 		SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-		byte[] salt = new byte[16];
+		byte[] salt = new byte[32];
 		sr.nextBytes(salt);
 		return salt;
 	}
@@ -53,5 +55,7 @@ public class PBKDF2 {
 		String p = "yyy";
 		boolean b = PBKDF2.validate(p, PBKDF2.encode(pwd));
 		System.out.println(b);
+		
+		System.out.println(Hex.encodeHex(getSalt()));
 	}
 }

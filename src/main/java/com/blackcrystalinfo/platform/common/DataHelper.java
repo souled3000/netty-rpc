@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.common;
 
-import java.util.Set;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -50,7 +48,5 @@ public class DataHelper {
 //		}
 //		DataHelper.returnJedis(j);
 		
-		Integer i = Integer.valueOf(null);
-		System.out.println(i);
 	}
 }

@@ -44,7 +44,7 @@ public class QuitApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
-		String uId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String uId = req.getUserId();
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
@@ -66,16 +66,17 @@ public class QuitApi extends HandlerAdapter {
 			Map<String, String> mm = new HashMap<String, String>();
 
 			User user = loginSvr.getUser(User.UserIDColumn, uId);
-			User familyUser = loginSvr.getUser(User.UserIDColumn, fId);
-			String hostNick = familyUser.getNick();
+			User host = loginSvr.getUser(User.UserIDColumn, fId);
+			String hostNick = host.getNick();
 			String nick = user.getNick();
 
 			mm.put("hostId", fId);
-			mm.put("hostNick", hostNick);
+			mm.put("hostNick", StringUtils.isNotBlank(hostNick)?hostNick:host.getUserName());
 			mm.put("mId", uId);
-			mm.put("mNick", nick);
+			mm.put("mNick", StringUtils.isNotBlank(nick)?nick:user.getUserName());
 			msg.append(JSON.toJSON(mm));
-
+			
+			//退出家庭的操作
 			j.hdel("user:family", uId);
 			j.srem("family:" + fId, uId);
 
@@ -143,7 +144,7 @@ public class QuitApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

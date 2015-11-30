@@ -2,7 +2,6 @@ package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0018;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0019;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0020;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0021;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C002E;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
@@ -21,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
+import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -77,29 +78,22 @@ public class UserLoginApi extends HandlerAdapter {
 			// 3. get user id
 			User user = null;
 			String userId = "";
-			try {
-				user = loginSvr.getUser(User.UserPhoneColumn, phone);
-				userId = user.getId();
-			} catch (Exception e) {
-				r.put(status, C0020.toString());
-				logger.error("",e);
+			user = loginSvr.getUser(User.UserPhoneColumn, phone);
+			if (null == user) {
+				r.put(status, ErrorCode.C0006.toString());
 				return r;
 			}
+			userId = user.getId();
 			phone = phone.toLowerCase();
 
-			// 4. 获取登录失败次数
-			int times = 0;
-			String strTimes = jedis.get("user:failedLoginTimes:" + userId);
-			if (StringUtils.isNotBlank(strTimes)) {
-				times = Integer.valueOf(strTimes);
-			}
+			// 4. 获取登录失败次数 ftl:fail to login
+			long times = jedis.incrBy("usr:ftl:" + userId,0);
 
 			// 5. 根据失败次数，决定是否锁定账户
 			if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
-				Long ttl = jedis.ttl("user:failedLoginTimes:" + userId);
+				Long ttl = jedis.ttl("usr:ftl:" + userId);
 				r.put(status, C002E.toString());
 				r.put("ttl", ttl);
-				logger.debug("Accout is locked. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status));
 				return r;
 			}
 
@@ -108,34 +102,33 @@ public class UserLoginApi extends HandlerAdapter {
 				times++;
 				r.put(status, C0021.toString());
 				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX - times);
-				logger.debug("PBKDF2.validate Password error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status));
 
 				// 判断失败次数累加
-				jedis.setex("user:failedLoginTimes:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
+				jedis.setex("usr:ftl:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
 
-//				// 最后一次登录失败，发送邮件通知用户
-//				if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
-//					String subject = "账户被锁定通知";
-//					StringBuilder sb = new StringBuilder();
-//					sb.append("您的帐户登录失败次数超过");
-//					sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX + "次。</b>");
-//					sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + " 后重新登录");
-//					SimpleMailSender.sendHtmlMail(phone, subject, sb.toString());
-//
-//					// 发送短信
-//					String phone = user.getPhone();
-//					if (StringUtils.isNotEmpty(phone)) {
-//						SMSSender.send(phone, sb.toString());
-//					}
-//				}
+				// // 最后一次登录失败，发送邮件通知用户
+				// if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
+				// String subject = "账户被锁定通知";
+				// StringBuilder sb = new StringBuilder();
+				// sb.append("您的帐户登录失败次数超过");
+				// sb.append("<b>" + Constants.FAILED_LOGIN_TIMES_MAX + "次。</b>");
+				// sb.append("请您" + DateUtils.secToTime(Constants.FAILED_LOGIN_EXPIRE) + " 后重新登录");
+				// SimpleMailSender.sendHtmlMail(phone, subject, sb.toString());
+				//
+				// // 发送短信
+				// String phone = user.getPhone();
+				// if (StringUtils.isNotEmpty(phone)) {
+				// SMSSender.send(phone, sb.toString());
+				// }
+				// }
 				return r;
 			}
 
 			// 7. 登录成功后，清除累计失败次数的计数器
-			jedis.del("user:failedLoginTimes:" + userId);
+			jedis.del("usr:ftl:" + userId);
 
 			// 8. generate cookie
-			String cookie = user.getCookie();
+			String cookie = CookieUtil.genUsrCki(user.getId(), user.getShadow());
 			jedis.setex("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE, cookie); // 用户Id->cookie映射
 
 			r.put("userId", userId);

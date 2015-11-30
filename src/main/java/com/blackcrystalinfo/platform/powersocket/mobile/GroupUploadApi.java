@@ -15,13 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
-
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 @Controller("/mobile/gu")
 public class GroupUploadApi extends HandlerAdapter {
@@ -33,8 +32,7 @@ public class GroupUploadApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String cookie = req.getParameter("cookie");
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		String grpOld = req.getParameter("grpOld");
 		String grpNew = req.getParameter("grpNew");
 		String grpValue = req.getParameter("grpValue");

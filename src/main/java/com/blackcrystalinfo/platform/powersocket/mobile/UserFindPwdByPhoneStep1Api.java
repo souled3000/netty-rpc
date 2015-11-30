@@ -11,6 +11,7 @@ import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,9 +103,8 @@ public class UserFindPwdByPhoneStep1Api extends HandlerAdapter {
 
 			String content = "请尽快使用此验证码重置您的密码：" + code + " 验证超时时间：" + DateUtils.secToTime(CODE_EXPIRE);
 
-			boolean b = SMSSender.send(phone, content);
+			boolean b = SMSSender.send(phone, URLEncoder.encode(content,"utf8"));
 			if (!b) {
-				logger.info("sending sms failed!!!");
 				r.put(status, C0011.toString());
 				return r;
 			}

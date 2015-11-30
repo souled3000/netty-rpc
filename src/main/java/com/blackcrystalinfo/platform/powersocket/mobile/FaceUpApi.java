@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import io.netty.handler.codec.http.multipart.MixedFileUpload;
-
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
@@ -17,10 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -28,29 +23,33 @@ import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
+import io.netty.handler.codec.http.multipart.MixedFileUpload;
+import redis.clients.jedis.Jedis;
+
 @Controller("/mobile/faceup")
 public class FaceUpApi extends HandlerAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(FaceUpApi.class);
 	private static MessageDigest md5;
-	static{
-		try{
-			md5= MessageDigest.getInstance("MD5");
-		}catch (Exception e){
-			
-		}finally{
-			
+
+	static {
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (Exception e) {
+
+		} finally {
+
 		}
 	}
+
 	@Autowired
 	private IUserSvr userDao;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object rpc(RpcRequest req) throws Exception {
 		Map r = new HashMap();
-		String cookie = req.getParameter("cookie");
 		String nick = req.getParameter("nick");
-		String id = CookieUtil.gotUserIdFromCookie(cookie);
+		String id = req.getUserId();
 		String facestamp = null;
 
 		MixedFileUpload pic = (MixedFileUpload) req.getParams().getBodyHttpData("pic");
@@ -64,11 +63,7 @@ public class FaceUpApi extends HandlerAdapter {
 		}
 
 		if (StringUtils.isNotBlank(nick)) {
-			try {
-				userDao.userChangeProperty(id, User.UserNickColumn, nick);
-			} catch (Exception e) {
-				// DataHelper.returnBrokenJedis(j);
-			}
+			userDao.userChangeProperty(id, User.UserNickColumn, nick);
 		}
 
 		// 保存上传头像的MD5值

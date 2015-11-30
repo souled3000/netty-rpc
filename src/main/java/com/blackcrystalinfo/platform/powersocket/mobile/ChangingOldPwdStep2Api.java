@@ -1,45 +1,39 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C000F;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
-import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 
+import redis.clients.jedis.Jedis;
+
 /**
  * 
- * 通过旧密码修改登录密码第一步，验证旧密码是否正确
+ * 通过旧密码修改登录密码第二步，输入新密码
  * 
  * @author j
  * 
  */
-@Controller("/mobile/changepwd/step1")
-public class UserChangePassStep1Api extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(UserChangePassStep1Api.class);
-
-	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
-
-	public static final String STEP1_KEY = "test:tmp:changepwd:step1key:";
+@Controller("/mobile/cop/2")
+public class ChangingOldPwdStep2Api extends HandlerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(ChangingOldPwdStep2Api.class);
 
 	@Autowired
 	private IUserSvr userDao;
@@ -49,20 +43,14 @@ public class UserChangePassStep1Api extends HandlerAdapter {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
 		ret.put(status, SYSERROR.toString());
 
-		String cookie = req.getParameter("cookie");
-		String passOld = req.getParameter("passOld");
+		String step1key = req.getParameter("step1key");
+		String passNew = req.getParameter("n");
 
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 
-		User user = null;
-		try {
-			user = userDao.getUser(User.UserIDColumn, userId);
+		User user = userDao.getUser(User.UserIDColumn, userId);
 
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by phone.", e);
+		if (null == user) {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
@@ -71,21 +59,25 @@ public class UserChangePassStep1Api extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 
-			// 用户密码
-			String shadow = user.getShadow();
-
-			// 校验密码是否正确
-			if (!PBKDF2.validate(passOld, shadow)) {
-				ret.put(status, C000F.toString());
+			// 验证第一步凭证
+			String step1keyK = ChangingOldPwdStep1Api.STEP1_KEY + userId;
+			String step1keyV = jedis.get(step1keyK);
+			if (StringUtils.isBlank(step1keyV)) {
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
+			if (!StringUtils.equals(step1keyV, step1key)) {
+				return ret;
+			}
+			if (PBKDF2.validate(passNew, user.getShadow())) {
+				ret.put(status, ErrorCode.C0045.toString());
+				return ret;
+			}
+			// 生成新密码
+			String newShadow = PBKDF2.encode(passNew);
+			userDao.userChangeProperty(userId, User.UserShadowColumn, newShadow);
+			jedis.publish("PubModifiedPasswdUser", userId);
 
-			// 生成第一步凭证
-			String step1keyK = STEP1_KEY + userId;
-			String step1keyV = UUID.randomUUID().toString();
-			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
-
-			ret.put("step1key", step1keyV);
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("reg by phone step1 error! ", e);

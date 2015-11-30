@@ -1,8 +1,8 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0036;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
@@ -18,37 +18,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
-import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
+import redis.clients.jedis.Jedis;
+
 /**
- * 
- * 通过手机号码找回用户密码第一步，重发找回密码也调用此接口。
+ * 手机号码注册第一步：发送短信验证码
  * 
  * @author j
  * 
  */
-@Controller("/changepwdbyphone/step1")
-public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(UserChangePassByPhoneStep1Api.class);
+@Controller("/rp/1")
+public class RegisterStep1Api extends HandlerAdapter {
+
+	private static final Logger logger = LoggerFactory.getLogger(RegisterStep1Api.class);
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
-
-	public static final String CODE_KEY = "B0037:codekey:";
-	public static final String STEP1_KEY = "B0037:step1key:";
+	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.max", "5"));
 
 	@Autowired
-	private IUserSvr userDao;
+	private IUserSvr usrSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -62,29 +59,29 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 			return ret;
 		}
 
-		User user = userDao.getUser(User.UserPhoneColumn, phone);
-		if (null == user) {
-			ret.put(status, C0006.toString());
-			return ret;
-		}
-		
-		String userId = user.getId();
-		
 		Jedis jedis = null;
 
 		try {
 			jedis = DataHelper.getJedis();
-			
-			String daily = "B0037:"+user.getId()+":daily";
-			String threshold = jedis.get(daily);
-			Integer dailyThreshold = Integer.valueOf(threshold==null?"0":threshold);
-			if(dailyThreshold>=2){
-				ret.put(status, ErrorCode.C0046.toString());
+
+			if (usrSvr.userExist(phone)) {
+				ret.put(status, C0036.toString());
 				return ret;
 			}
-			
-			String codekey = CODE_KEY + userId;
-			String value = jedis.get(codekey);
+
+			String frequency = "B0029:" + phone + ":frequency";
+			String daily = "B0029:" + phone + ":daily";
+			int count = 1;
+			boolean b = jedis.exists(daily);
+			if (b) {
+				count = Integer.valueOf(jedis.get(daily));
+				if (count >= DO_FREQ_MAX) {
+					ret.put(status, C002C.toString());
+					return ret;
+				}
+			}
+
+			String value = jedis.get(frequency);
 			if (StringUtils.isNotBlank(value)) {
 				ret.put(status, C0037.toString());
 				return ret;
@@ -97,30 +94,19 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 
-			String codekeycount = "B0037:" + userId + ":count";
-			int count = 0;
-			if (jedis.exists(codekeycount)) {
-				count = Integer.valueOf(jedis.get(codekeycount));
-
-				if (count >= Constants.DAILYTHRESHOLD) {
-					ret.put(status, C002C.toString());
-					return ret;
-				}
+			if (!b) {
+				jedis.setex(daily, 24 * 60 * 60, count+"");
+			} else {
+				count=jedis.incr(daily).intValue();
 			}
-
-			// 记录短信验证码
-			jedis.setex(codekey, 30, code);
-			if (!jedis.exists(codekeycount))
-				jedis.setex(codekeycount, 24 * 60 * 60, "1");
-			else
-				jedis.incr(codekeycount);
+			if (!jedis.exists(frequency)) {
+				jedis.setex(frequency, 30, "1");
+			}
 			ret.put("count", count);
-			// 生成第一步凭证
-			String step1keyK = STEP1_KEY + userId;
-			String step1keyV = UUID.randomUUID().toString();
-			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
 
-			// ret.put("code", code);
+			String step1keyV = UUID.randomUUID().toString();
+			jedis.setex(step1keyV, CODE_EXPIRE, code);
+
 			ret.put("step1key", step1keyV);
 			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
@@ -130,6 +116,5 @@ public class UserChangePassByPhoneStep1Api extends HandlerAdapter {
 		}
 
 		return ret;
-
 	}
 }

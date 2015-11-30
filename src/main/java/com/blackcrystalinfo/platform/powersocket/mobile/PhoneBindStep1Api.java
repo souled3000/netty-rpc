@@ -12,11 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
-
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -24,6 +20,9 @@ import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 /**
  * 绑定手机号码的第一步，发送短信验证码。
@@ -60,11 +59,10 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 		ret.put("status", SYSERROR.toString());
 
 		// 入参解析：cookie， phone
-		String cookie = req.getParameter("cookie");
 		String phone = req.getParameter("phone");
 
 		// phone是否格式正确？用户是否存在？
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		User user = null;
 		try {
 			user = userDao.getUser(User.UserIDColumn, userId);
@@ -115,7 +113,7 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 			trans.setex(CODE_KEY + phone, CODE_EXPIRE, code);
 
 			// 发送验证码是否成功？
-			SMSSender.send(phone, "验证码【" + code + "】");
+			SMSSender.send(phone, code);
 
 			// 更新状态记录
 			interV = "1";

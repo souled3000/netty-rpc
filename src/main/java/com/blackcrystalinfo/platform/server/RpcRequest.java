@@ -14,6 +14,14 @@ public class RpcRequest {
 	private final HttpPostRequestDecoder params;
 	private final HttpHeaders headers;
 	private final String remoteAddr;
+	private String userId;
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
 	public String getUrl() {
 		return url;

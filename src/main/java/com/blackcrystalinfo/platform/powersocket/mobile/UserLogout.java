@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
@@ -30,7 +29,7 @@ public class UserLogout extends HandlerAdapter {
 
 		logger.debug("Get User logout start, cookie = {} ", cookie);
 
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		logger.debug("User id = {}", userId);
 
 		ret.put(status, SUCCESS.toString());

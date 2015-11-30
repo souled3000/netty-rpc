@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.common;
 
-import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
-
 public final class NumberByte {
 
 	public static byte[] long2Byte(long x) {
@@ -46,13 +44,22 @@ public final class NumberByte {
 	}
 
 	public static void main(String[] args) {
-		Long l = System.currentTimeMillis();
-		System.out.println(ByteUtil.toHex(NumberByte.long2Byte(l)));
-		System.out.println(Long.toHexString(l).toUpperCase());
-		System.out.println(byte2Int(int2Byte(-1)));
-
-		System.out.println(ByteUtil.toHex(long2Byte(-4)));
-		System.out.println(byte2Long(long2Byte(-4)));
-
+//		Long l = System.currentTimeMillis();
+//		System.out.println(ByteUtil.toHex(NumberByte.long2Byte(l)));
+//		System.out.println(Long.toHexString(l).toUpperCase());
+//		System.out.println(byte2Int(int2Byte(-1)));
+//
+//		System.out.println(ByteUtil.toHex(long2Byte(-4)));
+//		System.out.println(byte2Long(long2Byte(-4)));
+		f3();
+	}
+	public static void f3(){
+		Long x = Long.MAX_VALUE;
+		byte[] y =NumberByte.long2Byte(x);
+		System.out.println(org.apache.commons.codec.binary.Hex.encodeHexString(y));
+		System.out.println(NumberByte.byte2Long(y));
+		System.out.println(Long.MAX_VALUE);
+		
+		
 	}
 }

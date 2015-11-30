@@ -6,7 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blackcrystalinfo.platform.powersocket.mobile.CometAdrApi;
+import com.blackcrystalinfo.platform.powersocket.mobile.WsAdrApi;
 import com.blackcrystalinfo.platform.server.CometScanner;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -14,7 +14,7 @@ import com.blackcrystalinfo.platform.service.InternalException;
 
 public class GeliIPRefreshHandler extends HandlerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(CometAdrApi.class);
+	private static final Logger logger = LoggerFactory.getLogger(WsAdrApi.class);
 
 	public Object rpc(RpcRequest req) throws InternalException {
 		Map<Object, Object> r = new HashMap<Object, Object>();

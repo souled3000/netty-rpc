@@ -13,12 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 情景模式
@@ -33,7 +32,7 @@ public class SceneApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
-		String userId = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String userId = req.getUserId();
 		String scenename = req.getParameter("sceneName");
 		String scenecode = req.getParameter("sceneCode");
 		String mac = req.getParameter("mac");

@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
@@ -39,24 +38,12 @@ public class UserBindDeviceApi extends HandlerAdapter {
 	@Autowired
 	private IDeviceSrv deviceSrv;
 
-	public Object rpc(JSONObject req) throws Exception {
-		String mac = req.getString("mac");
-		String cookie = req.getString("cookie");
-		return deal(mac, cookie);
-	}
-
 	public Object rpc(RpcRequest req) throws Exception {
-		String mac = req.getParameter("mac");
-		String cookie = req.getParameter("cookie");
-		return deal(mac, cookie);
-	}
-
-	private Object deal(String... args) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String mac = args[0];
-		String userId = CookieUtil.gotUserIdFromCookie(args[1]);
+		String mac = req.getParameter("mac");
+		String userId = req.getUserId();
 
 		logger.info("begin BindHandler  user:{}|mac:{}", userId, mac);
 
@@ -71,7 +58,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 
 			if (!deviceSrv.exists(mac)) {
 				r.put(status, C0003.toString());
-				logger.info("There isn't this device. mac:{}|user:{}|status:{}", mac, userId, r.get("status"));
+				logger.info("There isn't this device. mac:{}|user:{}|status:{}", mac, userId, r.get(status));
 				return r;
 			}
 
@@ -79,7 +66,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			String owner = j.hget("device:owner", deviceId);
 			if (owner != null) {
 				r.put(status, C0004.toString());
-				logger.info("The device has been binded! mac:{}|user:{}|status:{}", mac, userId, r.get("status"));
+				logger.info("The device has been binded! mac:{}|user:{}|status:{}", mac, userId, r.get(status));
 				return r;
 			} else {
 				j.hset("device:owner", deviceId, userId);
@@ -97,7 +84,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			// 更新设备控制密钥
 			pushMsg2Dev(Long.valueOf(userId),Long.valueOf(deviceId), j);
 		} catch (Exception e) {
-			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId, r.get("status"), e);
+			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, userId, r.get(status), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);
@@ -130,7 +117,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long userId,Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

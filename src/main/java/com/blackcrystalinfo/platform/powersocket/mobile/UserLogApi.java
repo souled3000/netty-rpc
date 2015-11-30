@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -33,7 +32,7 @@ public class UserLogApi extends HandlerAdapter {
 
 		logger.debug("Get User log start, cookie = {} laststamp = {}", cookie, laststamp);
 
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		logger.debug("User id = {}", userId);
 
 		// TODO 根据userId， laststamp获取用户日志

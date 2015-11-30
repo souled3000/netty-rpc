@@ -12,14 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 绑定手机第二步，确定绑定
@@ -40,12 +39,11 @@ public class PhoneBindStep2Api extends HandlerAdapter {
 		ret.put("status", SYSERROR.toString());
 
 		// 入参解析：cookie， phone
-		String cookie = req.getParameter("cookie");
 		String phone = req.getParameter("phone");
 		String code = req.getParameter("code");
 
 		// phone是否格式正确？用户是否存在？
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		User user = null;
 		try {
 			user = userDao.getUser(User.UserIDColumn, userId);

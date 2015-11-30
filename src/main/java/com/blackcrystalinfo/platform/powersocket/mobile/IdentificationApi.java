@@ -37,39 +37,36 @@ public class IdentificationApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 		String cookie = req.getParameter("cookie");
-
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
-			String userId = CookieUtil.gotUserIdFromCookie(cookie);
-			String cookieNew = jedis.get("user:cookie:" + userId);
-
+			Object[] u = CookieUtil.gotUsr(cookie);
+			String userId = (String)u[0];
+			byte[] shadowMd5 = (byte[])u[1]; 
+			String stub = jedis.get("user:cookie:" + userId);
 			// cookie过期了
-			if (StringUtils.isBlank(cookieNew)) {
+			if (StringUtils.isBlank(stub)) {
 				r.put(status, C0002.toString());
 				return r;
 			}
 
 			// 一个账户只能同时在一台机器上登录
-			if (!cookie.equals(cookieNew)) {
-				logger.info("subm:"+cookie);
-				logger.info("last:"+cookieNew);
+			if (!cookie.equals(stub)) {
 				r.put(status, C0031.toString());
 				return r;
 			}
 
 			User user = null;
 			String shadow = null;
-			try {
-				user = usrSvr.getUser(User.UserIDColumn, userId);
-				shadow = user.getShadow();
-			} catch (Exception e) {
+			user = usrSvr.getUser(User.UserIDColumn, userId);
+			if (user == null) {
 				r.put(status, C0001.toString());
-				logger.error("",e);
 				return r;
 			}
+			req.setUserId(userId);
+			shadow = user.getShadow();
 
-			if (!CookieUtil.validateMobileCookie(cookie, shadow)) {
+			if (!CookieUtil.verifyMd5(shadowMd5, shadow)) {
 				r.put(status, C0002.toString());
 				logger.info("failed validating user {}", r.get(status));
 				return r;

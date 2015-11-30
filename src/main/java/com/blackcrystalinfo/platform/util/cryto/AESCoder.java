@@ -6,6 +6,29 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.codec.binary.Hex;
+/**
+ * 算法/模式/填充                    16字节加密后数据长度         不满16字节加密后长度
+
+AES/CBC/NoPadding                  16                         不支持
+AES/CBC/PKCS5Padding             32                         16
+ AES/CBC/ISO10126Padding        32                          16
+ AES/CFB/NoPadding                    16                          原始数据长度
+AES/CFB/PKCS5Padding              32                          16
+ AES/CFB/ISO10126Padding         32                          16
+ AES/ECB/NoPadding                    16                          不支持
+AES/ECB/PKCS5Padding              32                          16
+ AES/ECB/ISO10126Padding         32                          16
+ AES/OFB/NoPadding                     16                          原始数据长度
+AES/OFB/PKCS5Padding               32                          16
+ AES/OFB/ISO10126Padding          32                          16
+ AES/PCBC/NoPadding                   16                          不支持
+AES/PCBC/PKCS5Padding             32                          16
+ AES/PCBC/ISO10126Padding        32                          16
+
+ * @author Taylor
+ *
+ */
 public abstract class AESCoder {
 
 	/**
@@ -35,57 +58,17 @@ public abstract class AESCoder {
 		return secretKey;
 	}
 
-	/**
-	 * 解密
-	 * 
-	 * @param data 待解密数据
-	 * @param key 密钥
-	 * @return byte[] 解密数据
-	 * @throws Exception
-	 */
 	public static byte[] decrypt(byte[] data, byte[] key) throws Exception {
-
-		// 还原密钥
 		Key k = toKey(key);
-
-		/*
-		 * 实例化 
-		 * 使用PKCS7Padding填充方式，按如下方式实现 
-		 * Cipher.getInstance(CIPHER_ALGORITHM, "BC");
-		 */
 		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-
-		// 初始化，设置为解密模式
 		cipher.init(Cipher.DECRYPT_MODE, k);
-
-		// 执行操作
 		return cipher.doFinal(data);
 	}
 
-	/**
-	 * 加密
-	 * 
-	 * @param data 待加密数据
-	 * @param key 密钥
-	 * @return byte[] 加密数据
-	 * @throws Exception
-	 */
 	public static byte[] encrypt(byte[] data, byte[] key) throws Exception {
-
-		// 还原密钥
 		Key k = toKey(key);
-
-		/*
-		 * 实例化 
-		 * 使用PKCS7Padding填充方式，按如下方式实现
-		 * Cipher.getInstance(CIPHER_ALGORITHM, "BC");
-		 */
 		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-
-		// 初始化，设置为加密模式
 		cipher.init(Cipher.ENCRYPT_MODE, k);
-
-		// 执行操作
 		return cipher.doFinal(data);
 	}
 
@@ -110,5 +93,26 @@ public abstract class AESCoder {
 
 		// 获得密钥的二进制编码形式
 		return secretKey.getEncoded();
+	}
+	public static byte[] decryptNp(byte[] data, byte[] key) throws Exception {
+		Key k = toKey(key);
+		Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+		cipher.init(Cipher.DECRYPT_MODE, k);
+		return cipher.doFinal(data);
+	}
+	public static byte[] encryptNp(byte[] data, byte[] key) throws Exception {
+		Key k = toKey(key);
+		Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+		cipher.init(Cipher.ENCRYPT_MODE, k);
+		return cipher.doFinal(data);
+	}
+	
+	public static void main(String[] args) throws Exception{
+		byte[] a = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		byte[] x = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		byte[] b = AESCoder.encryptNp(x, a);
+		System.out.println(Hex.encodeHexString(b));
+		byte[] c = AESCoder.decryptNp(b, a);
+		System.out.println(Hex.encodeHexString(c));
 	}
 }

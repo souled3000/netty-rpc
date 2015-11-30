@@ -21,8 +21,8 @@ import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.InternalException;
 
 @Controller("/mobile/cometadr")
-public class CometAdrApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(CometAdrApi.class);
+public class WsAdrApi extends HandlerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(WsAdrApi.class);
 
 	public Object rpc(RpcRequest req) throws InternalException {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -35,10 +35,10 @@ public class CometAdrApi extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 
-			String userId = CookieUtil.gotUserIdFromCookie(cookie);
+			String userId = req.getUserId();
 
 			String heartBeat = CookieUtil.EXPIRE_SEC;
-			String proxyKey = CookieUtil.generateKey(userId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
+			String proxyKey = CookieUtil.genWsKey(userId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
 
 			r.put("proxyAddr", CometScanner.take());
 			r.put("heartBeat", heartBeat);

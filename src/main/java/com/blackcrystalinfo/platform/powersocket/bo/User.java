@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 
 public class User implements RowMapper<Object> {
@@ -62,10 +61,6 @@ public class User implements RowMapper<Object> {
 
 	public boolean validate(String pwd) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		return PBKDF2.validate(pwd, shadow);
-	}
-
-	public String getCookie() throws NoSuchAlgorithmException {
-		return CookieUtil.encode4user(id, CookieUtil.EXPIRE_SEC, shadow);
 	}
 
 	public void setUserName(String userName) {

@@ -44,35 +44,36 @@ public class DemissionApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
 		String userId = req.getParameter("uId");
-		String family = CookieUtil.gotUserIdFromCookie(req.getParameter("cookie"));
+		String family = req.getUserId();
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
 
-			User user = null;
-			User familyUser = null;
+			User member = null;
+			User host = null;
 
 			try {
-				user = loginSvr.getUser(User.UserIDColumn, userId);
-				familyUser = loginSvr.getUser(User.UserIDColumn, family);
+				member = loginSvr.getUser(User.UserIDColumn, userId);
+				host = loginSvr.getUser(User.UserIDColumn, family);
 			} catch (Exception ex) {
-				user = null;
+				member = null;
 			}
 
-			if (null == user) {
+			if (null == member) {
 				r.put(status, C0006.toString());
 				return r;
 			}
 
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
-			String hostNick = familyUser.getNick();
-			String nick = user.getNick();
+			String hostNick = host.getNick();
+			String nick = member.getNick();
 
 			mm.put("hostId", family);
-			mm.put("hostNick", hostNick);
+			mm.put("hostNick", hostNick==null?host.getPhone():hostNick);
 			mm.put("mId", userId);
-			mm.put("mNick", nick);
+			mm.put("mNick", nick==null?member.getPhone():nick);
+			
 			msg.append(JSON.toJSON(mm));
 
 			j.hdel("user:family", userId);
@@ -144,7 +145,7 @@ public class DemissionApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.generateDeviceCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

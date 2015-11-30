@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -23,6 +20,8 @@ import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.mail.SimpleMailSender;
+
+import redis.clients.jedis.Jedis;
 
 @Controller("/mobile/mailchange")
 public class MailChangeApi extends HandlerAdapter {
@@ -37,11 +36,10 @@ public class MailChangeApi extends HandlerAdapter {
 		ret.put(status, ErrorCode.SYSERROR);
 
 		// 入参解析：email， phone
-		String cookie = req.getParameter("cookie");
 		String email = req.getParameter("email");
 
 		// 用户是否存在？
-		String userId = CookieUtil.gotUserIdFromCookie(cookie);
+		String userId = req.getUserId();
 		User user = null;
 		try {
 			user = userDao.getUser(User.UserIDColumn, userId);
