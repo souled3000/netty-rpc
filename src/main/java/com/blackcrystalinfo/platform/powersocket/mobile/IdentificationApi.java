@@ -64,6 +64,7 @@ public class IdentificationApi extends HandlerAdapter {
 				return r;
 			}
 			req.setUserId(userId);
+			r.put("id",userId);
 			shadow = user.getShadow();
 
 			if (!CookieUtil.verifyMd5(shadowMd5, shadow)) {

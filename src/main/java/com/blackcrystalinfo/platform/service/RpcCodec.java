@@ -103,7 +103,10 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		HttpPostRequestDecoder decoder = null;
 		if (req.getMethod() == HttpMethod.POST)
 			decoder = new HttpPostRequestDecoder(req);
-		IHandler validateHandler = (IHandler) this.getBean(reqUrl.substring(0, reqUrl.lastIndexOf("/")));
+		
+		IHandler validateHandler=null;
+		if(reqUrl.startsWith("/mobile"))
+			validateHandler = (IHandler) this.getBean("/mobile");
 		IHandler handler = null;
 
 		if (req.getUri().contains("?"))

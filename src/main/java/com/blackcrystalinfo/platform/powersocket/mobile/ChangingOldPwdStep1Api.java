@@ -53,14 +53,9 @@ public class ChangingOldPwdStep1Api extends HandlerAdapter {
 		String userId = req.getUserId();
 
 		User user = null;
-		try {
-			user = userDao.getUser(User.UserIDColumn, userId);
+		user = userDao.getUser(User.UserIDColumn, userId);
 
-			if (null == user) {
-				throw new Exception("user is null");
-			}
-		} catch (Exception e) {
-			logger.error("cannot find user by phone.", e);
+		if (null == user) {
 			ret.put(status, C0006.toString());
 			return ret;
 		}

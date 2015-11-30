@@ -233,7 +233,8 @@ public class CookieUtil {
 		String usrCki = genUsrCki("100","1000:771585542c3b3f5e3d7ba67ec60f2ca790ddcb82881d022ab4ce60e684321969:2997ed9c153fc8d406011fbab5e73c97017c32289c5e714b3953bffb1b822000a4e01932dcc3071fde2cc71c9b763663f915a5b2dcf401569fe9af2ba6b3bf57");
 		System.out.println(usrCki);
 
-		Object[] fids = gotUsr(usrCki);
+//		Object[] fids = gotUsr(URLDecoder.decode(usrCki,"utf8"));
+		Object[] fids = gotUsr("pB8hTdq4TiNcRFZRg9qzr+9TJ4oxilknmG7+KZJPoiM=");
 		System.out.println((String) fids[0]);
 		System.out.println(Hex.encodeHex((byte[]) fids[1]));
 		
@@ -253,7 +254,7 @@ public class CookieUtil {
 	}
 
 	public static Object[] gotUsr(String cookie) throws Exception {
-		byte[] src = Base64.decodeBase64(URLDecoder.decode(cookie, "utf8"));
+		byte[] src = Base64.decodeBase64(cookie);
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		byte[] key = md5.digest(CookieUtil.USER_SALT.getBytes());
 		byte[] text = AESCoder.decrypt(src, key);

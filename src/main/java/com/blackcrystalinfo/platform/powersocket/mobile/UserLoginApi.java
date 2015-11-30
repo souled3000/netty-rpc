@@ -8,6 +8,7 @@ import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -129,7 +130,7 @@ public class UserLoginApi extends HandlerAdapter {
 
 			// 8. generate cookie
 			String cookie = CookieUtil.genUsrCki(user.getId(), user.getShadow());
-			jedis.setex("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE, cookie); // 用户Id->cookie映射
+			jedis.setex("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE, URLDecoder.decode(cookie,"utf8")); // 用户Id->cookie映射
 
 			r.put("userId", userId);
 			r.put("cookie", cookie);
