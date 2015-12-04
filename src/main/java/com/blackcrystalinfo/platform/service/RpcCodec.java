@@ -97,7 +97,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 		}
 		RpcRequest rp = null;
 		String reqUrl = req.getUri();
-		logger.info("request(new)--{}--{}", reqUrl, req.getMethod());
+		logger.debug("request(new)--{}--{}", reqUrl, req.getMethod());
 		HttpHeaders headers = req.headers();
 
 		HttpPostRequestDecoder decoder = null;
@@ -116,7 +116,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 
 		if (handler == null) {
 			sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND));
-			logger.info("(404)--{}--{}", reqUrl, req.getMethod());
+			logger.debug("(404)--{}--{}", reqUrl, req.getMethod());
 			return;
 		} else {
 			Object ret = null;
@@ -135,11 +135,11 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					ret = handler.rpc(rp);
 				}
 			} catch (Throwable e) {
-				logger.error("(400) {} ", reqUrl, e);
+				logger.debug("(400) {} ", reqUrl, e);
 				sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
 			} finally {
 				if (ret != null) {
-					logger.info("url:{} | request:{} | response:{}", reqUrl, rp.toString(), JSON.toJSONString(ret));
+					logger.info("url:{},req={},res={}", reqUrl, rp.toString(), JSON.toJSONString(ret));
 					// 不需要返回请求的url，去掉了
 					// if (ret instanceof Map) {
 					// Map m = (Map) ret;
@@ -151,7 +151,7 @@ public class RpcCodec extends ChannelInboundHandlerAdapter {
 					}
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(JSON.toJSONBytes(ret, new SerializerFeature[0]))));
 				} else {
-					logger.error("(503)ret is null: {} | param:{}", reqUrl, rp.toString());
+					logger.debug("(503)ret is null: {} | param:{}", reqUrl, rp.toString());
 					sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, SERVICE_UNAVAILABLE));
 				}
 			}

@@ -20,6 +20,8 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.Utils;
+import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
@@ -39,7 +41,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String userId = req.getUserId();
+		String uId = req.getUserId();
 
 		// 手机端需要mac区分绑定解绑的是哪个设备，这里给返回。是不是很奇葩。。。
 		r.put("mac", mac);
@@ -55,23 +57,25 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 
 			String deviceId = String.valueOf(deviceDao.getIdByMac(mac));
 			String owner = j.hget("device:owner", deviceId);
-			if (owner == null || !StringUtils.equals(owner, userId)) {
+			if (owner == null || !StringUtils.equals(owner, uId)) {
 				r.put(status, C0005.toString());
 				return r;
 			}
 
 			j.hdel("device:owner", deviceId);
-			j.srem("u:" + userId + ":devices", deviceId);
+			j.srem("u:" + uId + ":devices", deviceId);
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(deviceId).append("|").append(userId).append("|").append("0");
+			sb.append(deviceId).append("|").append(uId).append("|").append("0");
 			j.publish("PubDeviceUsers", sb.toString());
-
+			
 			// 设备绑定解绑，发布通知消息，更新用户设备关系。
-			pubDeviceUsersRels(deviceId, j.smembers("family:" + userId), j);
+			String f = j.hget("user:family", uId);
+			Set<String> all = j.smembers("family:" + f);
+			pubDeviceUsersRels(deviceId, all, j);
 
 			// 更新设备控制密钥
-			pushMsg2Dev(Long.valueOf(userId),Long.valueOf(deviceId), j);
+			pushMsg2Dev(Long.valueOf(uId),Long.valueOf(deviceId), j);
 		} catch (Exception e) {
 			logger.error("", e);
 			return r;
@@ -86,30 +90,31 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 	/**
 	 * 设备解绑，发布通知消息，更新用户设备关系。
 	 * 
-	 * @param devId
+	 * @param dev
 	 *            上下线设备ID
-	 * @param uIds
+	 * @param m
 	 *            用户列表
 	 * @param jedis
 	 *            redis连接
 	 */
-	private void pubDeviceUsersRels(String devId, Set<String> uIds, Jedis jedis) {
+	private void pubDeviceUsersRels(String dev, Set<String> m, Jedis j) {
 
 		// 用户没加入家庭
-		if (null == uIds) {
+		if (null == m) {
 			return;
 		}
 
 		// 家庭所有成员需要更新列表
-		for (String uId : uIds) {
+		for (String o : m) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(devId).append("|").append(uId).append("|").append("0");
-			jedis.publish("PubDeviceUsers", sb.toString());
+			sb.append(dev).append("|").append(o).append("|").append("0");
+			j.publish("PubDeviceUsers", sb.toString());
+			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(o + "|", BizCode.DeviceUnBind.getValue(), Long.valueOf(dev),""));
 		}
 	}
 
 	private void pushMsg2Dev(Long userId,Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey();
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

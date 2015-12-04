@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Hashtable;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -25,6 +26,7 @@ import com.blackcrystalinfo.platform.util.cryto.AESCoder;
  * 
  */
 public class CookieUtil {
+	public static final Hashtable<String,byte[]> USR_KEY = new Hashtable<String,byte[]>();
 //	private static final Logger logger = LoggerFactory.getLogger(CookieUtil.class);
 	/**
 	 * cookie过期时间
@@ -124,7 +126,7 @@ public class CookieUtil {
 		return key;
 	}
 
-	public static byte[] genDvCookie(byte[] mac) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] genDvCki(byte[] mac) throws NoSuchAlgorithmException, InvalidKeyException {
 		Mac hmac = Mac.getInstance("HmacSHA256");
 		SecretKey secret = new SecretKeySpec(DEVICE_SALT.getBytes(), "HMACSHA256");
 		hmac.init(secret);
@@ -132,7 +134,7 @@ public class CookieUtil {
 		return doFinal;
 	}
 
-	public static boolean isDvCookie(byte[] mac, String cookie) throws Exception {
+	public static boolean isDvCki(byte[] mac, String cookie) throws Exception {
 		Mac hmac = Mac.getInstance("HmacSHA256");
 		SecretKey secret = new SecretKeySpec(DEVICE_SALT.getBytes(), "HMACSHA256");
 		hmac.init(secret);
@@ -197,7 +199,7 @@ public class CookieUtil {
 //		return true;
 //	}
 
-	public static byte[] genCtlKey(String devId) {
+	public static byte[] genCtlKey() {
 		SecureRandom sr;
 		try {
 			sr = SecureRandom.getInstance("SHA1PRNG");
@@ -214,7 +216,7 @@ public class CookieUtil {
 		// System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
 		System.out.println(Hex.encodeHexString(new byte[] { 0x01, 0x02, 0x0e }));
 		System.out.println(Hex.encodeHexString(Hex.decodeHex("01020e".toCharArray())));
-		byte[] b = genCtlKey("-29");
+		byte[] b = genCtlKey();
 		System.out.println(Hex.encodeHexString(b));
 		byte[] ctn = new byte[8];
 		EndianUtils.writeSwappedLong(ctn, 0, -1L);
@@ -226,7 +228,7 @@ public class CookieUtil {
 		System.out.println("---------------------DEV-COOKIE----------------------------");
 		byte[] mac = Hex.decodeHex("040027430c000000".toCharArray());
 		System.out.println(Hex.encodeHexString(mac));
-		byte[] dvcookie = CookieUtil.genDvCookie(mac);
+		byte[] dvcookie = CookieUtil.genDvCki(mac);
 		System.out.println(dvcookie.length);
 
 		System.out.println("---------------------USR-COOKIE----------------------------");
@@ -234,12 +236,22 @@ public class CookieUtil {
 		System.out.println(usrCki);
 
 //		Object[] fids = gotUsr(URLDecoder.decode(usrCki,"utf8"));
-		Object[] fids = gotUsr("pB8hTdq4TiNcRFZRg9qzr+9TJ4oxilknmG7+KZJPoiM=");
+//		fids = gotUsr(usrCki);
+		Object[] fids = gotUsr("zRJ743WVzw7bSjAyC4AowXv240LD%2BNGgxbS3Mri93fg%3D");
 		System.out.println((String) fids[0]);
 		System.out.println(Hex.encodeHex((byte[]) fids[1]));
 		
 		System.out.println(verifyMd5((byte[]) fids[1],"1000:771585542c3b3f5e3d7ba67ec60f2ca790ddcb82881d022ab4ce60e684321969:2997ed9c153fc8d406011fbab5e73c97017c32289c5e714b3953bffb1b822000a4e01932dcc3071fde2cc71c9b763663f915a5b2dcf401569fe9af2ba6b3bf57"));
 
+		
+		System.out.println(URLDecoder.decode("6SZ2iy8wW7N8gAJuMzYKQLZo7gS1xcXjOl6B5hFqoL8%3D", "utf8"));
+		System.out.println(URLEncoder.encode("zRJ743WVzw7bSjAyC4AowXv240LD+NGgxbS3Mri93fg=", "utf8"));
+		
+		
+		boolean id=CookieUtil.isDvCki(Hex.decodeHex("030027430c000000".toCharArray()), "1389c345c6332e704d861c278f4bc06e2c94f2736e6499f43f702d8a9582a238");
+		byte[] dvc =CookieUtil.genDvCki(Hex.decodeHex("030027430c000000".toCharArray()));
+		System.out.println(id);
+		System.out.println(Hex.encodeHexString(dvc));
 	}
 
 	public static String genUsrCki(String id, String shadow) throws Exception {
@@ -254,7 +266,7 @@ public class CookieUtil {
 	}
 
 	public static Object[] gotUsr(String cookie) throws Exception {
-		byte[] src = Base64.decodeBase64(cookie);
+		byte[] src = Base64.decodeBase64(URLDecoder.decode(cookie,"utf8"));
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		byte[] key = md5.digest(CookieUtil.USER_SALT.getBytes());
 		byte[] text = AESCoder.decrypt(src, key);

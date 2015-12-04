@@ -11,8 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
+
+import redis.clients.jedis.Jedis;
 
 @Controller("/mobile/logout")
 public class UserLogout extends HandlerAdapter {
@@ -21,19 +24,21 @@ public class UserLogout extends HandlerAdapter {
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
-		Map<Object, Object> ret = new HashMap<Object, Object>();
-		ret.put(status, SYSERROR.toString());
-
-		// 入参解析：cookie， phone
-		String cookie = req.getParameter("cookie");
-
-		logger.debug("Get User logout start, cookie = {} ", cookie);
-
+		Map<Object, Object> r = new HashMap<Object, Object>();
+		r.put(status, SYSERROR.toString());
+		Jedis j = null;
 		String userId = req.getUserId();
-		logger.debug("User id = {}", userId);
-
-		ret.put(status, SUCCESS.toString());
-		return ret;
+		try{
+			j=DataHelper.getJedis();
+			j.del("user:cookie:" + userId);
+		}catch(Exception e ){
+			return r;
+		}finally{
+			DataHelper.returnJedis(j);
+		}
+		r.put(status, SUCCESS.toString());
+		logger.info("{}|{}|{}",System.currentTimeMillis(),userId,"登出成功");
+		return r;
 	}
 
 }

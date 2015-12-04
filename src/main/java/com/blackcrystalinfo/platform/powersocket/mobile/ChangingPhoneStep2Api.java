@@ -38,7 +38,6 @@ public class ChangingPhoneStep2Api extends HandlerAdapter {
 
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP2_KEY = "B0033:step2key:";
 
 	@Autowired
 	private IUserSvr usrSrv;
@@ -60,20 +59,18 @@ public class ChangingPhoneStep2Api extends HandlerAdapter {
 			return ret;
 		}
 
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
-			// 获取第一步生成的code，未生成或已过期？
-			String codeV = jedis.get(ChangingPhoneStep1Api.CODE_KEY + userId);
-			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, ErrorCode.C0040.toString());
+			j = DataHelper.getJedis();
+			String succ = "cp:succ:"+user.getId();
+			if(j.incrBy(succ,0L)>=2){
+				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
 			}
-
-			// 验证第一步凭证
-			String step1keyK = ChangingPhoneStep1Api.STEP1_KEY + userId;
-			String step1keyV = jedis.get(step1keyK);
-			if (!StringUtils.equals(step1keyV, step1key)) {
+			// 获取第一步生成的code，未生成或已过期？
+			String codeV = j.get(step1key);
+			if (StringUtils.isBlank(codeV)) {
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 
@@ -83,15 +80,10 @@ public class ChangingPhoneStep2Api extends HandlerAdapter {
 				return ret;
 			}
 
-			// 输入无误,清除临时数据
-			jedis.del(ChangingPhoneStep1Api.CODE_KEY + userId);
-			jedis.del(ChangingPhoneStep1Api.INTV_KEY + userId);
-			jedis.del(ChangingPhoneStep1Api.FREQ_KEY + userId);
 
 			// 生成第二步凭证
-			String step2keyK = STEP2_KEY + userId;
 			String step2keyV = UUID.randomUUID().toString();
-			jedis.setex(step2keyK, CODE_EXPIRE, step2keyV);
+			j.setex(step2keyV, CODE_EXPIRE, "");
 
 			// 返回
 			ret.put("step2key", step2keyV);
@@ -100,7 +92,7 @@ public class ChangingPhoneStep2Api extends HandlerAdapter {
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		return ret;

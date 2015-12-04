@@ -43,37 +43,33 @@ public class ChangingPhoneStep4Api extends HandlerAdapter {
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
-		ret.put(status, ErrorCode.SYSERROR);
+		ret.put(status, ErrorCode.SYSERROR.toString());
 
 		// 入参解析
-		String step3key = req.getParameter("step3key");
+		String pz = req.getParameter("step3key");
 		String code = req.getParameter("code");
 
 		// phone是否格式正确？用户是否存在？
 		String userId = req.getUserId();
 		User user = userDao.getUser(User.UserIDColumn, userId);
 
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
+			j = DataHelper.getJedis();
+			String succ = "cp:succ:" + user.getId();
+			if (j.incrBy(succ, 0L) >= 2) {
+				ret.put(status, ErrorCode.C0046.toString());
+				return ret;
+			}
 
 			// 验证第三步凭证
-			String step3keyK = ChangingPhoneStep3Api.STEP3_KEY + userId;
-			String step3keyV = jedis.get(step3keyK);
-			if (!StringUtils.equals(step3keyV, step3key)) {
+			String v = j.get(pz);
+			if (StringUtils.isBlank(v)) {
 				ret.put(status, C0040.toString());
 				return ret;
 			}
-
-			String step3phoneK = ChangingPhoneStep3Api.STEP3_PHONE + userId;
-			String step3phoneV = jedis.get(step3phoneK);
-
-			// 获取第三步生成的code，未生成或已过期？
-			String codeV = jedis.get(ChangingPhoneStep3Api.CODE_KEY + userId);
-			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, C0042.toString());
-				return ret;
-			}
+			String codeV = v.split("\\|")[0];
+			String phone = v.split("\\|")[1];
 
 			// 用户输入的错误？
 			if (!StringUtils.equals(code, codeV)) {
@@ -82,23 +78,27 @@ public class ChangingPhoneStep4Api extends HandlerAdapter {
 			}
 
 			// 输入无误,清除临时数据
-			jedis.del(ChangingPhoneStep3Api.CODE_KEY + userId);
-			jedis.del(ChangingPhoneStep3Api.INTV_KEY + userId);
-			jedis.del(ChangingPhoneStep3Api.FREQ_KEY + userId);
+			j.del(pz);
 
 			// 数据入库
-			userDao.userChangeProperty(userId, User.UserNameColumn, step3phoneV);
-			userDao.userChangeProperty(userId, User.UserPhoneColumn, step3phoneV);
-			userDao.userChangeProperty(userId, User.UserPhoneableColumn, "true");
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			// 返回
+			userDao.updatePhone(userId, phone);
 			ret.put(status, ErrorCode.SUCCESS.toString());
-			SMSSender.send(step3phoneV, URLEncoder.encode(df.format(new Date())+"您的"+user.getUserName()+"帐号成功绑定"+step3phoneV+"手机","utf8"));
+			long succCount = j.incr(succ);
+			if (succCount == 1)
+				j.expire(succ, 24 * 60 * 60);
+			j.del(ChangingPhoneStep3Api.FREQ_KEY + user.getId());
+			j.del(ChangingPhoneStep1Api.FREQ_KEY + user.getId());
+
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			StringBuilder sms = new StringBuilder();
+			sms.append(df.format(new Date())).append("您的").append(user.getUserName()).append("帐号成功绑定").append(phone).append("手机");
+			logger.info("{}|{}|{}", System.currentTimeMillis(), userId, sms.toString());
+			SMSSender.send(phone, URLEncoder.encode(sms.toString(), "utf8"));
 		} catch (Exception e) {
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		return ret;

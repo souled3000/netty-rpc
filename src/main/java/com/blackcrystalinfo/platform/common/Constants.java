@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.common;
 
+import java.util.regex.Pattern;
+
 public class Constants extends ConfigurableConstants {
 
 	static {
@@ -76,10 +78,14 @@ public class Constants extends ConfigurableConstants {
 	 */
 	public static int USER_COOKIE_EXPIRE = Integer.valueOf(getProperty("user.cookie.expire", "1296000"));
 
+	public static int USER_COMMON_TIMES = Integer.valueOf(getProperty("user.common.times.1", "5"));
+	
 	public static String getProperty(String key, String defaultValue) {
 		return p.getProperty(key, defaultValue);
 	}
-
+	public static final Pattern P1 =Pattern.compile("^[\\S]{6,16}$");
+	public static final Pattern P2 =Pattern.compile("^\\d{9,16}$");
+	public static final Pattern P3 =Pattern.compile("^\\d+$");
 	public static void main(String[] args) {
 		System.out.println(Constants.REDIS_HOST);
 		System.out.println(Constants.REDIS_PORT);

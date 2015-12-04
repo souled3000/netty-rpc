@@ -28,7 +28,7 @@ import com.blackcrystalinfo.platform.service.IUserSvr;
  * 
  */
 
-@Controller("/mobile/getUserInfo")
+@Controller("/mobile/usr")
 public class UserInfoApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserInfoApi.class);
 

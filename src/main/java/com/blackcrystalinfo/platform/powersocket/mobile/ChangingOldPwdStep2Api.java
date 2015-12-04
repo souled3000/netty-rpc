@@ -54,19 +54,23 @@ public class ChangingOldPwdStep2Api extends HandlerAdapter {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
-
-		Jedis jedis = null;
+		if (StringUtils.isEmpty(passNew)) {
+			return ret;
+		}
+//		if(!(Constants.P3.matcher(passNew).find()&&Constants.P2.matcher(passNew).find())&&!(!Constants.P3.matcher(passNew).find()&&Constants.P1.matcher(passNew).find())){
+//			return ret;
+//		}
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
-
-			// 验证第一步凭证
-			String step1keyK = ChangingOldPwdStep1Api.STEP1_KEY + userId;
-			String step1keyV = jedis.get(step1keyK);
-			if (StringUtils.isBlank(step1keyV)) {
-				ret.put(status, ErrorCode.C0040.toString());
+			j = DataHelper.getJedis();
+			String succ = "cop:succ:" + user.getId();
+			if (j.incrBy(succ, 0L) >= 2) {
+				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
 			}
-			if (!StringUtils.equals(step1keyV, step1key)) {
+			// 验证第一步凭证
+			if (!j.exists(step1key)) {
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 			if (PBKDF2.validate(passNew, user.getShadow())) {
@@ -76,16 +80,19 @@ public class ChangingOldPwdStep2Api extends HandlerAdapter {
 			// 生成新密码
 			String newShadow = PBKDF2.encode(passNew);
 			userDao.userChangeProperty(userId, User.UserShadowColumn, newShadow);
-			jedis.publish("PubModifiedPasswdUser", userId);
+			j.publish("PubModifiedPasswdUser", userId);
 
 			ret.put(status, SUCCESS.toString());
+			long succCount = j.incr(succ);
+			if (succCount == 1)
+				j.expire(succ, 24 * 60 * 60);
+			
+			
 		} catch (Exception e) {
-			logger.error("reg by phone step1 error! ", e);
+			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
-
 		return ret;
-
 	}
 }

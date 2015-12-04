@@ -89,6 +89,8 @@ public class InvitationCfmApi extends HandlerAdapter {
 
 				// 发布通知：用户设备列表更新
 				pubDeviceUsersRels(uId, members, j);
+				
+				logger.info("{}|{}|{}",System.currentTimeMillis(),oper,new String(nick+"加入本家庭"));
 			} else {
 				j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(String.valueOf(oper) + "|", BizCode.FamilyRefuse.getValue(), Long.parseLong(uId), msg.toString()));
 				j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(String.valueOf(uId) + "|", BizCode.FamilyRefuse.getValue(), Long.parseLong(uId), msg.toString()));

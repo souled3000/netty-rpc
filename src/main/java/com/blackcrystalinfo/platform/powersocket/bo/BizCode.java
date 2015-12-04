@@ -27,8 +27,9 @@ public enum BizCode {
 	/** 11.用户邮件成功激活 */
 	UserActivateSuccess(11),
 	/** 12.用户手机号码绑定成功 */
-	UserPhoneBindSuccess(12);
+	UserPhoneBindSuccess(12),
 
+	UserResetedPwd(100);
 	private int value;
 
 	private BizCode(int value) {

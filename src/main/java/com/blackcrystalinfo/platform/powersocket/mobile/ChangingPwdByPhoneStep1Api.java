@@ -2,7 +2,6 @@ package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
@@ -18,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import redis.clients.jedis.Jedis;
-
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
@@ -29,6 +26,8 @@ import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 
@@ -55,7 +54,6 @@ public class ChangingPwdByPhoneStep1Api extends HandlerAdapter {
 		String phone = req.getParameter("phone");
 
 		if (StringUtils.isBlank(phone)) {
-			ret.put(status, C0035.toString());
 			return ret;
 		}
 
@@ -67,27 +65,29 @@ public class ChangingPwdByPhoneStep1Api extends HandlerAdapter {
 		
 		String userId = user.getId();
 		
-		Jedis jedis = null;
+		Jedis j = null;
 
 		try {
-			jedis = DataHelper.getJedis();
+			j = DataHelper.getJedis();
 			
-			if(jedis.incrBy("B0037:"+user.getId()+":daily",0L)>=2){
+			if(j.incrBy("B0037:succ:"+user.getId(),0L)>=2){
 				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
 			}
 			
-			String codeExpr = "B0037:"+user.getId()+":30s";
-			if (jedis.exists(codeExpr)) {
-				ret.put(status, C0037.toString());
-				return ret;
-			}
-			String invokeCount = "B0037:" + userId + ":count";
-			long count = jedis.incr(invokeCount);
-			if (count >= Constants.DAILYTHRESHOLD) {
+			String invokeCount = "B0037:count:" + userId;
+			long count = j.incrBy(invokeCount,0);
+			if (count >= Constants.USER_COMMON_TIMES) {
 				ret.put(status, C002C.toString());
 				return ret;
 			}
+			String freq = "B0037:"+user.getId()+":30s";
+			if (j.exists(freq)) {
+				ret.put(status, C0037.toString());
+				return ret;
+			}
+			j.setex(freq,30,"");
+			
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);
 			if (!SMSSender.send(phone, code)) {
@@ -95,20 +95,20 @@ public class ChangingPwdByPhoneStep1Api extends HandlerAdapter {
 				return ret;
 			}
 			
+			count = j.incr(invokeCount);
 			if(count==1)
-			jedis.expire(invokeCount, 24*60*60);
+			j.expire(invokeCount, 24*60*60);
 			
 			ret.put("count", count);
 			// 生成第一步凭证
 			String step1key = UUID.randomUUID().toString();
-			jedis.setex(step1key, CODE_EXPIRE, code);
-			jedis.setex(codeExpr,30,"");
+			j.setex(step1key, CODE_EXPIRE, code);
 			ret.put("step1key", step1key);
 			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		return ret;

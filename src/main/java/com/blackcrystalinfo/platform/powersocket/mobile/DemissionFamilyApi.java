@@ -115,7 +115,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.genCtlKey(String.valueOf(devId));
+		byte[] ctlKey = CookieUtil.genCtlKey();
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

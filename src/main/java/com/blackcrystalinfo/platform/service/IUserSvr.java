@@ -17,5 +17,6 @@ public interface IUserSvr {
 	void saveUser(String userName, String phone, String shadow);
 	void userRegister(String userName, String email, String phone, String nick, String shadow);
 	void userChangeProperty(String userid, String key, String value);
+	void updatePhone(String userid, String phone);
 	User getUser(String key, String userName);
 }

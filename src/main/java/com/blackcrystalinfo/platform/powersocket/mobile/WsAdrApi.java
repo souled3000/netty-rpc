@@ -27,10 +27,6 @@ public class WsAdrApi extends HandlerAdapter {
 	public Object rpc(RpcRequest req) throws InternalException {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
-		String cookie = req.getParameter("cookie");
-
-		logger.info("WebsocketInfoHandler begin cookie:{}", cookie);
-
 		Jedis jedis = null;
 		try {
 			jedis = DataHelper.getJedis();
@@ -45,7 +41,7 @@ public class WsAdrApi extends HandlerAdapter {
 			r.put("proxyKey", proxyKey);
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			logger.error("System error occurs", e);
+			logger.error("", e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(jedis);

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
@@ -48,14 +49,17 @@ public class RegisterStep3Api extends HandlerAdapter {
 
 		String phone = req.getParameter("phone");
 		String step2key = req.getParameter("step2key");
-		String password = req.getParameter("w");
+		String pwd = req.getParameter("w");
 		if (StringUtils.isBlank(phone)) {
 			return ret;
 		}
 		if (StringUtils.isBlank(step2key)) {
 			return ret;
 		}
-		if (StringUtils.isBlank(password)) {
+//		if(!(Constants.P3.matcher(pwd).find()&&Constants.P2.matcher(pwd).find())&&!(!Constants.P3.matcher(pwd).find()&&Constants.P1.matcher(pwd).find())){
+//			return ret;
+//		}
+		if (StringUtils.isEmpty(pwd)) {
 			return ret;
 		}
 
@@ -68,14 +72,10 @@ public class RegisterStep3Api extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 
+			
 			// 验证第二步凭证
-			String step2keyK = RegisterStep2Api.STEP2_KEY + phone;
-			String step2keyV = jedis.get(step2keyK);
-			if (StringUtils.isBlank(step2keyV)) {
+			if (!jedis.exists(step2key)) {
 				ret.put(status, C0040.toString());
-				return ret;
-			}
-			if (!StringUtils.equals(step2keyV, step2key)) {
 				return ret;
 			}
 
@@ -83,23 +83,42 @@ public class RegisterStep3Api extends HandlerAdapter {
 			boolean exist = usrSvr.userExist(phone);
 			if (exist) {
 				ret.put(status, ErrorCode.C0036.toString());
-				logger.debug("phone has been registed. phone:{}", phone);
 				return ret;
 			}
 
 			// 注册用户信息
-			usrSvr.saveUser(phone, phone, PBKDF2.encode(password));
+			usrSvr.saveUser(phone, phone, PBKDF2.encode(pwd));
 			String userId = usrSvr.getUser(User.UserNameColumn, phone).getId();
 
 			ret.put("uId", userId);
 			ret.put(status, SUCCESS.toString());
-			SMSSender.send(phone, URLEncoder.encode("注册成功","utf8"));
+			String sms = new String("注册成功");
+			SMSSender.send(phone, URLEncoder.encode(sms,"utf8"));
+			logger.info("{}|{}|{}",System.currentTimeMillis(),userId,sms);
 		} catch (Exception e) {
-			logger.error("reg by phone step1 error! ", e);
+			logger.error("", e);
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}
 
 		return ret;
+	}
+
+	public static void main(String[] args) {
+		String pwd = "111111333";
+		if(Constants.P3.matcher(pwd).find()&&Constants.P2.matcher(pwd).find()){
+			System.out.println("a合格");
+			
+		}else if(!Constants.P3.matcher(pwd).find()&&Constants.P1.matcher(pwd).find()){
+			System.out.println("b合格");
+			
+		}else{
+			System.out.println("a不合格");
+		}
+		if(!(Constants.P3.matcher(pwd).find()&&Constants.P2.matcher(pwd).find())&&!(!Constants.P3.matcher(pwd).find()&&Constants.P1.matcher(pwd).find())){
+			System.out.println("b不合格");
+		}
+		System.out.println(StringUtils.isEmpty("    "));
+		System.out.println(StringUtils.isBlank("    "));
 	}
 }

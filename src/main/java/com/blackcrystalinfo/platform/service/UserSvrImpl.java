@@ -79,4 +79,10 @@ public class UserSvrImpl implements IUserSvr {
 		return null;
 	}
 
+	@Transactional
+	public void updatePhone(String userid, String phone) {
+		String sql = "update user set username=? , phone=? , phoneable='true' where id =?";
+		jdbcTemplate.update(sql, phone,phone, userid);
+	}
+
 }

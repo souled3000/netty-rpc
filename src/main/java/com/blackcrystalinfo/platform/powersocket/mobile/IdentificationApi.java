@@ -7,6 +7,7 @@ import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class IdentificationApi extends HandlerAdapter {
 			}
 
 			// 一个账户只能同时在一台机器上登录
-			if (!cookie.equals(stub)) {
+			if (!stub.equals(URLDecoder.decode(cookie, "utf8"))) {
 				r.put(status, C0031.toString());
 				return r;
 			}

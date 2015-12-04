@@ -156,15 +156,13 @@ public class UserRegisterApi extends HandlerAdapter {
 				j.setex("user:mailActive:" + uuid, Constants.MAIL_ACTIVE_EXPIRE, userId);
 			} else {
 				// 只记录日志，不返回客户端
-				logger.error("send active email failed! email={}", email);
+				logger.error("send active email failesd! email={}", email);
 			}
 
 			// 8. set success code
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
-			DataHelper.returnBrokenJedis(j);
-			logger.error("User regist error, email:{}|phone:{}|passwd:{}|status:{}", email, phone, pwd, r.get(status), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

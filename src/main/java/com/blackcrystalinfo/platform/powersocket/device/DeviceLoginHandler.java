@@ -71,7 +71,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 //			r.put("keyMd5", keyMd5);
 //			// 验证cookie
 			try {
-				if (!CookieUtil.isDvCookie(Hex.decodeHex(mac.toCharArray()), cookie)) {
+				if (!CookieUtil.isDvCki(Hex.decodeHex(mac.toCharArray()), cookie)) {
 					r.put("status", 1);
 					return r;
 				}

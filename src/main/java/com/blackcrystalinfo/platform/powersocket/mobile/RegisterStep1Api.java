@@ -42,7 +42,6 @@ public class RegisterStep1Api extends HandlerAdapter {
 
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
-	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.max", "5"));
 
 	@Autowired
 	private IUserSvr usrSvr;
@@ -59,60 +58,51 @@ public class RegisterStep1Api extends HandlerAdapter {
 			return ret;
 		}
 
-		Jedis jedis = null;
+		Jedis j = null;
 
 		try {
-			jedis = DataHelper.getJedis();
+			j = DataHelper.getJedis();
 
 			if (usrSvr.userExist(phone)) {
 				ret.put(status, C0036.toString());
 				return ret;
 			}
-
-			String frequency = "B0029:" + phone + ":frequency";
-			String daily = "B0029:" + phone + ":daily";
-			int count = 1;
-			boolean b = jedis.exists(daily);
-			if (b) {
-				count = Integer.valueOf(jedis.get(daily));
-				if (count >= DO_FREQ_MAX) {
-					ret.put(status, C002C.toString());
-					return ret;
-				}
-			}
-
-			String value = jedis.get(frequency);
-			if (StringUtils.isNotBlank(value)) {
+			String freq = "B0029:30s:" + phone;
+			if (StringUtils.isNotBlank(j.get(freq))) {
 				ret.put(status, C0037.toString());
 				return ret;
 			}
+			j.setex(freq,30,"");
 
+			String invokeCount = "B0029:count:" + phone;
+			long times = j.incrBy(invokeCount,0);
+			if (times >= Constants.USER_COMMON_TIMES) {
+				ret.put(status, C002C.toString());
+				return ret;
+			}
+			
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);
 			if (!SMSSender.send(phone, code)) {
 				ret.put(status, C0038.toString());
 				return ret;
 			}
-
-			if (!b) {
-				jedis.setex(daily, 24 * 60 * 60, count+"");
-			} else {
-				count=jedis.incr(daily).intValue();
+			
+			times=j.incr(invokeCount);
+			if (times == 1) {
+				j.expire(invokeCount, 24 * 60 * 60);
 			}
-			if (!jedis.exists(frequency)) {
-				jedis.setex(frequency, 30, "1");
-			}
-			ret.put("count", count);
+			ret.put("count", times);
 
-			String step1keyV = UUID.randomUUID().toString();
-			jedis.setex(step1keyV, CODE_EXPIRE, code);
+			String key = UUID.randomUUID().toString();
+			j.setex(key, CODE_EXPIRE, code);
 
-			ret.put("step1key", step1keyV);
+			ret.put("step1key", key);
 			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
-			logger.error("reg by phone step1 error! ", e);
+			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		return ret;

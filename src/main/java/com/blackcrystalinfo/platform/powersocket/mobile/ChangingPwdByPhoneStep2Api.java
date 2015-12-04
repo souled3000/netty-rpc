@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0006;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
@@ -39,8 +38,6 @@ public class ChangingPwdByPhoneStep2Api extends HandlerAdapter {
 
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP2_KEY = "B0038:step2key:";
-
 	@Autowired
 	private IUserSvr userDao;
 
@@ -73,20 +70,18 @@ public class ChangingPwdByPhoneStep2Api extends HandlerAdapter {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
-		String userId = user.getId();
 		Jedis jedis = null;
-
 		try {
 			jedis = DataHelper.getJedis();
 
-			if (jedis.incrBy("B0037:" + user.getId() + ":daily", 0L) >= 2) {
+			if (jedis.incrBy("B0037:succ:" + user.getId(), 0L) >= 2) {
 				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
 			}
 
 			String codeV = jedis.get(step1key);
 			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, C0040.toString());
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 			if (!StringUtils.equals(code, codeV)) {
@@ -96,7 +91,7 @@ public class ChangingPwdByPhoneStep2Api extends HandlerAdapter {
 			jedis.del(step1key);
 
 			ret.put("step2key", UUID.randomUUID().toString());
-			jedis.setex(STEP2_KEY + userId, CODE_EXPIRE, (String) ret.get("step2key"));
+			jedis.setex((String) ret.get("step2key"), CODE_EXPIRE, "");
 
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {

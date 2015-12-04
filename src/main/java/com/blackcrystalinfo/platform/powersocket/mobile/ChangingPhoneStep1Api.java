@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C002C;
+import static com.blackcrystalinfo.platform.common.ErrorCode.C0037;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0038;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
@@ -10,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -41,19 +42,7 @@ public class ChangingPhoneStep1Api extends HandlerAdapter {
 	private static final int CODE_LENGTH = Integer.valueOf(Constants.getProperty("validate.code.length", "6"));
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-//	private static final int DO_INTV_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.interval.ttl", "60"));
-
-	private static final int DO_FREQ_TTL = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.ttl", "86400"));
-
-	private static final int DO_FREQ_MAX = Integer.valueOf(Constants.getProperty("phonechange.step1.frequency.max", "5"));
-
-	public static final String CODE_KEY = "B0032:step1:";
-
-	public static final String INTV_KEY = "B0032:step1:interval:";
-
-	public static final String FREQ_KEY = "B0032:step1:frequency:";
-
-	public static final String STEP1_KEY = "B0032:step1key:";
+	public static final String FREQ_KEY = "B0032:count:";
 
 	@Autowired
 	private IUserSvr usrSvr;
@@ -71,26 +60,28 @@ public class ChangingPhoneStep1Api extends HandlerAdapter {
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
-
-			// 发送验证码次数是否太频繁，是否超限？
-			String frequV = "";
-
-			long times = 1L;
-			frequV = j.get(FREQ_KEY + userId);
-			boolean b = StringUtils.isNotBlank(frequV);
-			if (b) {
-				if (Integer.valueOf(frequV) >= DO_FREQ_MAX) {
-					ret.put(status, C002C.toString());
-					return ret;
-				}
-			} else {
-				frequV = "0";
+			String succ = "cp:succ:"+user.getId();
+			if(j.incrBy(succ,0L)>=2){
+				ret.put(status, ErrorCode.C0046.toString());
+				return ret;
 			}
 
+			long times = j.incrBy(FREQ_KEY + userId,0);
+			if (times >= Constants.USER_COMMON_TIMES) {
+				ret.put(status, C002C.toString());
+				return ret;
+			}
+			
+			String codeExpr = "B0032:30s:"+user.getId();
+			if (j.exists(codeExpr)) {
+				ret.put(status, C0037.toString());
+				return ret;
+			}
+			j.setex(codeExpr,30,"");
+			
 
 			// 生成验证码，服务器端临时存储
 			String code = VerifyCode.randString(CODE_LENGTH);
-			j.setex(CODE_KEY + userId, CODE_EXPIRE, code);
 
 			// 发送验证码是否成功？
 			if (!SMSSender.send(oldPhone, code)) {
@@ -99,20 +90,16 @@ public class ChangingPhoneStep1Api extends HandlerAdapter {
 			}
 
 			// 更新状态记录
-
-			if(b){
-				times = j.incr(FREQ_KEY + userId);
-			}else{
-				j.setex(FREQ_KEY + userId, DO_FREQ_TTL, "1");
-			}
+			times = j.incr(FREQ_KEY + userId);
+			if(times==1)
+				j.expire(FREQ_KEY + userId, 24*60*60);
 
 			// 生成第一步凭证
-			String step1keyV = UUID.randomUUID().toString();
-			j.setex(STEP1_KEY + userId, CODE_EXPIRE, step1keyV);
+			String pz = UUID.randomUUID().toString();
+			j.setex(pz, CODE_EXPIRE, code);
 
-			// 返回
 			ret.put("count", times);
-			ret.put("step1key", step1keyV);
+			ret.put("step1key", pz);
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.info("occurn exception. ", e);

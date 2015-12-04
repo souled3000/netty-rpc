@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
+import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -51,7 +52,7 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 		// 解析参数
 		String phone = req.getParameter("phone");
 		String step2key = req.getParameter("step2key");
-		String password = req.getParameter("w");
+		String passNew = req.getParameter("w");
 
 		// 校验参数
 		if (StringUtils.isBlank(phone)) {
@@ -61,10 +62,12 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 		if (StringUtils.isBlank(step2key)) {
 			return ret;
 		}
-
-		if (StringUtils.isBlank(password)) {
+		if (StringUtils.isEmpty(passNew)) {
 			return ret;
 		}
+//		if(!(Constants.P3.matcher(passNew).find()&&Constants.P2.matcher(passNew).find())&&!(!Constants.P3.matcher(passNew).find()&&Constants.P1.matcher(passNew).find())){
+//			return ret;
+//		}
 
 		// 根据手机号获取用户信息
 		User user =usrSvr.getUser(User.UserPhoneColumn, phone);
@@ -73,43 +76,45 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 			return ret;
 		}
 		
-		String succCount = "B0037:"+user.getId()+":daily";
+		String succ = "B0037:succ:"+user.getId();
 
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
-			if (jedis.incrBy("B0037:" + user.getId() + ":daily", 0L) >= 2) {
+			j = DataHelper.getJedis();
+			if (j.incrBy(succ, 0L) >= 2) {
 				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
 			}
 			// 验证第二步凭证
-			String step2keyV = jedis.get(ChangingPwdByPhoneStep2Api.STEP2_KEY + user.getId());
-			if (StringUtils.isBlank(step2keyV)) {
+			if (!j.exists(step2key)) {
 				ret.put(status, ErrorCode.C0040.toString());
-				return ret;
-			}
-			if (!StringUtils.equals(step2keyV, step2key)) {
 				return ret;
 			}
 
 			// 生成新密码
-			String newShadow = PBKDF2.encode(password);
+			String newShadow = PBKDF2.encode(passNew);
 			usrSvr.userChangeProperty(user.getId(), User.UserShadowColumn, newShadow);
-			jedis.publish("PubModifiedPasswdUser", user.getId());
+			j.publish("PubModifiedPasswdUser", user.getId());
 			
-			jedis.del("B0037:" + user.getId() + ":count");
-			
-			long dailyCount  = jedis.incr(succCount);
-			if (dailyCount ==1 )
-			jedis.expire(succCount,24*60*60);
+			long succCount  = j.incr(succ);
+			if (succCount ==1 )
+			j.expire(succ,24*60*60);
 			
 			ret.put(status, SUCCESS.toString());
+			j.del("B0037:count:" + user.getId());
+			
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			SMSSender.send(phone, URLEncoder.encode(df.format(new Date())+"您的"+user.getUserName()+"帐号进行了密码重置操作","utf8"));
+			StringBuilder sms =new StringBuilder();
+			Long cur = System.currentTimeMillis();
+			String strDate = df.format(new Date(cur));
+			sms.append(strDate).append("您的").append(user.getUserName()).append("帐号进行了密码重置操作");
+			SMSSender.send(phone, URLEncoder.encode(sms.toString(),"utf8"));
+			sms.delete(0, sms.length());
+			logger.info("{}|{}|{}|{}",user.getId(),cur,BizCode.UserResetedPwd.getValue(),sms.toString());
 		} catch (Exception e) {
 			logger.error("",e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		return ret;

@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0035;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0036;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0042;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
@@ -39,8 +37,6 @@ public class RegisterStep2Api extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(RegisterStep2Api.class);
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP2_KEY = "B0029:2:";
-
 	@Autowired
 	private IUserSvr usrSvr;
 	
@@ -53,15 +49,12 @@ public class RegisterStep2Api extends HandlerAdapter {
 		String step1key = req.getParameter("step1key");
 		String code = req.getParameter("code");
 		if (usrSvr.userExist(phone)) {
-			ret.put(status, C0036.toString());
 			return ret;
 		}
 		if (StringUtils.isBlank(phone)) {
-			ret.put(status, C0035.toString());
 			return ret;
 		}
 		if (StringUtils.isBlank(step1key)) {
-			ret.put(status, C0040.toString());
 			return ret;
 		}
 		if (StringUtils.isBlank(code)) {
@@ -85,14 +78,13 @@ public class RegisterStep2Api extends HandlerAdapter {
 			}
 
 			// 生成第二步凭证
-			String step2keyK = STEP2_KEY + phone;
 			String step2keyV = UUID.randomUUID().toString();
-			jedis.setex(step2keyK, CODE_EXPIRE, step2keyV);
+			jedis.setex(step2keyV, CODE_EXPIRE, "");
 
 			ret.put("step2key", step2keyV);
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			logger.error("reg by phone step1 error! ", e);
+			logger.error("", e);
 		} finally {
 			DataHelper.returnJedis(jedis);
 		}

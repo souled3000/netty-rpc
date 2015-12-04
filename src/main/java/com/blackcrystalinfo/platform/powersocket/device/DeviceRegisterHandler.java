@@ -108,7 +108,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			}
 
 			
-			cookie = CookieUtil.genDvCookie(Hex.decodeHex(mac.toCharArray()));
+			cookie = CookieUtil.genDvCki(Hex.decodeHex(mac.toCharArray()));
 			
 			byte[] licenseKey = parseLicenseKey(Hex.decodeHex(sign.toCharArray()));
 			
@@ -176,7 +176,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 
 	public static void main(String[] args) throws Exception{
 		String mac = "020027430c000000";
-		byte[] cookie = CookieUtil.genDvCookie(Hex.decodeHex(mac.toCharArray()));
+		byte[] cookie = CookieUtil.genDvCki(Hex.decodeHex(mac.toCharArray()));
 		System.out.println(cookie.length);
 		System.out.println(Hex.encodeHexString(cookie));
 		byte[] licenseKey = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };

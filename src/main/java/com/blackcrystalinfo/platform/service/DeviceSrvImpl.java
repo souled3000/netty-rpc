@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.service;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,8 @@ public class DeviceSrvImpl implements IDeviceSrv {
 
 	@Transactional
 	public void regist(Long id, String mac, String sn, String name, Long pid, Integer dv) {
-		String sql = "insert into device(id,mac, sn, name, parentid, device_type_id) values (?,?,?,?,?,?)";
-		jdbcTemplate.update(sql,id, mac, sn, name, pid, dv);
+		String sql = "insert into device(id,mac, sn, name, parentid, device_type_id,regtime) values (?,?,?,?,?,?,?)";
+		jdbcTemplate.update(sql,id, mac, sn, name, pid, dv, new Date());
 	}
 
 	@Transactional
@@ -32,7 +34,7 @@ public class DeviceSrvImpl implements IDeviceSrv {
 
 	@Transactional
 	public Device get(String mac) {
-		String sql = "select * from device where mac = ?";
+		String sql = "select * from device where id = ?";
 		return (Device) jdbcTemplate.queryForObject(sql, new Object[] { mac }, new Device());
 	}
 

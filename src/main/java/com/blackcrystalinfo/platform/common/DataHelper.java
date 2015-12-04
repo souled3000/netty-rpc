@@ -34,12 +34,6 @@ public class DataHelper {
 		}
 	}
 
-	public static void returnBrokenJedis(Jedis res) {
-		if (res != null && res.isConnected()) {
-			pool.returnResourceObject(res);
-		}
-	}
-
 	public static void main(String[] args) throws Exception{
 //		Jedis j = DataHelper.getJedis();
 //		Set<String> keys =j.keys("B0029*");

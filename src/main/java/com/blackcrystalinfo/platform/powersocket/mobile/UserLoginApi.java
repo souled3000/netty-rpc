@@ -46,7 +46,7 @@ public class UserLoginApi extends HandlerAdapter {
 	IUserSvr loginSvr;
 
 	private boolean validUser(String phone, String pwd, Map<Object, Object> mapping) {
-		if (StringUtils.isBlank(pwd)) {
+		if (StringUtils.isEmpty(pwd)) {
 			mapping.put(status, C0018.toString());
 			logger.debug("pwd is null when loging email:{}|pwd:{}|status:{}", phone, pwd, mapping.get(status));
 			return false;
@@ -137,6 +137,7 @@ public class UserLoginApi extends HandlerAdapter {
 
 			// 6. set success
 			r.put(status, SUCCESS.toString());
+			logger.info("{}|{}|{}",System.currentTimeMillis(),userId,"登录成功");
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			logger.error("User login error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status), e);

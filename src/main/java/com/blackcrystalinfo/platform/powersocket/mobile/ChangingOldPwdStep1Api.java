@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -38,8 +39,6 @@ public class ChangingOldPwdStep1Api extends HandlerAdapter {
 
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
-	public static final String STEP1_KEY = "test:tmp:changepwd:step1key:";
-
 	@Autowired
 	private IUserSvr userDao;
 
@@ -60,10 +59,15 @@ public class ChangingOldPwdStep1Api extends HandlerAdapter {
 			return ret;
 		}
 
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
-
+			j = DataHelper.getJedis();
+			String succ = "cop:succ:"+user.getId();
+			if(j.incrBy(succ,0L)>=2){
+				ret.put(status, ErrorCode.C0046.toString());
+				return ret;
+			}
+			
 			// 用户密码
 			String shadow = user.getShadow();
 
@@ -74,16 +78,15 @@ public class ChangingOldPwdStep1Api extends HandlerAdapter {
 			}
 
 			// 生成第一步凭证
-			String step1keyK = STEP1_KEY + userId;
 			String step1keyV = UUID.randomUUID().toString();
-			jedis.setex(step1keyK, CODE_EXPIRE, step1keyV);
+			j.setex(step1keyV, CODE_EXPIRE, "");
 
 			ret.put("step1key", step1keyV);
 			ret.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			logger.error("reg by phone step1 error! ", e);
+			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		return ret;

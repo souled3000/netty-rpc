@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0003;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0005;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
@@ -42,26 +41,19 @@ public class DeviceApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 
-		String deviceId = req.getParameter("id");
+		String deviceId = req.getParameter("dId");
 
 		if (StringUtils.isBlank(deviceId)) {
 			r.put(status, C0003.toString());
 			return r;
 		}
 
-		String userId = req.getUserId();
+//		String userId = req.getUserId();
 
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();
 
-			String owner = j.hget("device:owner", deviceId);
-			if (!userId.equals(owner)) {
-				r.put(status, C0005.toString());
-				return r;
-			}
-
-			Map<Object, Object> devData = new HashMap<Object, Object>();
 			Device device = deviceSrv.get(deviceId);
 			String mac = device.getMac();
 			String name = device.getName();
@@ -69,15 +61,15 @@ public class DeviceApi extends HandlerAdapter {
 			String dv = device.getDeviceType();
 			String addr = j.hget("device:adr", deviceId);
 
-			name = (null == name ? "default" : name);
+			name = (null == name ? "" : name);
 
-			devData.put("deviceId", deviceId);
-			devData.put("mac", mac);
-			devData.put("deviceName", name);
-			devData.put("devicePwd", pwd);
-			devData.put("deviceType", dv);
-			devData.put("deviceAddr", addr);
-			r.put("deviceInfo", devData);
+			r.put("id", deviceId);
+			r.put("mac", mac);
+			r.put("name", name);
+			r.put("pwd", pwd);
+			r.put("type", dv);
+			r.put("addr", addr);
+			r.put("owner",j.hget("device:owner", deviceId));
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("get device info error.", e);
