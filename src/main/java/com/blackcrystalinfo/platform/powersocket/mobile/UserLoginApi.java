@@ -43,7 +43,7 @@ public class UserLoginApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(UserLoginApi.class);
 
 	@Autowired
-	IUserSvr loginSvr;
+	IUserSvr usrSvr;
 
 	private boolean validUser(String phone, String pwd, Map<Object, Object> mapping) {
 		if (StringUtils.isEmpty(pwd)) {
@@ -76,15 +76,12 @@ public class UserLoginApi extends HandlerAdapter {
 		try {
 			jedis = DataHelper.getJedis();
 
-			// 3. get user id
-			User user = null;
-			String userId = "";
-			user = loginSvr.getUser(User.UserPhoneColumn, phone);
+			User user = usrSvr.getUser(User.UserPhoneColumn, phone);
 			if (null == user) {
 				r.put(status, ErrorCode.C0006.toString());
 				return r;
 			}
-			userId = user.getId();
+			String userId = user.getId();
 			phone = phone.toLowerCase();
 
 			// 4. 获取登录失败次数 ftl:fail to login
@@ -137,7 +134,7 @@ public class UserLoginApi extends HandlerAdapter {
 
 			// 6. set success
 			r.put(status, SUCCESS.toString());
-			logger.info("{}|{}|{}",System.currentTimeMillis(),userId,"登录成功");
+			logger.info("{}|{}|{}", userId,System.currentTimeMillis(),"登录成功");
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			logger.error("User login error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status), e);

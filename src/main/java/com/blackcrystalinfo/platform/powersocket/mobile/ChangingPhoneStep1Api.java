@@ -77,7 +77,7 @@ public class ChangingPhoneStep1Api extends HandlerAdapter {
 				ret.put(status, C0037.toString());
 				return ret;
 			}
-			j.setex(codeExpr,30,"");
+			j.setex(codeExpr,30,"1");
 			
 
 			// 生成验证码，服务器端临时存储

@@ -24,7 +24,6 @@ public class SlotServerMysql {
 		String prefix = "";
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { prefix + "server.xml", prefix + "beans.xml" });
 		ctx.refresh();
-
 		ctx.close();
 	}
 

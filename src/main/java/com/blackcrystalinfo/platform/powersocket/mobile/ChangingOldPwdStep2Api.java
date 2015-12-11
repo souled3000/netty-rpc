@@ -8,12 +8,12 @@ import static com.blackcrystalinfo.platform.common.RespField.status;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
@@ -54,12 +54,9 @@ public class ChangingOldPwdStep2Api extends HandlerAdapter {
 			ret.put(status, C0006.toString());
 			return ret;
 		}
-		if (StringUtils.isEmpty(passNew)) {
+		if(!(Constants.P3.matcher(passNew).find()&&Constants.P2.matcher(passNew).find())&&!(!Constants.P3.matcher(passNew).find()&&Constants.P1.matcher(passNew).find())){
 			return ret;
 		}
-//		if(!(Constants.P3.matcher(passNew).find()&&Constants.P2.matcher(passNew).find())&&!(!Constants.P3.matcher(passNew).find()&&Constants.P1.matcher(passNew).find())){
-//			return ret;
-//		}
 		Jedis j = null;
 		try {
 			j = DataHelper.getJedis();

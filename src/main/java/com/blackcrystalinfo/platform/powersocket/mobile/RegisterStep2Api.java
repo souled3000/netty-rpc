@@ -1,6 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0042;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
@@ -58,7 +57,6 @@ public class RegisterStep2Api extends HandlerAdapter {
 			return ret;
 		}
 		if (StringUtils.isBlank(code)) {
-			ret.put(status, ErrorCode.C0037.toString());
 			return ret;
 		}
 
@@ -69,7 +67,7 @@ public class RegisterStep2Api extends HandlerAdapter {
 			// 验证第一步凭证
 			String code2 = jedis.get(step1key);
 			if (StringUtils.isBlank(code2)) {
-				ret.put(status, C0040.toString());
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 			if (!StringUtils.equals(code2, code)) {

@@ -7,6 +7,7 @@ import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,7 +72,10 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			
 			// 设备绑定解绑，发布通知消息，更新用户设备关系。
 			String f = j.hget("user:family", uId);
-			Set<String> all = j.smembers("family:" + f);
+			Set<String> all = new HashSet<String>();
+			Set<String> members = j.smembers("family:" + f);
+			all.addAll(members);
+			all.add(uId);
 			pubDeviceUsersRels(deviceId, all, j);
 
 			// 更新设备控制密钥

@@ -1,6 +1,5 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0042;
 import static com.blackcrystalinfo.platform.common.RespField.status;
 
@@ -65,7 +64,7 @@ public class ChangingPhoneStep4Api extends HandlerAdapter {
 			// 验证第三步凭证
 			String v = j.get(pz);
 			if (StringUtils.isBlank(v)) {
-				ret.put(status, C0040.toString());
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 			String codeV = v.split("\\|")[0];
@@ -92,7 +91,7 @@ public class ChangingPhoneStep4Api extends HandlerAdapter {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			StringBuilder sms = new StringBuilder();
 			sms.append(df.format(new Date())).append("您的").append(user.getUserName()).append("帐号成功绑定").append(phone).append("手机");
-			logger.info("{}|{}|{}", System.currentTimeMillis(), userId, sms.toString());
+			logger.info("{}|{}|{}", userId, System.currentTimeMillis(),  sms.toString());
 			SMSSender.send(phone, URLEncoder.encode(sms.toString(), "utf8"));
 		} catch (Exception e) {
 			logger.info("occurn exception. ", e);

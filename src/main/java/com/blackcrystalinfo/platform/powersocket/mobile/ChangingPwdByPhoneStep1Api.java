@@ -81,12 +81,12 @@ public class ChangingPwdByPhoneStep1Api extends HandlerAdapter {
 				ret.put(status, C002C.toString());
 				return ret;
 			}
-			String freq = "B0037:"+user.getId()+":30s";
+			String freq = "B0037:30s:"+user.getId();
 			if (j.exists(freq)) {
 				ret.put(status, C0037.toString());
 				return ret;
 			}
-			j.setex(freq,30,"");
+			j.setex(freq,30,"1");
 			
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);

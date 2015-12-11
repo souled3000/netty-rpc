@@ -91,6 +91,7 @@ public class ChangingPhoneStep3Api extends HandlerAdapter {
 			}
 			// 验证第二步凭证
 			if (!j.exists(step2key)) {
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 
@@ -105,7 +106,7 @@ public class ChangingPhoneStep3Api extends HandlerAdapter {
 				ret.put(status, C0037.toString());
 				return ret;
 			}
-			j.setex(operExpir, 30, "");
+			j.setex(operExpir, 30, "1");
 
 
 			String code = VerifyCode.randString(CODE_LENGTH);

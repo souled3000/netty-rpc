@@ -29,15 +29,15 @@ public class UserLogout extends HandlerAdapter {
 		Jedis j = null;
 		String userId = req.getUserId();
 		try{
-			j=DataHelper.getJedis();
-			j.del("user:cookie:" + userId);
+//			j=DataHelper.getJedis();
+//			j.del("user:cookie:" + userId);
 		}catch(Exception e ){
 			return r;
 		}finally{
 			DataHelper.returnJedis(j);
 		}
 		r.put(status, SUCCESS.toString());
-		logger.info("{}|{}|{}",System.currentTimeMillis(),userId,"登出成功");
+		logger.info("{}|{}|{}",userId,System.currentTimeMillis(),"登出成功");
 		return r;
 	}
 

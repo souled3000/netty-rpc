@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
-import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -62,12 +62,9 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 		if (StringUtils.isBlank(step2key)) {
 			return ret;
 		}
-		if (StringUtils.isEmpty(passNew)) {
+		if(!(Constants.P3.matcher(passNew).find()&&Constants.P2.matcher(passNew).find())&&!(!Constants.P3.matcher(passNew).find()&&Constants.P1.matcher(passNew).find())){
 			return ret;
 		}
-//		if(!(Constants.P3.matcher(passNew).find()&&Constants.P2.matcher(passNew).find())&&!(!Constants.P3.matcher(passNew).find()&&Constants.P1.matcher(passNew).find())){
-//			return ret;
-//		}
 
 		// 根据手机号获取用户信息
 		User user =usrSvr.getUser(User.UserPhoneColumn, phone);
@@ -110,7 +107,7 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 			sms.append(strDate).append("您的").append(user.getUserName()).append("帐号进行了密码重置操作");
 			SMSSender.send(phone, URLEncoder.encode(sms.toString(),"utf8"));
 			sms.delete(0, sms.length());
-			logger.info("{}|{}|{}|{}",user.getId(),cur,BizCode.UserResetedPwd.getValue(),sms.toString());
+			logger.info("{}|{}|{}",user.getId(),cur,sms.toString());
 		} catch (Exception e) {
 			logger.error("",e);
 		} finally {

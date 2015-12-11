@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -36,14 +34,14 @@ import redis.clients.jedis.Jedis;
  */
 @Controller("/mobile/invitation")
 public class InvitationApi extends HandlerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(InvitationApi.class);
+//	private static final Logger logger = LoggerFactory.getLogger(InvitationApi.class);
 
 	@Autowired
 	IUserSvr userSvr;
 
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
-
+		r.put(status, SYSERROR.toString());
 		String oper = req.getUserId();
 		String uId = req.getParameter("uId");
 		Jedis j = null;
@@ -63,7 +61,7 @@ public class InvitationApi extends HandlerAdapter {
 			
 			// 判断oper与uid是否为主
 			// 如果oper是主或，oper与uid都不为主，可以进行邀请操作
-			// 如果oper不是主，而oper是主，则不允许邀请操作
+			// 如果oper不是主，而uid是主，则不允许邀请操作
 
 			String operFamily = j.hget("user:family", oper);
 			String uFamily = j.hget("user:family", uId);
@@ -97,9 +95,6 @@ public class InvitationApi extends HandlerAdapter {
 
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
-			// DataHelper.returnBrokenJedis(j);
-			r.put(status, SYSERROR.toString());
-			logger.error("Bind in error uId:{}|status:{}", uId, oper, r.get("status"), e);
 			return r;
 		} finally {
 			DataHelper.returnJedis(j);

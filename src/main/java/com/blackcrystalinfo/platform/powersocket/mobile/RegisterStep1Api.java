@@ -72,7 +72,7 @@ public class RegisterStep1Api extends HandlerAdapter {
 				ret.put(status, C0037.toString());
 				return ret;
 			}
-			j.setex(freq,30,"");
+			j.setex(freq,30,"1");
 
 			String invokeCount = "B0029:count:" + phone;
 			long times = j.incrBy(invokeCount,0);

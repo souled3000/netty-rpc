@@ -1,7 +1,6 @@
 package com.blackcrystalinfo.platform.powersocket.mobile;
 
 import static com.blackcrystalinfo.platform.common.ErrorCode.C0036;
-import static com.blackcrystalinfo.platform.common.ErrorCode.C0040;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SUCCESS;
 import static com.blackcrystalinfo.platform.common.ErrorCode.SYSERROR;
 import static com.blackcrystalinfo.platform.common.RespField.status;
@@ -56,13 +55,9 @@ public class RegisterStep3Api extends HandlerAdapter {
 		if (StringUtils.isBlank(step2key)) {
 			return ret;
 		}
-//		if(!(Constants.P3.matcher(pwd).find()&&Constants.P2.matcher(pwd).find())&&!(!Constants.P3.matcher(pwd).find()&&Constants.P1.matcher(pwd).find())){
-//			return ret;
-//		}
-		if (StringUtils.isEmpty(pwd)) {
+		if(!(Constants.P3.matcher(pwd).find()&&Constants.P2.matcher(pwd).find())&&!(!Constants.P3.matcher(pwd).find()&&Constants.P1.matcher(pwd).find())){
 			return ret;
 		}
-
 		if (usrSvr.userExist(phone)) {
 			ret.put(status, C0036.toString());
 			return ret;
@@ -75,7 +70,7 @@ public class RegisterStep3Api extends HandlerAdapter {
 			
 			// 验证第二步凭证
 			if (!jedis.exists(step2key)) {
-				ret.put(status, C0040.toString());
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 
@@ -94,7 +89,7 @@ public class RegisterStep3Api extends HandlerAdapter {
 			ret.put(status, SUCCESS.toString());
 			String sms = new String("注册成功");
 			SMSSender.send(phone, URLEncoder.encode(sms,"utf8"));
-			logger.info("{}|{}|{}",System.currentTimeMillis(),userId,sms);
+			logger.info("{}|{}|{}",userId,System.currentTimeMillis(),sms);
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
