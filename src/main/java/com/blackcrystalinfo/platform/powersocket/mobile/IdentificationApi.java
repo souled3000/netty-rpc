@@ -38,13 +38,18 @@ public class IdentificationApi extends HandlerAdapter {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 		r.put(status, SYSERROR.toString());
 		String cookie = req.getParameter("cookie");
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
-			Object[] u = CookieUtil.gotUsr(cookie);
-			String userId = (String)u[0];
-			byte[] shadowMd5 = (byte[])u[1]; 
-			String stub = jedis.get("user:cookie:" + userId);
+			j = DataHelper.getJedis();
+			byte[] k = j.get(URLDecoder.decode(cookie, "utf8").getBytes());
+			if (null == k) {
+				r.put(status, C0002.toString());
+				return r;
+			}
+			Object[] u = CookieUtil.gotUsr(cookie, k);
+			String userId = (String) u[0];
+			byte[] shadowMd5 = (byte[]) u[1];
+			String stub = j.get("user:cookie:" + userId);
 			// cookie过期了
 			if (StringUtils.isBlank(stub)) {
 				r.put(status, C0002.toString());
@@ -65,7 +70,7 @@ public class IdentificationApi extends HandlerAdapter {
 				return r;
 			}
 			req.setUserId(userId);
-			r.put("id",userId);
+			r.put("id", userId);
 			shadow = user.getShadow();
 
 			if (!CookieUtil.verifyMd5(shadowMd5, shadow)) {
@@ -75,13 +80,13 @@ public class IdentificationApi extends HandlerAdapter {
 			}
 
 			// 刷新cookie有效期
-			jedis.expire("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE);
-
+			j.expire("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE);
+			j.expire(URLDecoder.decode(cookie, "utf8").getBytes(), Constants.USER_COOKIE_EXPIRE);
 		} catch (Exception e) {
 			logger.error("Check cookie failed", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			DataHelper.returnJedis(j);
 		}
 
 		r.put(status, SUCCESS.toString());

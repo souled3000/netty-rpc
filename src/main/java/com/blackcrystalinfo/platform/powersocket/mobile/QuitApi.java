@@ -144,7 +144,7 @@ public class QuitApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.genCtlKey();
+		byte[] ctlKey = CookieUtil.gen16();
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);

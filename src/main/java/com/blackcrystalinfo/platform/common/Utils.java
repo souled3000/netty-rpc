@@ -26,7 +26,7 @@ public class Utils {
 			int ml = m.length;
 			byte[] r = new byte[10 + ml];
 			r[9] = (byte) ml;
-			byte[] bId = NumberByte.long2Byte(id);
+			byte[] bId = NumberByte.long2ByteLittleEndian(id);
 			r[0] = (byte) bizCode;
 			for (int i = 0; i < bId.length; i++) {
 				r[1 + i] = bId[i];

@@ -72,9 +72,9 @@ public class UserLoginApi extends HandlerAdapter {
 			return r;
 		}
 
-		Jedis jedis = null;
+		Jedis j = null;
 		try {
-			jedis = DataHelper.getJedis();
+			j = DataHelper.getJedis();
 
 			User user = usrSvr.getUser(User.UserPhoneColumn, phone);
 			if (null == user) {
@@ -85,11 +85,11 @@ public class UserLoginApi extends HandlerAdapter {
 			phone = phone.toLowerCase();
 
 			// 4. 获取登录失败次数 ftl:fail to login
-			long times = jedis.incrBy("usr:ftl:" + userId,0);
+			long times = j.incrBy("usr:ftl:" + userId,0);
 
 			// 5. 根据失败次数，决定是否锁定账户
 			if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
-				Long ttl = jedis.ttl("usr:ftl:" + userId);
+				Long ttl = j.ttl("usr:ftl:" + userId);
 				r.put(status, C002E.toString());
 				r.put("ttl", ttl);
 				return r;
@@ -102,7 +102,7 @@ public class UserLoginApi extends HandlerAdapter {
 				r.put("leftLoginTimes", Constants.FAILED_LOGIN_TIMES_MAX - times);
 
 				// 判断失败次数累加
-				jedis.setex("usr:ftl:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
+				j.setex("usr:ftl:" + userId, Constants.FAILED_LOGIN_EXPIRE, String.valueOf(times));
 
 				// // 最后一次登录失败，发送邮件通知用户
 				// if (times >= Constants.FAILED_LOGIN_TIMES_MAX) {
@@ -123,11 +123,13 @@ public class UserLoginApi extends HandlerAdapter {
 			}
 
 			// 7. 登录成功后，清除累计失败次数的计数器
-			jedis.del("usr:ftl:" + userId);
+			j.del("usr:ftl:" + userId);
 
 			// 8. generate cookie
-			String cookie = CookieUtil.genUsrCki(user.getId(), user.getShadow());
-			jedis.setex("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE, URLDecoder.decode(cookie,"utf8")); // 用户Id->cookie映射
+			byte[] k = CookieUtil.gen16();
+			String cookie = CookieUtil.genUsrCki(user.getId(), user.getShadow(),k);
+			j.setex("user:cookie:" + userId, Constants.USER_COOKIE_EXPIRE, URLDecoder.decode(cookie,"utf8")); // 用户Id->cookie映射
+			j.setex(URLDecoder.decode(cookie,"utf8").getBytes(),Constants.USER_COOKIE_EXPIRE, k);
 
 			r.put("userId", userId);
 			r.put("cookie", cookie);

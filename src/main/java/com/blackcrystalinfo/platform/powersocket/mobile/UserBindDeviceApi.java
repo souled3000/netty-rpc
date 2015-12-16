@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.NumberByte;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -124,7 +125,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 	}
 
 	private void pushMsg2Dev(Long uId,Long devId, Jedis j) {
-		byte[] ctlKey = CookieUtil.genCtlKey();
+		byte[] ctlKey = CookieUtil.gen16();
 		j.hset("device:ctlkey:tmp".getBytes(), String.valueOf(devId).getBytes(), ctlKey);
 		byte[] ctn = new byte[25];
 		EndianUtils.writeSwappedLong(ctn, 0, devId);
@@ -136,5 +137,9 @@ public class UserBindDeviceApi extends HandlerAdapter {
 		System.arraycopy(new byte[]{0x01}, 0, ctn, 8, 1);
 		EndianUtils.writeSwappedLong(ctn, 9, uId);
 		j.publish(Constants.DEVCOMMONMSGCODE.getBytes(), ctn);
+	}
+	public static void main(String[] args) {
+		Long l = NumberByte.byte2LongLittleEndian((NumberByte.long2Byte(Long.valueOf("-1"))));
+		System.out.println(l);
 	}
 }

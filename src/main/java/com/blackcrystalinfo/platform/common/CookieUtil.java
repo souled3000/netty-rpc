@@ -199,7 +199,7 @@ public class CookieUtil {
 //		return true;
 //	}
 
-	public static byte[] genCtlKey() {
+	public static byte[] gen16() {
 		SecureRandom sr;
 		try {
 			sr = SecureRandom.getInstance("SHA1PRNG");
@@ -216,7 +216,7 @@ public class CookieUtil {
 		// System.out.println(CookieUtil.gotUserIdFromCookie("NDh8MzAwfDM3YjY1NThmMzgwNWExZWMyYzQzMTI2N2M1ZGNiZWM0NDZlOWEx-35DF4E21C58D8038E7DE9A1C83DFFBBB"));
 		System.out.println(Hex.encodeHexString(new byte[] { 0x01, 0x02, 0x0e }));
 		System.out.println(Hex.encodeHexString(Hex.decodeHex("01020e".toCharArray())));
-		byte[] b = genCtlKey();
+		byte[] b = gen16();
 		System.out.println(Hex.encodeHexString(b));
 		byte[] ctn = new byte[8];
 		EndianUtils.writeSwappedLong(ctn, 0, -1L);
@@ -232,12 +232,13 @@ public class CookieUtil {
 		System.out.println(dvcookie.length);
 
 		System.out.println("---------------------USR-COOKIE----------------------------");
-		String usrCki = genUsrCki("100","1000:771585542c3b3f5e3d7ba67ec60f2ca790ddcb82881d022ab4ce60e684321969:2997ed9c153fc8d406011fbab5e73c97017c32289c5e714b3953bffb1b822000a4e01932dcc3071fde2cc71c9b763663f915a5b2dcf401569fe9af2ba6b3bf57");
+		byte[] k = gen16();
+		String usrCki = genUsrCki("100","1000:771585542c3b3f5e3d7ba67ec60f2ca790ddcb82881d022ab4ce60e684321969:2997ed9c153fc8d406011fbab5e73c97017c32289c5e714b3953bffb1b822000a4e01932dcc3071fde2cc71c9b763663f915a5b2dcf401569fe9af2ba6b3bf57",k);
 		System.out.println(usrCki);
 
-//		Object[] fids = gotUsr(URLDecoder.decode(usrCki,"utf8"));
-//		fids = gotUsr(usrCki);
-		Object[] fids = gotUsr("zRJ743WVzw7bSjAyC4AowXv240LD%2BNGgxbS3Mri93fg%3D");
+//		Object[] fids = gotUsr(URLDecoder.decode(usrCki,"utf8"),k);
+		Object[] fids = gotUsr(usrCki,k);
+//		Object[] fids = gotUsr("zRJ743WVzw7bSjAyC4AowXv240LD%2BNGgxbS3Mri93fg%3D",k);
 		System.out.println((String) fids[0]);
 		System.out.println(Hex.encodeHex((byte[]) fids[1]));
 		
@@ -254,22 +255,19 @@ public class CookieUtil {
 		System.out.println(Hex.encodeHexString(dvc));
 	}
 
-	public static String genUsrCki(String id, String shadow) throws Exception {
+	public static String genUsrCki(String id, String shadow,byte[] salt) throws Exception {
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		byte[] key = md5.digest(CookieUtil.USER_SALT.getBytes());
 		byte[] sd = md5.digest(shadow.getBytes());
 		byte[] txt = new byte[8 + sd.length];
 		System.arraycopy(NumberByte.long2Byte(Long.valueOf(id)), 0, txt, 0, 8);
 		System.arraycopy(sd, 0, txt, 8, sd.length);
-		byte[] cipher = AESCoder.encrypt(txt, key);
+		byte[] cipher = AESCoder.encrypt(txt, salt);
 		return URLEncoder.encode(new String(Base64.encodeBase64String(cipher)),"utf8");
 	}
 
-	public static Object[] gotUsr(String cookie) throws Exception {
+	public static Object[] gotUsr(String cookie,byte[] salt) throws Exception {
 		byte[] src = Base64.decodeBase64(URLDecoder.decode(cookie,"utf8"));
-		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		byte[] key = md5.digest(CookieUtil.USER_SALT.getBytes());
-		byte[] text = AESCoder.decrypt(src, key);
+		byte[] text = AESCoder.decrypt(src, salt);
 		byte[] a = new byte[8];
 		byte[] b = new byte[text.length - 8];
 		System.arraycopy(text, 0, a, 0, 8);

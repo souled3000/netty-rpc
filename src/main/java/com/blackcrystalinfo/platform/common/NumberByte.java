@@ -42,6 +42,18 @@ public final class NumberByte {
 				| ((long) (src[offset + 5] & 0xFF) << 40) | ((long) (src[offset + 6] & 0xFF) << 48) | ((long) (src[offset + 7] & 0xFF) << 56);
 		return value;
 	}
+	public static byte[] long2ByteLittleEndian(long x) {
+		byte[] bb = new byte[8];
+		bb[7] = (byte) (x >> 56);
+		bb[6] = (byte) (x >> 48);
+		bb[5] = (byte) (x >> 40);
+		bb[4] = (byte) (x >> 32);
+		bb[3] = (byte) (x >> 24);
+		bb[2] = (byte) (x >> 16);
+		bb[1] = (byte) (x >> 8);
+		bb[0] = (byte) (x >> 0);
+		return bb;
+	}
 
 	public static void main(String[] args) {
 //		Long l = System.currentTimeMillis();
