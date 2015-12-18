@@ -67,12 +67,6 @@ public class RegisterStep1Api extends HandlerAdapter {
 				ret.put(status, C0036.toString());
 				return ret;
 			}
-			String freq = "B0029:30s:" + phone;
-			if (StringUtils.isNotBlank(j.get(freq))) {
-				ret.put(status, C0037.toString());
-				return ret;
-			}
-			j.setex(freq,30,"1");
 
 			String invokeCount = "B0029:count:" + phone;
 			long times = j.incrBy(invokeCount,0);
@@ -80,6 +74,13 @@ public class RegisterStep1Api extends HandlerAdapter {
 				ret.put(status, C002C.toString());
 				return ret;
 			}
+
+			String freq = "B0029:30s:" + phone;
+			if (StringUtils.isNotBlank(j.get(freq))) {
+				ret.put(status, C0037.toString());
+				return ret;
+			}
+			j.setex(freq,30,"1");
 			
 			// send message
 			String code = VerifyCode.randString(CODE_LENGTH);
