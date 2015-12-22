@@ -128,13 +128,13 @@ public class PasswordDecoder implements FactoryBean<String> {
 	}
 
 	public static void main(String[] args) {
-		String password = "smarthome123";
+		String password = "111111";
 
 		String code = encrypt(password);
 
 		System.out.println(code);
 
-		System.out.println(decrypt("01108DC07B9834C4B5C32EAF0F235AB2462D661C7BD51324CD8A97B2BFD1"));
+		System.out.println(decrypt(code));
 
 	}
 }
