@@ -135,6 +135,7 @@ public class PasswordDecoder implements FactoryBean<String> {
 		System.out.println(code);
 
 		System.out.println(decrypt(code));
+		System.out.println(decrypt("0C108367D4C87E78D30864A22EC0B652BD04D1C7C1516CF12B9AEEBE0B4D"));
 
 	}
 }

@@ -30,7 +30,8 @@ public class Deamon {
 		try (Connection connection = ConnectionFactory.createConnection(config); Admin admin = connection.getAdmin()) {
 
 			HTableDescriptor table = new HTableDescriptor(TableName.valueOf(TABLE_NAME));
-			table.addFamily(new HColumnDescriptor(CF_DEFAULT).setCompressionType(Algorithm.SNAPPY));
+//			table.addFamily(new HColumnDescriptor(CF_DEFAULT).setCompressionType(Algorithm.SNAPPY));
+			table.addFamily(new HColumnDescriptor(CF_DEFAULT).setCompressionType(Algorithm.GZ));
 
 			System.out.print("Creating table. ");
 			createOrOverwrite(admin, table);
@@ -73,7 +74,8 @@ public class Deamon {
 		}
 	}
 
-	public static void main2(String... args) throws IOException {
+	public static void main(String... args) throws IOException {
+		System.setProperty("hadoop.home.dir", "C:\\hadoop-common-2.2.0-bin-master\\");
 		Configuration config = HBaseConfiguration.create();
 		
 		// Add any necessary configuration files (hbase-site.xml, core-site.xml)
@@ -83,8 +85,8 @@ public class Deamon {
 		modifySchema(config);
 		
 	}
-	public static void main(String... args) throws IOException {
-		System.setProperty("hadoop.home.dir", "d:/hadoop");
+	public static void main3(String... args) throws IOException {
+		System.setProperty("hadoop.home.dir", "C:\\hadoop-common-2.2.0-bin-master\\");
 		Configuration config = HBaseConfiguration.create();
 //		config.addResource(new Path(System.getenv("HBASE_CONF_DIR"), "hbase-site.xml"));
 //		config.addResource(new Path(System.getenv("HADOOP_CONF_DIR"), "core-site.xml"));
