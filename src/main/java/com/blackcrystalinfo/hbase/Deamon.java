@@ -3,7 +3,6 @@ package com.blackcrystalinfo.hbase;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
@@ -81,7 +80,7 @@ public class Deamon {
 		// Add any necessary configuration files (hbase-site.xml, core-site.xml)
 //		config.addResource(new Path(System.getenv("HBASE_CONF_DIR"), "hbase-site.xml"));
 //		config.addResource(new Path(System.getenv("HADOOP_CONF_DIR"), "core-site.xml"));
-		createSchemaTables(config);
+//		createSchemaTables(config);
 		modifySchema(config);
 		
 	}
@@ -91,7 +90,6 @@ public class Deamon {
 //		config.addResource(new Path(System.getenv("HBASE_CONF_DIR"), "hbase-site.xml"));
 //		config.addResource(new Path(System.getenv("HADOOP_CONF_DIR"), "core-site.xml"));
 		try (Connection connection = ConnectionFactory.createConnection(config); Admin admin = connection.getAdmin()) {
-			
 		}
 	}
 
