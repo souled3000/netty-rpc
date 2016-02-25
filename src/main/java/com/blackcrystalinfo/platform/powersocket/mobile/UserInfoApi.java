@@ -62,6 +62,8 @@ public class UserInfoApi extends HandlerAdapter {
 			r.put(status, SYSERROR.toString());
 			logger.error("User Info API", e);
 			return r;
+		}finally {
+			DataHelper.returnJedis(jedis);
 		}
 
 		return r;

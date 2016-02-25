@@ -20,11 +20,11 @@ import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
+import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.common.Utils;
-import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;

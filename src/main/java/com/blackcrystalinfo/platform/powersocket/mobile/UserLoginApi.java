@@ -24,7 +24,9 @@ import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -44,7 +46,9 @@ public class UserLoginApi extends HandlerAdapter {
 
 	@Autowired
 	IUserSvr usrSvr;
-
+	
+	@Autowired
+	ILogger log;
 	private boolean validUser(String phone, String pwd, Map<Object, Object> mapping) {
 		if (StringUtils.isEmpty(pwd)) {
 			mapping.put(status, C0018.toString());
@@ -136,11 +140,14 @@ public class UserLoginApi extends HandlerAdapter {
 
 			// 6. set success
 			r.put(status, SUCCESS.toString());
-			logger.info("{}|{}|{}", userId,System.currentTimeMillis(),"登录成功");
+//			logger.info("{}|{}|{}", userId,System.currentTimeMillis(),"登录成功");
+			log.write(String.format("%s|%s|%s|%s", userId,System.currentTimeMillis(),LogType.ZCDL,"登录成功"));
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
 			logger.error("User login error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status), e);
 			return r;
+		}finally{
+			DataHelper.returnJedis(j);
 		}
 		return r;
 	}
@@ -152,5 +159,7 @@ public class UserLoginApi extends HandlerAdapter {
 		System.out.println(ByteUtil.toHex(upmd5));
 		System.out.println(URLEncoder.encode("55E22812C947C5C7BB3E77CEE7652280", "iso-8859-1"));
 		System.out.println(URLEncoder.encode("@", "iso-8859-1"));
+		
+		System.out.println(String.format("%s|%s|%s|%s", userId,System.currentTimeMillis(),LogType.ZCDL,"登录成功"));
 	}
 }

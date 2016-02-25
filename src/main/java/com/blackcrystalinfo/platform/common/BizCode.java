@@ -1,4 +1,4 @@
-package com.blackcrystalinfo.platform.powersocket.bo;
+package com.blackcrystalinfo.platform.common;
 
 /** 消息编码类型 */
 public enum BizCode {

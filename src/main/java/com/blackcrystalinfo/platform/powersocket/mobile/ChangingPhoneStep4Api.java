@@ -18,7 +18,9 @@ import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -38,7 +40,8 @@ public class ChangingPhoneStep4Api extends HandlerAdapter {
 
 	@Autowired
 	private IUserSvr userDao;
-
+	@Autowired
+	ILogger log;
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
@@ -93,6 +96,7 @@ public class ChangingPhoneStep4Api extends HandlerAdapter {
 			sms.append(df.format(new Date())).append("您的").append(user.getUserName()).append("帐号成功绑定").append(phone).append("手机");
 			logger.info("{}|{}|{}", userId, System.currentTimeMillis(),  sms.toString());
 			SMSSender.send(phone, URLEncoder.encode(sms.toString(), "utf8"));
+			log.write(String.format("%s|%s|%s|%s", userId,System.currentTimeMillis(),LogType.ZHAQ,sms.toString()));
 		} catch (Exception e) {
 			logger.info("occurn exception. ", e);
 			return ret;

@@ -9,9 +9,12 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.LogType;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
@@ -21,7 +24,8 @@ import redis.clients.jedis.Jedis;
 public class UserLogout extends HandlerAdapter {
 
 	private Logger logger = LoggerFactory.getLogger(UserLogout.class);
-
+	@Autowired
+	ILogger log;
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -37,7 +41,8 @@ public class UserLogout extends HandlerAdapter {
 			DataHelper.returnJedis(j);
 		}
 		r.put(status, SUCCESS.toString());
-		logger.info("{}|{}|{}",userId,System.currentTimeMillis(),"登出成功");
+//		logger.info("{}|{}|{}",userId,System.currentTimeMillis(),"登出成功");
+		log.write(String.format("%s|%s|%s|%s", userId,System.currentTimeMillis(),LogType.ZCDL,"登出成功"));
 		return r;
 	}
 

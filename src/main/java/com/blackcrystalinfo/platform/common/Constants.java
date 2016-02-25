@@ -1,5 +1,7 @@
 package com.blackcrystalinfo.platform.common;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 public class Constants extends ConfigurableConstants {
@@ -7,6 +9,7 @@ public class Constants extends ConfigurableConstants {
 	static {
 		init("sys.properties");
 	}
+	public static ExecutorService TH = Executors.newFixedThreadPool(2); 
 	public static String DEVCOMMONMSGCODE = "PubDevCommonMsg:0x34";
 	public static String COMMONMSGCODE = "PubCommonMsg:0x35";
 	public static String SERVERIP = getProperty("server.ip", "");
@@ -24,6 +27,7 @@ public class Constants extends ConfigurableConstants {
 	public static String PIC_PATH = getProperty("pic.path", "");
 
 	public static int USRCFMEXPIRE = Integer.parseInt(getProperty("usr.cfm.expire", ""));
+	public static int LOGPAGESIZE = Integer.parseInt(getProperty("log.page.size", "100"));
 
 	public static int CAPTCHA_EXPIRE = Integer.parseInt(getProperty("captcha.expire", ""));
 
@@ -36,6 +40,7 @@ public class Constants extends ConfigurableConstants {
 	public static int FAILED_LOGIN_TIMES_MAX = Integer.valueOf(getProperty("failed.login.times.max", "3"));
 	public static int FAILED_LOGIN_EXPIRE = Integer.valueOf(getProperty("failed.login.expire", "86400"));
 
+	public static int RedisMaxTotal = Integer.valueOf(getProperty("RedisMaxTotal", "10000"));
 	/**
 	 * 邮箱激活连接的有效期
 	 */
@@ -94,5 +99,10 @@ public class Constants extends ConfigurableConstants {
 		System.out.println(Constants.getProperty("mem.threshold", ""));
 		System.out.println(Constants.getProperty("cpu.threshold", ""));
 		System.out.println(Constants.getProperty("handler.threshold", ""));
+		System.out.println(Constants.getProperty("log.page.size", "100"));
+		Long l = 12884901888l-Integer.MAX_VALUE*2l;
+		System.out.println(l);
+		System.out.println(Integer.MAX_VALUE*2l);
+		
 	}
 }

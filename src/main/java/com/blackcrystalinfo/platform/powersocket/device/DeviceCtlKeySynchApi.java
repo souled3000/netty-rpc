@@ -75,6 +75,8 @@ public class DeviceCtlKeySynchApi extends HandlerAdapter {
 			r.put("status", -1);
 			logger.error("synch ctl key error, mac:{}|e:{}", mac, e);
 			return r;
+		}finally{
+			DataHelper.returnJedis(jedis);
 		}
 		r.put("status", 0);
 		return r;

@@ -16,11 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
-import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
+import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -36,7 +39,10 @@ public class DemissionFamilyApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DemissionFamilyApi.class);
 	@Autowired
 	IUserSvr loginSvr;
-
+	
+	@Autowired
+	ILogger log;
+	
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -51,7 +57,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 				r.put(status, C0034.toString());
 				return r;
 			}
-
+			User host = loginSvr.getUser(User.UserIDColumn,fId);
 			Set<String> members = j.smembers("family:" + userId);
 			members.add(userId);
 			for (String m : members) {
@@ -69,7 +75,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 
 			// 解散家庭，每个成员的设备列表都要把其他成员的设备移除掉
 			pubDeviceUsersRels(members, j);
-
+			writeLog(host,members);
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
@@ -80,6 +86,16 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			DataHelper.returnJedis(j);
 		}
 		return r;
+	}
+
+	private void writeLog(User host, Set<String> members) {
+		host.setNick(host.getNick() == null ? host.getPhone() : host.getNick());
+		Long ts = System.currentTimeMillis();
+		StringBuilder logBuilder = new StringBuilder();
+		logBuilder.append(host.getNick()).append("家庭已解散");
+		for(String m : members){
+			log.write(String.format("", m,ts,LogType.JT,logBuilder.toString()));
+		}
 	}
 
 	/**

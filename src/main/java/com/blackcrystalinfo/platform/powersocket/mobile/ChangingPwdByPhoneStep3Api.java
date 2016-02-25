@@ -21,8 +21,10 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -43,7 +45,8 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 
 	@Autowired
 	private IUserSvr usrSvr;
-
+	@Autowired
+	ILogger log;
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> ret = new HashMap<Object, Object>();
@@ -108,6 +111,7 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 			SMSSender.send(phone, URLEncoder.encode(sms.toString(),"utf8"));
 			sms.delete(0, sms.length());
 			logger.info("{}|{}|{}",user.getId(),cur,sms.toString());
+			log.write(String.format("%s|%s|%s|%s", user.getId(),System.currentTimeMillis(),LogType.ZHAQ,sms.toString()));
 		} catch (Exception e) {
 			logger.error("",e);
 		} finally {

@@ -17,12 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSON;
+import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
-import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -38,7 +40,8 @@ public class DemissionApi extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DemissionApi.class);
 	@Autowired
 	IUserSvr loginSvr;
-
+	@Autowired
+	ILogger log;
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
@@ -66,13 +69,14 @@ public class DemissionApi extends HandlerAdapter {
 
 			StringBuilder msg = new StringBuilder();
 			Map<String, String> mm = new HashMap<String, String>();
-			String hostNick = host.getNick();
-			String nick = member.getNick();
+
+			host.setNick(host.getNick() == null ? host.getPhone() : host.getNick());
+			member.setNick(member.getNick() == null ? member.getPhone() : member.getNick());
 
 			mm.put("hostId", family);
-			mm.put("hostNick", hostNick==null?host.getPhone():hostNick);
+			mm.put("hostNick", host.getNick());
 			mm.put("mId", userId);
-			mm.put("mNick", nick==null?member.getPhone():nick);
+			mm.put("mNick", member.getNick());
 			
 			msg.append(JSON.toJSON(mm));
 
@@ -93,7 +97,7 @@ public class DemissionApi extends HandlerAdapter {
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
 			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(memlist, BizCode.FamilyRemoveMember.getValue(), Integer.parseInt(userId), msg.toString()));
-
+			writeLog(host, member, members);
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
@@ -107,6 +111,22 @@ public class DemissionApi extends HandlerAdapter {
 		return r;
 	}
 
+	private void writeLog(User host, User member, Set<String> members) {
+		StringBuilder logBuilder = new StringBuilder();
+		logBuilder.append(member.getNick()).append("已被").append(host.getNick()).append("家庭移除");
+		Long ts = System.currentTimeMillis();
+		for(String m : members){
+			if(!m.equals(host.getId())&&!m.equals(member.getId())){
+				log.write(String.format("%s|%s|%s|%s", m,ts,LogType.JT,logBuilder.toString()));
+			}
+		}
+		logBuilder.delete(0, logBuilder.length());
+		logBuilder.append(member.getNick()).append("被从家庭中移除");
+		log.write(String.format("%s|%s|%s|%s", host.getId(),ts,LogType.JT,logBuilder.toString()));
+		logBuilder.delete(0, logBuilder.length());
+		logBuilder.append("我").append("已被").append(host.getNick()).append("的家庭家庭移除");
+		log.write(String.format("%s|%s|%s|%s", member.getId(),ts,LogType.JT,logBuilder.toString()));
+	}
 	/**
 	 * 退出家庭后，更新所有家庭成员的设备列表，及退出用户的设备列表。
 	 * 

@@ -24,7 +24,7 @@ public interface IDeviceSrv {
 	 * @param dv
 	 *            设备类型
 	 */
-	void regist(Long id,String mac, String sn, String name, Long pid, Integer dv);
+	void regist(String mac, String sn, String name, Long pid, Integer dv);
 
 	/**
 	 * 获取设备

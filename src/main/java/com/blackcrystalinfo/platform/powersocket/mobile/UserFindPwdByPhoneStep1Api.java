@@ -46,7 +46,7 @@ public class UserFindPwdByPhoneStep1Api extends HandlerAdapter {
 	private static final int CODE_EXPIRE = Integer.valueOf(Constants.getProperty("validate.code.expire", "300"));
 
 	@Autowired
-	private IUserSvr userDao;
+	private IUserSvr userSvr;
 
 	@Override
 	public Object rpc(RpcRequest req) throws Exception {
@@ -84,7 +84,7 @@ public class UserFindPwdByPhoneStep1Api extends HandlerAdapter {
 			// 手机号码是否存在
 			User user = null;
 			try {
-				user = userDao.getUser(User.UserPhoneColumn, phone);
+				user = userSvr.getUser(User.UserPhoneColumn, phone);
 			} catch (Exception ex) {
 				user = null;
 			}

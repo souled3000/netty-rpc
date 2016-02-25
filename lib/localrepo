@@ -1,0 +1,2 @@
+$ mvn install:install-file -Dfile=license-manage.jar -DgroupId=com.guru -DartifactId=license-manage -Dversion=2.0 -Dpackaging=jar
+

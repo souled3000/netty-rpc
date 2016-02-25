@@ -1,7 +1,5 @@
 package com.blackcrystalinfo.platform.server;
 
-import java.util.concurrent.Executors;
-
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -9,8 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.service.IUserSvr;
 import com.blackcrystalinfo.platform.util.sms.SMSSender;
 
@@ -23,7 +24,8 @@ public class SmsScanner {
 
 	@Autowired
 	IUserSvr usrSvr;
-	
+	@Autowired
+	ILogger log;
 	@PostConstruct
 	public void tiktok() {
 //		Thread t = new Thread(){
@@ -32,7 +34,7 @@ public class SmsScanner {
 //			}
 //		};
 //		t.start();
-		Executors.newFixedThreadPool(1).submit(new Runnable(){
+		Constants.TH.submit(new Runnable(){
 			@Override
 			public void run() {
 				scan();
@@ -53,6 +55,7 @@ public class SmsScanner {
 						User user = usrSvr.getUser(User.UserIDColumn, message);
 						String phone = user.getPhone();
 						SMSSender.send(phone, "您的账号已在别处登录，请确认是否为本人操作。");
+						log.write(String.format("%s|%s|%s|%s", message,System.currentTimeMillis(),LogType.ZCDL,"您的账号已在别处登录，请确认是否为本人操作。"));
 					}catch(Throwable e){
 						logger.error("",e);
 					}finally{

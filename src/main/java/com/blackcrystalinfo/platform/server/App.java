@@ -4,6 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -37,8 +38,13 @@ public class App {
 			b.option(ChannelOption.SO_BACKLOG, 1024);
 			b.option(ChannelOption.SO_KEEPALIVE, true);
 			b.option(ChannelOption.TCP_NODELAY, true);
-			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(rpcServerInitializer);
+//			if(System.getProperties().getProperty("os.name").startsWith("Windows")){
+//				b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(rpcServerInitializer);
+//			}else{
+//				b.group(bossGroup, workerGroup).channel(EpollServerSocketChannel.class).childHandler(rpcServerInitializer);
+//			}
 
+			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(rpcServerInitializer);
 			logger.info("start...{}", port);
 			Channel ch = b.bind(port).sync().channel();
 			ch.closeFuture().sync();

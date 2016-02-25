@@ -21,9 +21,9 @@ public class DeviceSrvImpl implements IDeviceSrv {
 	private JdbcTemplate jdbcTemplate;
 
 	@Transactional
-	public void regist(Long id, String mac, String sn, String name, Long pid, Integer dv) {
-		String sql = "insert into device(id,mac, sn, name, parentid, device_type_id,regtime) values (?,?,?,?,?,?,?)";
-		jdbcTemplate.update(sql,id, mac, sn, name, pid, dv, new Date());
+	public void regist(String mac, String sn, String name, Long pid, Integer dv) {
+		String sql = "insert into device(mac, sn, name, parentid, device_type_id,regtime) values (?,?,?,?,?,?)";
+		jdbcTemplate.update(sql, mac, sn, name, pid, dv, new Date());
 	}
 
 	@Transactional

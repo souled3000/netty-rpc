@@ -72,12 +72,21 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String name = args[4];
 		String sign = args[5];
 		String isUnbind = args[6];
-
-		
-		if (!isValidDev(mac, sign)) {
-			r.put("status", 1);
-			logger.info("Device regist failed, status:{}", r.get("status"));
-			return r;
+		byte[] licenseKey =  new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+		if (Constants.DEV_REG_VALID) {
+			Map<?,?> lm = LicenseHelper.validateLicenseMap(new ByteArrayInputStream(ByteUtil.fromHex(sign)), Constants.DEV_REG_LIC_PATH);
+			if (StringUtils.isNotBlank((String)lm.get("ErrorCode"))) {
+				r.put("status", 1);
+				logger.info("Device regist failed, status:{};ErrorCode:{};ErrorMsg:{}", r.get("status"),lm.get("ErrorCode"),lm.get("ErrorMsg"));
+				return r;
+			}else{
+				if(!mac.equals((String)lm.get("mac"))){
+					r.put("status", 1);
+					logger.info("Device regist failed, status:{};mac:{};mtime:{};sn:{};token:{}", r.get("status"),lm.get("mac"),lm.get("mtime"),lm.get("sn"),lm.get("token"));
+					return r;
+				}
+				licenseKey = ByteUtil.fromHex((String)lm.get("token"));
+			}
 		}
 
 		
@@ -102,15 +111,14 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 					iDv = Integer.valueOf(dv);
 				}
 				
-				id = jedis.decr("dvpk");
-				deviceSrv.regist(id, mac, sn, name, lPid, iDv);
+				deviceSrv.regist(mac, sn, name, lPid, iDv);
 				id = deviceSrv.getIdByMac(mac);
 			}
 
 			
 			cookie = CookieUtil.genDvCki(Hex.decodeHex(mac.toCharArray()));
 			
-			byte[] licenseKey = parseLicenseKey(Hex.decodeHex(sign.toCharArray()));
+			
 			
 			byte[] licenseKeyCookie = new byte[cookie.length + licenseKey.length];
 			
@@ -148,30 +156,6 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		
 		r.put("status", 0);
 		return r;
-	}
-
-	private byte[] parseLicenseKey(byte[] license) {
-		byte[] result = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-		return result;
-	}
-
-	private boolean isValidDev(String mac, String key) {
-		byte[] sign = ByteUtil.fromHex(key);
-
-		boolean needValid = Constants.DEV_REG_VALID;
-		if (!needValid) {
-			// 不用校验，方便调试
-			return true;
-		}
-
-		String lic_path = Constants.DEV_REG_LIC_PATH;
-		int ret = LicenseHelper.validateLicense(mac.getBytes(), new ByteArrayInputStream(sign), lic_path);
-		if (ret != 0) {
-			logger.error("valid failed, ret = {}", ret);
-			return false;
-		}
-
-		return true;
 	}
 
 	public static void main(String[] args) throws Exception{

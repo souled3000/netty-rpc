@@ -20,12 +20,14 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
+import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
 import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
-import com.blackcrystalinfo.platform.powersocket.bo.BizCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -40,7 +42,8 @@ public class QuitApi extends HandlerAdapter {
 
 	@Autowired
 	IUserSvr loginSvr;
-
+	@Autowired
+	ILogger log;
 	public Object rpc(RpcRequest req) throws Exception {
 		Map<Object, Object> r = new HashMap<Object, Object>();
 
@@ -95,6 +98,7 @@ public class QuitApi extends HandlerAdapter {
 			String memlist = StringUtils.join(members.iterator(), ",") + "|";
 
 			j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg(memlist, BizCode.FamilyQuit.getValue(), Integer.parseInt(uId), msg.toString()));
+			writeLog(host, user, members);
 			r.put(status, SUCCESS.toString());
 		} catch (Exception e) {
 			r.put(status, SYSERROR.toString());
@@ -105,7 +109,22 @@ public class QuitApi extends HandlerAdapter {
 
 		return r;
 	}
-
+	private void writeLog(User host, User member, Set<String> members) {
+		StringBuilder logBuilder = new StringBuilder();
+		logBuilder.append(member.getNick()).append("已退出").append(host.getNick()).append("家庭");
+		Long ts = System.currentTimeMillis();
+		for(String m : members){
+			if(!m.equals(host.getId())&&!m.equals(member.getId())){
+				log.write(String.format("%s|%s|%s|%s", m,ts,LogType.JT,logBuilder.toString()));
+			}
+		}
+		logBuilder.delete(0, logBuilder.length());
+		logBuilder.append(member.getNick()).append("已退出家庭");
+		log.write(String.format("%s|%s|%s|%s", host.getId(),ts,LogType.JT,logBuilder.toString()));
+		logBuilder.delete(0, logBuilder.length());
+		logBuilder.append("我已退出").append(host.getNick()).append("的家庭");
+		log.write(String.format("%s|%s|%s|%s", member.getId(),ts,LogType.JT,logBuilder.toString()));
+	}
 	/**
 	 * 退出家庭后，更新所有家庭成员的设备列表，及退出用户的设备列表。
 	 * 

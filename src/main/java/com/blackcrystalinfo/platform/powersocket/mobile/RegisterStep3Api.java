@@ -18,8 +18,10 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
+import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
+import com.blackcrystalinfo.platform.powersocket.log.ILogger;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -89,7 +91,8 @@ public class RegisterStep3Api extends HandlerAdapter {
 			ret.put(status, SUCCESS.toString());
 			String sms = new String("注册成功");
 			SMSSender.send(phone, URLEncoder.encode(sms,"utf8"));
-			logger.info("{}|{}|{}",userId,System.currentTimeMillis(),sms);
+//			logger.info("{}|{}|{}",userId,System.currentTimeMillis(),sms);
+			log.write(String.format("%s|%s|%s|%s", userId,System.currentTimeMillis(),LogType.ZCDL,sms));
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
@@ -98,7 +101,8 @@ public class RegisterStep3Api extends HandlerAdapter {
 
 		return ret;
 	}
-
+	@Autowired
+	ILogger log;
 	public static void main(String[] args) {
 		String pwd = "111111333";
 		if(Constants.P3.matcher(pwd).find()&&Constants.P2.matcher(pwd).find()){

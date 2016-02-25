@@ -130,7 +130,7 @@ public class CometScanner {
 			curPaths.add(tmpPath);
 			String data = new String(zk.getData(tmpPath, true, st));
 			String[] items = data.split(",");
-			if (items.length == 5) {
+			if (items.length >= 5) {
 				String url = items[0];
 				PATH2URL.put(tmpPath, url);
 				float cpu = Float.valueOf(items[1]);
@@ -149,10 +149,12 @@ public class CometScanner {
 							if (IPMAP.containsKey(key)) {
 								q.put(url);
 								logger.debug("adding url:{}|path:{} to q", url, tmpPath);
-							} else
-								logger.debug("not adding url:{}|path:{} to q, beacause of absent of url in IPMAP", url, tmpPath);
-						} else
-							logger.debug("not adding url:{}|path:{} to q, the url has been exsisted in q", url, tmpPath);
+							} 
+//							else
+//								logger.debug("not adding url:{}|path:{} to q, beacause of absent of url in IPMAP", url, tmpPath);
+						} 
+//						else
+//							logger.debug("not adding url:{}|path:{} to q, the url has exsisted in q", url, tmpPath);
 					}
 				} else {
 					logger.error("ALARM!!! {} < {}CPU_THRESHOLD && {} - {} > {}MEM_THRESHOLD && {}HANDLER_THRESHOLD > {}", cpu, CPU_THRESHOLD, tm, um, MEM_THRESHOLD, HANDLER_THRESHOLD, h);
@@ -210,7 +212,7 @@ public class CometScanner {
 			}
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main2(String[] args) throws Exception {
 		CometScanner.tiktok();
 		Thread.sleep(1 * 1000);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -227,15 +229,9 @@ public class CometScanner {
 		}, 0, 10000);
 	}
 
-	public static void main2(String[] args) {
-		Set<String> a = new HashSet<String>();
-		a.add("a");
-		a.add("b");
-		Set<String> b = new HashSet<String>();
-		b.add("a");
-		b.add("c");
+	public static void main(String[] args) {
 		float f = Float.valueOf("NaN");
-		System.out.println(f < CPU_THRESHOLD);
+		System.out.println(f != CPU_THRESHOLD);
 		System.out.println(Float.valueOf("NaN"));
 	}
 }
