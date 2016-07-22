@@ -1,5 +1,4 @@
 *.[oa]
-.classpath
 target/*
 /target
 src/main/java/com/JedisPoolsHolder.java
