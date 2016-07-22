@@ -1,6 +1,5 @@
 *.[oa]
 .classpath
-.project
 .settings/*
 target/*
 /target
