@@ -4,6 +4,9 @@
 	<groupId>com.blackcrystalinfo</groupId>
 	<artifactId>netty-rpc</artifactId>
 	<version>1.0.11</version>
+	<properties>
+		<java.home>C:\jdk1.7.0_15</java.home>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -130,7 +133,7 @@
 			<artifactId>jdk.tools</artifactId>
 			<version>1.7</version>
 			<scope>system</scope>
-			<systemPath>C:\jdk1.7.0_15\lib\tools.jar</systemPath>
+			<systemPath>${java.home}\lib\tools.jar</systemPath>
 		</dependency>
 	</dependencies>
 	<build>
@@ -153,10 +156,9 @@
 					<compilerArguments>
 						<verbose />
 						<bootclasspath>
-							C:\Program Files\Java\jdk1.7.0_60\jre\lib\rt.jar;
-							C:\Program Files\Java\jdk1.7.0_60\jre\lib\jce.jar;
-							C:\Program
-							Files\Java\jdk1.7.0_60\jre\lib\jsse.jar
+							${java.home}\jre\lib\rt.jar;
+							${java.home}\jre\lib\jce.jar;
+							${java.home}\jre\lib\jsse.jar
 						</bootclasspath>
 					</compilerArguments>
 					<encoding>utf-8</encoding>
