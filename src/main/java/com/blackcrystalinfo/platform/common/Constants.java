@@ -61,7 +61,7 @@ public class Constants extends ConfigurableConstants {
 	 * 设备注册校验（需求原文->设备授权管理）
 	 */
 	public static boolean DEV_REG_VALID = Boolean.valueOf(getProperty("dev.reg.valid", "true"));
-	public static String DEV_REG_LIC_PATH = getProperty("dev.reg.lic.path", "");
+	public static String DEV_REG_LIC_PATH = getProperty("dev.reg.lic.path", "D:\\lib\\");
 
 	/**
 	 * 是否使用SSL方式发送邮件

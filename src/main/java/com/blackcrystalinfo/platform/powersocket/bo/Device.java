@@ -13,7 +13,7 @@ public class Device implements RowMapper<Object> {
 	public static final String DeviceEncryptKeyColumn = "encryptkey";
 	public static final String DeviceRegTimeColumn = "regtime";
 	public static final String DeviceParentIDColumn = "parentid";
-	public static final String DeviceDeviceTypeColumn = "device_type_id";
+	public static final String DeviceDeviceTypeColumn = "category";
 
 	private String id;
 
@@ -117,7 +117,7 @@ public class Device implements RowMapper<Object> {
 			device.setEncryptKey((rs.getString("encryptkey")));
 			device.setRegTime((rs.getString("regtime")));
 			device.setParentID((rs.getString("parentid")));
-			device.setDeviceType((rs.getString("device_type_id")));
+			device.setDeviceType((rs.getString("category")));
 		}
 		return device;
 	}

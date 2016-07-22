@@ -65,37 +65,42 @@ public class DeviceLoginHandler extends HandlerAdapter {
 				return r;
 			}
 
-//			// 根据deviceId获取keyMd5(平台授权密钥)
+			// // 根据deviceId获取keyMd5(平台授权密钥)
 			byte[] b = jedis.hget("sq".getBytes(), String.valueOf(id).getBytes());
-//			cookie = parseRealCookie(cookie, keyMd5);
-//			r.put("keyMd5", keyMd5);
-//			// 验证cookie
+			if (b != null && b.length != 16) {
+				r.put("status", 3);
+				return r;
+			}
+			// cookie = parseRealCookie(cookie, keyMd5);
+			// r.put("keyMd5", keyMd5);
+			// // 验证cookie
 			try {
+				cookie=Hex.encodeHexString(AESCoder.decryptNp(Hex.decodeHex(cookie.toCharArray()), b));
 				if (!CookieUtil.isDvCki(Hex.decodeHex(mac.toCharArray()), cookie)) {
 					r.put("status", 1);
 					return r;
 				}
 			} catch (Exception e) {
-				logger.error("",e);
+				logger.error("", e);
 				return r;
 			}
 
-			//生成临时密钥
+			// 生成临时密钥
 			UUID uuid = UUID.randomUUID();
 			byte[] a = new byte[16];
 			System.arraycopy(NumberByte.long2Byte(uuid.getMostSignificantBits()), 0, a, 0, 8);
 			System.arraycopy(NumberByte.long2Byte(uuid.getLeastSignificantBits()), 0, a, 8, 8);
-			//用keyMd5加密临时密钥
+			// 用keyMd5加密临时密钥
 			byte[] keyCipher = AESCoder.encryptNp(a, b);
-			r.put("tmp",Hex.encodeHexString(keyCipher));
-			//算密证
+			r.put("tmp", Hex.encodeHexString(keyCipher));
+			// 算密证
 			byte[] c = new byte[32];
 			System.arraycopy(a, 0, c, 0, 16);
 			System.arraycopy(b, 0, c, 16, 16);
-			byte[]MiZheng = MessageDigest.getInstance("MD5").digest(c);
-			//存储密证
-			jedis.hset("mz".getBytes(), Hex.decodeHex(mac.toCharArray()),MiZheng);
-			logger.info("\n\n临时密钥明文:{}\n临时密钥密文:{}\n平台授权码:{}\n密证:{}\n\n",Hex.encodeHexString(a),Hex.encodeHexString(keyCipher),Hex.encodeHexString(b),Hex.encodeHexString(MiZheng));
+			byte[] MiZheng = MessageDigest.getInstance("MD5").digest(c);
+			// 存储密证
+			jedis.set(("MZ:"+mac), Hex.encodeHexString(MiZheng));
+			logger.info("\n\n临时密钥明文:{}\n临时密钥密文:{}\n平台授权码:{}\n密证:{}\n\n", Hex.encodeHexString(a), Hex.encodeHexString(keyCipher), Hex.encodeHexString(b), Hex.encodeHexString(MiZheng));
 			// 根据deviceId获取设备属主
 			String owner = jedis.hget("device:owner", id.toString());
 			r.put("owner", owner);

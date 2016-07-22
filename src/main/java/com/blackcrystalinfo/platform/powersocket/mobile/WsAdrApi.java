@@ -35,8 +35,8 @@ public class WsAdrApi extends HandlerAdapter {
 
 			String heartBeat = CookieUtil.EXPIRE_SEC;
 			String proxyKey = CookieUtil.genWsKey(userId, String.valueOf(System.currentTimeMillis() / 1000), CookieUtil.EXPIRE_SEC);
-
-			r.put("proxyAddr", CometScanner.take());
+			String proxyAdr = String.format("ws://%s/ws", CometScanner.take());
+			r.put("proxyAddr", proxyAdr);
 			r.put("heartBeat", heartBeat);
 			r.put("proxyKey", proxyKey);
 			r.put(status, SUCCESS.toString());

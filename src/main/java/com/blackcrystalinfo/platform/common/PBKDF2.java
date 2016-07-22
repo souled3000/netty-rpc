@@ -49,15 +49,15 @@ public class PBKDF2 {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String password = "lchj";
-		System.out.println(PBKDF2.encode(password));
-		System.out.println(PBKDF2.encode(password));
+		String pwd = "1111";
+		System.out.println(PBKDF2.encode(pwd));
+		System.out.println(PBKDF2.encode(pwd));
 
-		String pwd = "xxx";
 		String p = "yyy";
-		boolean b = PBKDF2.validate(p, PBKDF2.encode(pwd));
+		boolean b = PBKDF2.validate(pwd, PBKDF2.encode(pwd));
 		System.out.println(b);
-		
+		b=PBKDF2.validate("lchj", "1000:9E33B2CE4AD4F870A56840BCD1D53BE2D52B7A0383424700AAC9F907F2C3ECC3:F31C4F59A48418325BDA99355A675CED406FB769F1BD53404C7D4304EFD2B5BDD2524203E499BDDF0FCFDFFDCAD086FE03699891A0BE464ECDD6FF14B08026BC");
+		System.out.println(b);
 		System.out.println(Hex.encodeHex(getSalt()));
 	}
 }

@@ -18,15 +18,15 @@ import com.blackcrystalinfo.platform.util.sms.SMSSender;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
-@Repository
+//@Repository
 public class SmsScanner {
 	private static final Logger logger = LoggerFactory.getLogger(SmsScanner.class);
 
-	@Autowired
+//	@Autowired
 	IUserSvr usrSvr;
-	@Autowired
+//	@Autowired
 	ILogger log;
-	@PostConstruct
+//	@PostConstruct
 	public void tiktok() {
 //		Thread t = new Thread(){
 //			public void run() {

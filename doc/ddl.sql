@@ -25,7 +25,7 @@ CREATE TABLE `device` (
   `encryptkey` char(32) DEFAULT NULL,
   `regtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `parentid` bigint(21) DEFAULT NULL,
-  `device_type_id` smallint(6) DEFAULT NULL,
+  `category` bigint(21) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
@@ -43,3 +43,4 @@ CREATE DEFINER=`root`@`localhost` TRIGGER `change_id_minus` BEFORE INSERT ON `de
 end;
 //
 DELIMITER ;
+alter table device change device_type_id category bigint(21);

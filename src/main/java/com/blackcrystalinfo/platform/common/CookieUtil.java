@@ -226,11 +226,29 @@ public class CookieUtil {
 //		System.out.println(s);
 
 		System.out.println("---------------------DEV-COOKIE----------------------------");
-		byte[] mac = Hex.decodeHex("040027430c000000".toCharArray());
+//		byte[] licenseKey =  new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+		byte[] licenseKey =  new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+//		byte[] mac = Hex.decodeHex("0000b0d59d63f86a".toCharArray());
+		byte[] mac = Hex.decodeHex("0000b0d59d63f58a".toCharArray());
 		System.out.println(Hex.encodeHexString(mac));
 		byte[] dvcookie = CookieUtil.genDvCki(mac);
 		System.out.println(dvcookie.length);
+		System.out.println("原串:"+Hex.encodeHexString(dvcookie));
 
+		byte[] licenseKeyCookie = new byte[dvcookie.length + licenseKey.length];
+		
+		System.arraycopy(dvcookie, 0, licenseKeyCookie, 0, 32);
+		System.arraycopy(licenseKey, 0, licenseKeyCookie, 32, 16);
+		
+		byte[] keyMd5 = MessageDigest.getInstance("MD5").digest(licenseKeyCookie);
+		byte[] cookieCipher = AESCoder.encryptNp(dvcookie, licenseKey);
+		byte[] cookieCipher2 = AESCoder.encryptNp(dvcookie, keyMd5);
+		
+		System.out.println("注册:"+Hex.encodeHexString(cookieCipher));
+		System.out.println("登录:"+Hex.encodeHexString(cookieCipher2));
+		
+		
+		
 		System.out.println("---------------------USR-COOKIE----------------------------");
 		byte[] k = gen16();
 		String usrCki = genUsrCki("100","1000:771585542c3b3f5e3d7ba67ec60f2ca790ddcb82881d022ab4ce60e684321969:2997ed9c153fc8d406011fbab5e73c97017c32289c5e714b3953bffb1b822000a4e01932dcc3071fde2cc71c9b763663f915a5b2dcf401569fe9af2ba6b3bf57",k);
@@ -249,7 +267,7 @@ public class CookieUtil {
 		System.out.println(URLEncoder.encode("zRJ743WVzw7bSjAyC4AowXv240LD+NGgxbS3Mri93fg=", "utf8"));
 		
 		
-		boolean id=CookieUtil.isDvCki(Hex.decodeHex("030027430c000000".toCharArray()), "1389c345c6332e704d861c278f4bc06e2c94f2736e6499f43f702d8a9582a238");
+		boolean id=CookieUtil.isDvCki(Hex.decodeHex("0000b0d59d63f5dd".toCharArray()), "329a93178bc92902e4d5a9d843629f2a953cd1d8c8a1ce1585fd2be5fa2f679d");
 		byte[] dvc =CookieUtil.genDvCki(Hex.decodeHex("030027430c000000".toCharArray()));
 		System.out.println(id);
 		System.out.println(Hex.encodeHexString(dvc));

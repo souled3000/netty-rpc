@@ -9,11 +9,10 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.stereotype.Repository;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
-@Repository
+//@Repository
 public class HBaseLogger implements ILogger {
 
 	private Table t;

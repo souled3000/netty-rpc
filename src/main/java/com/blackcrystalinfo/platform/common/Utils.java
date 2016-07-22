@@ -97,7 +97,6 @@ public class Utils {
 		byte[] a = genDatagram4Long(1, -30, "哈哈");
 		System.out.println(ByteUtil.toHex(a));
 		System.out.println("--------------------------");
-
 		printDatagram4Websocket(a);
 	}
 

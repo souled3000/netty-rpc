@@ -72,12 +72,12 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		String name = args[4];
 		String sign = args[5];
 		String isUnbind = args[6];
-		byte[] licenseKey =  new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+		byte[] licenseKey =  new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 		if (Constants.DEV_REG_VALID) {
 			Map<?,?> lm = LicenseHelper.validateLicenseMap(new ByteArrayInputStream(ByteUtil.fromHex(sign)), Constants.DEV_REG_LIC_PATH);
 			if (StringUtils.isNotBlank((String)lm.get("ErrorCode"))) {
 				r.put("status", 1);
-				logger.info("Device regist failed, status:{};ErrorCode:{};ErrorMsg:{}", r.get("status"),lm.get("ErrorCode"),lm.get("ErrorMsg"));
+				logger.info("Device regist failed, status:{};KeyPATH:{};ErrorCode:{};ErrorMsg:{}", r.get("status"),Constants.DEV_REG_LIC_PATH,lm.get("ErrorCode"),lm.get("ErrorMsg"));
 				return r;
 			}else{
 				if(!mac.equals((String)lm.get("mac"))){
@@ -135,7 +135,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			r.put("id", id);
 			r.put("cookie", Hex.encodeHexString(cookieCipher));
 
-			logger.info("\n\nCOOKIE明文:{}\nCOOKIE密文:{}\n平台授权码:{}\n\n\n",Hex.encodeHexString(cookie),Hex.encodeHexString(cookieCipher),Hex.encodeHexString(keyMd5));
+			logger.info("\nLicenseKey:{}\n\nCOOKIE明文:{}\nCOOKIE密文:{}\n平台授权码:{}\n\n\n",Hex.encodeHexString(licenseKey),Hex.encodeHexString(cookie),Hex.encodeHexString(cookieCipher),Hex.encodeHexString(keyMd5));
 
 			// 强制解绑
 			if ("y".equalsIgnoreCase(isUnbind)) {
@@ -159,7 +159,38 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 	}
 
 	public static void main(String[] args) throws Exception{
-		String mac = "020027430c000000";
+		f();
+	}
+	
+	public static void f() throws Exception{
+		String mac = "0000b0d59d63f58a";
+		String sign = "0003730ba305df8c014be8863ef3152760ab11d5a4f8204e5d485805531792354eb0cb6e38e7b5f97733089080dc46d20c117562d36ca49add3ee9fa6370f5177373c2b1722941df2bfe174d45a67634d884e0ae4f6124066951a469ca9f09053feb47624e64c02ebb030b098a5daa595db40b1865cd647697884c513b0feaa68f38";
+//		String mac = "0000b0d59d63f81d";
+//		String sign = "000349dc7b93dc47502e4bb6aa622f2a0a7eeea018a8f9be46662cd894c7380da0205e3e24fa2e4976788721069492ca59d11013f32a44149d954a986f932193652037f0be4494554abf8ef9aaaea2650dc75d75ae08a3e13492566e4566216c009434a19ac06acd52338a522a17599701e99e59f204d89138370a3b308044fe3fb2";
+		Map<?,?> lm = LicenseHelper.validateLicenseMap(new ByteArrayInputStream(ByteUtil.fromHex(sign)), "d:\\lib\\");
+		byte[] licenseKey = ByteUtil.fromHex((String)lm.get("token"));
+		byte[] cookie = CookieUtil.genDvCki(Hex.decodeHex(mac.toCharArray()));
+		System.out.println("licenseKey:\t"+Hex.encodeHexString(licenseKey));
+		System.out.println("cookie:\t"+Hex.encodeHexString(cookie));
+		byte[] cookieCipher = AESCoder.encryptNp(cookie, licenseKey);
+		System.out.println("cookieCipher:\t"+Hex.encodeHexString(cookieCipher));
+		if (StringUtils.isNotBlank((String)lm.get("ErrorCode"))) {
+			logger.info("Device regist failed, KeyPATH:{};ErrorCode:{};ErrorMsg:{}",Constants.DEV_REG_LIC_PATH,lm.get("ErrorCode"),lm.get("ErrorMsg"));
+		}else{
+			if(!mac.equals((String)lm.get("mac"))){
+				logger.info("Device regist failed, mac:{};mtime:{};sn:{};token:{}", lm.get("mac"),lm.get("mtime"),lm.get("sn"),lm.get("token"));
+			}
+			licenseKey = ByteUtil.fromHex((String)lm.get("token"));
+		}
+		
+		
+		int ret = LicenseHelper.validateLicense(mac.getBytes(), new ByteArrayInputStream(ByteUtil.fromHex(sign)), "d:\\lib\\");
+	    if (ret != 0) {
+	      logger.error("valid failed, ret = {}", Integer.valueOf(ret));
+	    }
+	}
+	public static void f1() throws Exception{
+		String mac = "0000b0d59d63f5dd";
 		byte[] cookie = CookieUtil.genDvCki(Hex.decodeHex(mac.toCharArray()));
 		System.out.println(cookie.length);
 		System.out.println(Hex.encodeHexString(cookie));

@@ -2,15 +2,19 @@ package com.blackcrystalinfo.platform.common;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+
+import com.blackcrystalinfo.platform.util.cryto.AESCoder;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -70,7 +74,7 @@ public class DataHelper {
 	}
 
 	public static void main(String[] args) throws Exception {
-		f2();
+		f3();
 	}
 
 	private static void f1() throws Exception {
@@ -81,7 +85,19 @@ public class DataHelper {
 		}
 		DataHelper.returnJedis(j);
 	}
-
+	private static void f3() throws Exception{
+		Jedis j = DataHelper.getJedis();
+		j.hset("sq".getBytes(), String.valueOf(-2).getBytes(), new byte[]{0x00,0x10});
+		byte[] v = j.hget("sq".getBytes(), String.valueOf(-3).getBytes());
+		UUID uuid = UUID.randomUUID();
+		byte[] a = new byte[16];
+		System.arraycopy(NumberByte.long2Byte(uuid.getMostSignificantBits()), 0, a, 0, 8);
+		System.arraycopy(NumberByte.long2Byte(uuid.getLeastSignificantBits()), 0, a, 8, 8);
+		// 用keyMd5加密临时密钥
+		byte[] keyCipher = AESCoder.encryptNp(a, v);
+		System.out.println(Hex.encodeHexString(keyCipher));
+		DataHelper.returnJedis(j);
+	}
 	private static void f2() throws Exception {
 		ExecutorService es = Executors.newCachedThreadPool();
 		for (int i = 0; i < 100; i++)

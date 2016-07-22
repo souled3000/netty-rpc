@@ -21,9 +21,6 @@ import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.DataHelper;
@@ -31,7 +28,7 @@ import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
-@Controller("/mobile/log")
+//@Controller("/mobile/log")
 public class UserLogApi extends HandlerAdapter {
 
 //	private Logger logger = LoggerFactory.getLogger(UserLogApi.class);
