@@ -1,6 +1,7 @@
 package com.blackcrystalinfo.platform.common;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -32,7 +33,7 @@ public class DataHelper {
 		cfg.setMaxIdle(5);
 		cfg.setMaxWaitMillis(ONE_SECOND);
 		cfg.setTestOnBorrow(true);
-		cfg.setMaxTotal(Constants.RedisMaxTotal);
+		cfg.setMaxTotal(10000);
 		String host = Constants.REDIS_HOST;
 		int port = Integer.parseInt(Constants.REDIS_PORT);
 		String password = null;
@@ -74,9 +75,15 @@ public class DataHelper {
 	}
 
 	public static void main(String[] args) throws Exception {
-		f3();
+		f4();
 	}
-
+	private static void f4() throws Exception{
+		Date d = new Date(1470213589237232400l/1000000);
+		System.out.println(d.toLocaleString());
+		d = new Date(System.currentTimeMillis());
+		System.out.println(d.toLocaleString()+" "+d.getTime());
+		
+	}
 	private static void f1() throws Exception {
 		Jedis j = DataHelper.getJedis();
 		Set<String> keys = j.keys("B0029*");

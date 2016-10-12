@@ -167,7 +167,7 @@
 		</plugins>
 	</build>
 	<properties>
-		<java.home>C:\jdk1.7.0_15</java.home>
+		<java.home>C:\Program Files\Java\jdk1.8.0_05</java.home>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>

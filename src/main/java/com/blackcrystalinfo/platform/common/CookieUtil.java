@@ -19,6 +19,7 @@ import org.apache.commons.io.EndianUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.blackcrystalinfo.platform.util.cryto.AESCoder;
+import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
 
 /**
  * 
@@ -139,6 +140,7 @@ public class CookieUtil {
 		SecretKey secret = new SecretKeySpec(DEVICE_SALT.getBytes(), "HMACSHA256");
 		hmac.init(secret);
 		byte[] doFinal = hmac.doFinal(mac);
+		System.out.println(Hex.encodeHexString(doFinal));
 		if (StringUtils.equals(cookie, Hex.encodeHexString(doFinal))) {
 			return true;
 		}
@@ -267,9 +269,15 @@ public class CookieUtil {
 		System.out.println(URLEncoder.encode("zRJ743WVzw7bSjAyC4AowXv240LD+NGgxbS3Mri93fg=", "utf8"));
 		
 		
-		boolean id=CookieUtil.isDvCki(Hex.decodeHex("0000b0d59d63f5dd".toCharArray()), "329a93178bc92902e4d5a9d843629f2a953cd1d8c8a1ce1585fd2be5fa2f679d");
+//		boolean id=CookieUtil.isDvCki(Hex.decodeHex("00002091489838a2".toCharArray()), "3301e846c35bf652bcf2b659147f08190a6ca84f1d586eab00e2c16a7f5d963d");
+//		System.out.println("isDvCki:"+id);
+		byte[] ckia = AESCoder.encryptNp(ByteUtil.fromHex("76d10eabcd2dc37ce8373e1f73ff246d9a633f2d322120107eff386367919ed6"), ByteUtil.fromHex("faaf34b5f7dc0c5d2f134430e16a3807"));
+		System.out.println("ckia:"+ByteUtil.toHex(ckia));
+		byte[] ckitxt=AESCoder.decryptNp(Hex.decodeHex("3301e846c35bf652bcf2b659147f08190a6ca84f1d586eab00e2c16a7f5d963d".toCharArray()),ByteUtil.fromHex("faaf34b5f7dc0c5d2f134430e16a3807"));
+		System.out.println("ckip:"+ByteUtil.toHex(ckitxt));
+		boolean id=CookieUtil.isDvCki(Hex.decodeHex("00002091489838a2".toCharArray()), ByteUtil.toHex(ckitxt));
+		System.out.println("isDvCki:"+id);
 		byte[] dvc =CookieUtil.genDvCki(Hex.decodeHex("030027430c000000".toCharArray()));
-		System.out.println(id);
 		System.out.println(Hex.encodeHexString(dvc));
 	}
 
