@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -34,12 +34,11 @@ public class FamiliesApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			String fId = j.hget("user:family", userId);
 			Set<String> familySet = j.smembers("family:" + fId);
 			r.put("fId", fId);
 
-			// TODO: 需要跟手机协商，如果这个地方把成员的详细信息获取到，就不用挨个获取了
 			Set<Map<String, Object>> members = new HashSet<Map<String, Object>>();
 			for (String uId : familySet) {
 				Map<String, Object> member = new HashMap<String, Object>();
@@ -63,7 +62,7 @@ public class FamiliesApi extends HandlerAdapter {
 			logger.error("Get the members of a family. userId:{}|status:{}", userId, r.get(status), e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		return r;
 	}

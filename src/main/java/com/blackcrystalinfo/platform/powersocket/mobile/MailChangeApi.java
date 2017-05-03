@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -61,7 +61,7 @@ public class MailChangeApi extends HandlerAdapter {
 
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			String subject = "修改邮箱激活邮件";
 			String protocol = Constants.SERVERPROTOCOL;
@@ -102,7 +102,7 @@ public class MailChangeApi extends HandlerAdapter {
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return ret;

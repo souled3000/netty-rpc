@@ -230,8 +230,10 @@ public class CometScanner {
 	}
 
 	public static void main(String[] args) {
-		float f = Float.valueOf("NaN");
-		System.out.println(f != CPU_THRESHOLD);
-		System.out.println(Float.valueOf("NaN"));
+//		float f = Float.valueOf("NaN");
+//		System.out.println(f != CPU_THRESHOLD);
+//		System.out.println(Float.valueOf("NaN"));
+		
+		System.out.println(take());
 	}
 }

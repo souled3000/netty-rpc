@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.NumberByte;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -58,7 +58,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			if (!deviceSrv.exists(mac)) {
 				r.put(status, C0003.toString());
@@ -94,7 +94,7 @@ public class UserBindDeviceApi extends HandlerAdapter {
 			logger.error("Bind in error mac:{}|user:{}|status:{}", mac, uId, r.get(status), e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		r.put(status, SUCCESS.toString());

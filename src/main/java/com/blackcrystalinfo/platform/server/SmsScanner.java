@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.powersocket.log.ILogger;
@@ -46,7 +46,7 @@ public class SmsScanner {
 		logger.info("SMSScanner Launched.{}",usrSvr);
 		Jedis j = null;
 		try{
-			j=DataHelper.getJedis();
+			j=JedisHelper.getJedis();
 			j.subscribe(new JedisPubSub() {
 				@Override
 				public void onMessage(String channel, String message) {
@@ -65,7 +65,7 @@ public class SmsScanner {
 		}catch(Throwable e){
 			
 		}finally{
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 	}
 }

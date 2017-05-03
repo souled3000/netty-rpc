@@ -25,7 +25,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -82,7 +82,7 @@ public class UserChangePassApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			String flag = j.get("B0010" + key);
 			if (Captcha.validity)
@@ -184,7 +184,7 @@ public class UserChangePassApi extends HandlerAdapter {
 			logger.error("User change password error", e);
 			throw new InternalException(e.getMessage());
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return r;

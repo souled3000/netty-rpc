@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -49,13 +49,13 @@ public class OctopusApi extends HandlerAdapter {
 		res.headers().set("urlOrigin", "/octopus.jpg");
 		setContentLength(res, res.content().readableBytes());
 
-		Jedis j = DataHelper.getJedis();
+		Jedis j = JedisHelper.getJedis();
 		try {
 			j.setex(cookie, Captcha.expire, word);
 		} catch (Exception e) {
 			// DataHelper.returnBrokenJedis(j);
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return res;

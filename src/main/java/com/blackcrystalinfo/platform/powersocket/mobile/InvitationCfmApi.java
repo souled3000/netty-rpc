@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -50,7 +50,7 @@ public class InvitationCfmApi extends HandlerAdapter {
 		String asw = req.getParameter("asw");
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			// 用户确认加入家庭是有时效限制的
 			// String fId = j.get("user:invitationfamily:" + uId);
@@ -106,7 +106,7 @@ public class InvitationCfmApi extends HandlerAdapter {
 			logger.error("", e);
 			// DataHelper.returnBrokenJedis(j);
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return r;

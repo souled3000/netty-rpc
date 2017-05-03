@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -83,7 +83,7 @@ public class ChangingPhoneStep3Api extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			String succ = "cp:succ:"+user.getId();
 			if(j.incrBy(succ,0L)>=2){
 				ret.put(status, ErrorCode.C0046.toString());
@@ -129,7 +129,7 @@ public class ChangingPhoneStep3Api extends HandlerAdapter {
 			logger.error("", e);
 			return ret;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return ret;

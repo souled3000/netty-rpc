@@ -26,7 +26,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -125,7 +125,7 @@ public class UserRegisterApi extends HandlerAdapter {
 		Jedis j = null;
 		try {
 			// 3. get & check the cookie
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			String cookie = req.getHeaders().get(HttpHeaders.Names.COOKIE);
 			if (!checkCookie(j, cookie, r)) {
 				return r;
@@ -165,7 +165,7 @@ public class UserRegisterApi extends HandlerAdapter {
 			r.put(status, SYSERROR.toString());
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		return r;
 	}

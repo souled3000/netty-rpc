@@ -35,7 +35,6 @@ public class DeviceRegisterTest extends HandlerAdapter {
 			l = NumberByte.byte2LongLittleEndian(Hex.decodeHex(args[0].toCharArray()));
 			r.put("id", l*-1);
 		} catch (DecoderException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		r.put("cookie", "0000000000000000000000000000000000000000000000000000000000000000");

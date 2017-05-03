@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.PBKDF2;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -58,7 +58,7 @@ public class UserFindPwdStep2Api extends HandlerAdapter {
 		}
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 			// 验证码是否过期
 			if (!jedis.exists(keyCode)) {
 				r.put(status, C0015.toString());
@@ -94,7 +94,7 @@ public class UserFindPwdStep2Api extends HandlerAdapter {
 			logger.error("", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 		logger.info("response: userEmail:{}|code:{}|keyCode:{}|pwd:{}|status:{}", userEmail, code, keyCode, pwd, r.get(status));
 		r.put(status, SUCCESS.toString());

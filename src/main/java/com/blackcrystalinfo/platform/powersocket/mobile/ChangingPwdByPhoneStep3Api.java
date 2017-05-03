@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.PBKDF2;
@@ -80,7 +80,7 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			if (j.incrBy(succ, 0L) >= 2) {
 				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
@@ -115,7 +115,7 @@ public class ChangingPwdByPhoneStep3Api extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("",e);
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return ret;

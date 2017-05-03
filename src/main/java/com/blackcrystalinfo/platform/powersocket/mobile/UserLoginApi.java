@@ -22,7 +22,7 @@ import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -78,7 +78,7 @@ public class UserLoginApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			User user = usrSvr.getUser(User.UserPhoneColumn, phone);
 			if (null == user) {
@@ -147,7 +147,7 @@ public class UserLoginApi extends HandlerAdapter {
 			logger.error("User login error. email:{}|pwd:{}|status:{}", phone, pwd, r.get(status), e);
 			return r;
 		}finally{
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		return r;
 	}

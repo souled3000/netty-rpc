@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -85,7 +85,7 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			Transaction trans = jedis.multi();
 
@@ -132,7 +132,7 @@ public class PhoneBindStep1Api extends HandlerAdapter {
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return ret;

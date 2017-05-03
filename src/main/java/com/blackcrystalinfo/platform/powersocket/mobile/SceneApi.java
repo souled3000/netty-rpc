@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
@@ -39,7 +39,7 @@ public class SceneApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			// 添加 or 修改
 			if (StringUtils.isNotBlank(scenename) && StringUtils.isNotBlank(scenecode) && StringUtils.isNotBlank(mac))
@@ -69,7 +69,7 @@ public class SceneApi extends HandlerAdapter {
 			r.put(status, SYSERROR.toString());
 			logger.info("", e);
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return r;

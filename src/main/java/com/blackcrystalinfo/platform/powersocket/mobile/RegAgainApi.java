@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -48,7 +48,7 @@ public class RegAgainApi extends HandlerAdapter {
 
 		int times = 0;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			User user = userSvr.getUser(User.UserIDColumn, uid);
 
@@ -120,7 +120,7 @@ public class RegAgainApi extends HandlerAdapter {
 			// DataHelper.returnBrokenJedis(j);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		r.put(status, ErrorCode.SUCCESS.toString());
 		return r;

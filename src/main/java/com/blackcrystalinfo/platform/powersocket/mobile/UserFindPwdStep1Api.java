@@ -27,7 +27,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
@@ -62,7 +62,7 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			// 图片验证码
 			String cookie = req.getHeaders().get(HttpHeaders.Names.COOKIE);
@@ -163,7 +163,7 @@ public class UserFindPwdStep1Api extends HandlerAdapter {
 			logger.error("UserFindPwdStep1", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		logger.info("response: email:{}|status:{}", destEmailAddr, r.get(status));
 		r.put(status, SUCCESS.toString());

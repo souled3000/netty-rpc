@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.CometScanner;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -29,7 +29,7 @@ public class WsAdrApi extends HandlerAdapter {
 		r.put(status, SYSERROR.toString());
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			String userId = req.getUserId();
 
@@ -44,7 +44,7 @@ public class WsAdrApi extends HandlerAdapter {
 			logger.error("", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 		return r;
 	}

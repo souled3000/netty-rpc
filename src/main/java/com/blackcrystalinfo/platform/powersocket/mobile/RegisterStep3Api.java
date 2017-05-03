@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.PBKDF2;
@@ -67,7 +67,7 @@ public class RegisterStep3Api extends HandlerAdapter {
 
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			
 			// 验证第二步凭证
@@ -96,7 +96,7 @@ public class RegisterStep3Api extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return ret;

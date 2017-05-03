@@ -24,7 +24,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
@@ -38,7 +38,7 @@ public class SepiaApi extends HandlerAdapter {
 		String sepia = req.getParameter("sepia");
 		String code = req.getParameter("code");
 		logger.info("sepia:{}|{}|{}", cookie, sepia, code);
-		Jedis j = DataHelper.getJedis();
+		Jedis j = JedisHelper.getJedis();
 		Map<String, Object> ret = new HashMap<String, Object>();
 		ret.put("status", SYSERROR.toString());
 		try {
@@ -61,7 +61,7 @@ public class SepiaApi extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("exception occurn! e=", e);
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		return ret;
 	}

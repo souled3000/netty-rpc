@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSONObject;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
@@ -53,7 +53,7 @@ public class DeviceCtlKeySynchApi extends HandlerAdapter {
 		Jedis jedis = null;
 		try {
 
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 			Long id = deviceSrc.getIdByMac(mac);
 			if (id == null) {
 				r.put("status", 1);
@@ -76,7 +76,7 @@ public class DeviceCtlKeySynchApi extends HandlerAdapter {
 			logger.error("synch ctl key error, mac:{}|e:{}", mac, e);
 			return r;
 		}finally{
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 		r.put("status", 0);
 		return r;

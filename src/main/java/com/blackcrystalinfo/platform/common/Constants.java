@@ -93,6 +93,7 @@ public class Constants extends ConfigurableConstants {
 	public static final Pattern P3 =Pattern.compile("^\\d+$");
 	public static void main(String[] args) {
 		System.out.println(Constants.REDIS_HOST);
+		System.out.println(Constants.PASSWD_CHANGED_TIMES_MAX);
 		System.out.println(Constants.REDIS_PORT);
 		System.out.println(Constants.REDIS_PASS);
 		System.out.println(Constants.WEBSOCKET_ADDR);

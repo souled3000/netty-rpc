@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -62,16 +62,16 @@ public class RegisterStep2Api extends HandlerAdapter {
 
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			// 验证第一步凭证
-			String code2 = jedis.get(step1key);
-			if (StringUtils.isBlank(code2)) {
-				ret.put(status, ErrorCode.C0040.toString());
-				return ret;
-			}
+			String code2 = jedis.get(step1key+phone);
 			if (!StringUtils.equals(code2, code)) {
 				ret.put(status, C0042.toString());
+				return ret;
+			}
+			if (StringUtils.isBlank(code2)) {
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 
@@ -84,7 +84,7 @@ public class RegisterStep2Api extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return ret;

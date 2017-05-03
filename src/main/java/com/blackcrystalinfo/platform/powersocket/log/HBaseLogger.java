@@ -11,7 +11,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 //@Repository
 public class HBaseLogger implements ILogger {
 
@@ -20,7 +20,7 @@ public class HBaseLogger implements ILogger {
 	
 	public HBaseLogger() {
 		try {
-			t=DataHelper.getHCon().getTable(TableName.valueOf("LOG"));
+			t=JedisHelper.getHCon().getTable(TableName.valueOf("LOG"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

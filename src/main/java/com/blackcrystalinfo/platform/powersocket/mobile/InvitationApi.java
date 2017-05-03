@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -46,7 +46,7 @@ public class InvitationApi extends HandlerAdapter {
 		String uId = req.getParameter("uId");
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			User candidate = userSvr.getUser(User.UserIDColumn, uId);
 			if (null == candidate) {
@@ -97,7 +97,7 @@ public class InvitationApi extends HandlerAdapter {
 		} catch (Exception e) {
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return r;

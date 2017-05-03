@@ -21,7 +21,7 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -49,7 +49,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			if (!deviceDao.exists(mac)) {
 				r.put(status, C0003.toString());
@@ -84,7 +84,7 @@ public class UserUnbindDeviceApi extends HandlerAdapter {
 			logger.error("", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		r.put(status, SUCCESS.toString());

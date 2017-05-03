@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSONArray;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
@@ -41,7 +41,7 @@ public class GroupDownloadApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			List<Map> gds = new ArrayList<Map>();
 			Map<String, String> allGrpInfo = j.hgetAll(key);
@@ -62,7 +62,7 @@ public class GroupDownloadApi extends HandlerAdapter {
 			logger.error("", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		r.put(status, SUCCESS.getCode());
 		return r;

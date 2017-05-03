@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 
@@ -44,7 +44,7 @@ public class GroupUploadApi extends HandlerAdapter {
 		} else {
 			Jedis j = null;
 			try {
-				j = DataHelper.getJedis();
+				j = JedisHelper.getJedis();
 				Transaction tx = null;
 				boolean b = j.hexists(table, grpOld);
 				tx = j.multi();
@@ -66,7 +66,7 @@ public class GroupUploadApi extends HandlerAdapter {
 				logger.error("Upload group info error.", e);
 				return r;
 			} finally {
-				DataHelper.returnJedis(j);
+				JedisHelper.returnJedis(j);
 			}
 		}
 		logger.info("response: userId:{}|grpOld:{}|grpNew:{}|grpValue:{}|status:{}", userId, grpOld, grpNew, grpValue, r.get(status));

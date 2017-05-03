@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -50,7 +50,7 @@ public class DemissionApi extends HandlerAdapter {
 		String family = req.getUserId();
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			User member = null;
 			User host = null;
@@ -105,7 +105,7 @@ public class DemissionApi extends HandlerAdapter {
 			logger.error("Bind in error uId:{}|family:{}|status:{}", userId, family, family, r.get("status"), e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return r;

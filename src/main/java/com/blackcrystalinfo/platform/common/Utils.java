@@ -1,12 +1,14 @@
 package com.blackcrystalinfo.platform.common;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.blackcrystalinfo.platform.util.cryto.ByteUtil;
-
-import redis.clients.jedis.Jedis;
 
 public class Utils {
 
@@ -101,8 +103,97 @@ public class Utils {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Jedis j = DataHelper.getJedis();
-		j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg("-32,-48|", 5, Integer.parseInt("48"), "黄河"));
-		DataHelper.returnJedis(j);
+		String s = "[[\"ALL\",113],[\"1\",-78],[\"2\",18],[\"3\",12],[\"4\",50],[\"5\",73],[\"6\",49],[\"7\",9],[\"8\",57],[\"9\",33]]";
+
+		JSONArray jr = JSONArray.parseArray(s);
+		for (Object o : jr.toArray()) {
+			JSONArray j = (JSONArray) o;
+			System.out.println(j.getString(0) + " " + j.getLong(1));
+		}
+		
+		
+		class C1{
+			public C1() {
+			}
+			public C1(String name,String age){
+				this.name=name;
+				this.age=age;
+			}
+			String name;
+			String age;
+			public String getName() {
+				return name;
+			}
+			public void setName(String name) {
+				this.name = name;
+			}
+			public String getAge() {
+				return age;
+			}
+			public void setAge(String age) {
+				this.age = age;
+			}
+		}
+		
+		class C2{
+			String book;
+
+			public String getBook() {
+				return book;
+			}
+
+			public void setBook(String book) {
+				this.book = book;
+			}
+		}
+		
+		
+		C1 c1 = new C1();
+		c1.name="helena";
+		c1.age="11";
+		C2 c2 = new C2();
+		c2.book="biblle";
+		List l = new ArrayList();
+		l.add(c1);
+		l.add(c2);
+		
+		s = JSONArray.toJSONString(l);
+		System.out.println(s);
+		
+		
+		l = JSONArray.parseArray(s, new Type[]{C1.class,C2.class});
+		
+		for (Object o:l){
+			if (o instanceof C1){
+				System.out.println(((C1) o).getName()+":"+((C1) o).getAge());
+			}
+			if (o instanceof C2){
+				System.out.println(((C2) o).getBook());
+			}
+		}
+		
+		l=new ArrayList();
+		
+		l.add(new C1("helena","33"));
+		l.add(new C1("xaviera","22"));
+		l.add(new C1("leon","38"));
+		
+		s= JSONArray.toJSONString(l);
+		
+		System.out.println(s);
+		System.out.println();
+		System.out.println();
+		
+		l = JSONArray.parseArray(s, C1.class);
+		for (Object o : l){
+			System.out.println(((C1) o).getName()+":"+((C1) o).getAge());
+		}
+		
+		
+		
+		
+		// Jedis j = DataHelper.getJedis();
+		// j.publish(Constants.COMMONMSGCODE.getBytes(), Utils.genMsg("-32,-48|", 5, Integer.parseInt("48"), "黄河"));
+		// DataHelper.returnJedis(j);
 	}
 }

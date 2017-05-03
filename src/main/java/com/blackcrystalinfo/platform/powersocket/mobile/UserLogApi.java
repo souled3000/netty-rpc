@@ -23,7 +23,7 @@ import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -44,7 +44,7 @@ public class UserLogApi extends HandlerAdapter {
 		String userId = req.getUserId();
 		System.out.println(userId);
 		List<String> logs = new ArrayList<String>();
-		Connection connection = DataHelper.getHCon();
+		Connection connection = JedisHelper.getHCon();
 		try (Table t = connection.getTable(TableName.valueOf(Bytes.toBytes("LOG")));) {
 			FilterList fl = new FilterList();
 			Scan scan = new Scan();

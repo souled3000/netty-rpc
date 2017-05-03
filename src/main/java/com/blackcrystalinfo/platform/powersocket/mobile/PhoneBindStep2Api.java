@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -66,7 +66,7 @@ public class PhoneBindStep2Api extends HandlerAdapter {
 
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			// 获取第一步生成的code，未生成或已过期？
 			String codeV = jedis.get(PhoneBindStep1Api.CODE_KEY + phone);
@@ -96,7 +96,7 @@ public class PhoneBindStep2Api extends HandlerAdapter {
 			logger.info("occurn exception. ", e);
 			return ret;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return ret;

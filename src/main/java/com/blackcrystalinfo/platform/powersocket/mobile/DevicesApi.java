@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.Device;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -41,7 +41,7 @@ public class DevicesApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			List<Map<Object, Object>> bindedDevices = new ArrayList<Map<Object, Object>>();
 
 			String family = j.hget("user:family", userId);
@@ -103,7 +103,7 @@ public class DevicesApi extends HandlerAdapter {
 			logger.error("", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		r.put(status, SUCCESS.toString());

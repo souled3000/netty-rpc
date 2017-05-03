@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
@@ -94,7 +94,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		Jedis jedis = null;
 		
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 			// 1. 设备MAC是否已被注册
 			
 			Long id = deviceSrv.getIdByMac(mac);
@@ -151,7 +151,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 			return r;
 		} finally {
 			
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 		
 		r.put("status", 0);
@@ -159,7 +159,7 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 	}
 
 	public static void main(String[] args) throws Exception{
-		f();
+		f1();
 	}
 	
 	public static void f() throws Exception{
@@ -207,5 +207,8 @@ public class DeviceRegisterHandler extends HandlerAdapter {
 		System.out.println(keyMd5.length);
 		System.out.println(cookie.length);
 		System.out.println(cookieCipher.length);
+		System.out.println(Integer.valueOf("1828782337"));
+		
+		
 	}
 }

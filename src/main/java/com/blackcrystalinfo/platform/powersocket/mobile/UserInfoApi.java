@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 
 import redis.clients.jedis.Jedis;
 
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.service.IUserSvr;
@@ -42,7 +42,7 @@ public class UserInfoApi extends HandlerAdapter {
 		Jedis jedis = null;
 
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 			User user = loginSvr.getUser(User.UserIDColumn, userId);
 
 			String family = jedis.hget("user:family", userId);
@@ -63,7 +63,7 @@ public class UserInfoApi extends HandlerAdapter {
 			logger.error("User Info API", e);
 			return r;
 		}finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return r;

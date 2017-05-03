@@ -22,7 +22,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -52,7 +52,7 @@ public class CfmApi extends HandlerAdapter {
 		String sequences = q.get(0);
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			String uid = j.get("user:mailActive:" + sequences);
 			if (StringUtils.isBlank(uid)) {
@@ -75,7 +75,7 @@ public class CfmApi extends HandlerAdapter {
 			logger.error("emai active failed!!!", e);
 			return fail();
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		return succ();
 	}

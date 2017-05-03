@@ -25,7 +25,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.captcha.Captcha;
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -64,7 +64,7 @@ public class UserFindPwdByPhoneStep1Api extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			// 图片验证码
 			String cookie = req.getHeaders().get(HttpHeaders.Names.COOKIE);
@@ -113,7 +113,7 @@ public class UserFindPwdByPhoneStep1Api extends HandlerAdapter {
 			logger.error("find pwd by phone exception!!!", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		logger.info("response: phone:{}|status:{}", phone, r.get(status));
 		r.put(status, SUCCESS.toString());

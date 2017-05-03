@@ -22,7 +22,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.DateUtils;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
@@ -57,7 +57,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			// 查找email
 			if (!userDao.userExist(destEmailAddr)) {
@@ -139,7 +139,7 @@ public class UserFindPwdStep1AgainApi extends HandlerAdapter {
 			logger.error("UserFindPwdStep1", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		logger.info("response: email:{}|status:{}", destEmailAddr, r.get(status));
 		r.put(status, SUCCESS.toString());

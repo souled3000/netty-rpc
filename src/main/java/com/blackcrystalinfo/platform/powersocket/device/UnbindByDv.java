@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSONObject;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.InternalException;
@@ -42,7 +42,7 @@ public class UnbindByDv extends HandlerAdapter {
 
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			String deviceId = String.valueOf(id);
 			String owner = j.hget("device:owner", deviceId);
@@ -63,7 +63,7 @@ public class UnbindByDv extends HandlerAdapter {
 			r.put("status", -1);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		r.put("status", 0);

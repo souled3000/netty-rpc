@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -72,20 +72,20 @@ public class ChangingPwdByPhoneStep2Api extends HandlerAdapter {
 		}
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			if (jedis.incrBy("B0037:succ:" + user.getId(), 0L) >= 2) {
 				ret.put(status, ErrorCode.C0046.toString());
 				return ret;
 			}
 
-			String codeV = jedis.get(step1key);
-			if (StringUtils.isBlank(codeV)) {
-				ret.put(status, ErrorCode.C0040.toString());
-				return ret;
-			}
+			String codeV = jedis.get(step1key+phone);
 			if (!StringUtils.equals(code, codeV)) {
 				ret.put(status, ErrorCode.C0042.toString());
+				return ret;
+			}
+			if (StringUtils.isBlank(codeV)) {
+				ret.put(status, ErrorCode.C0040.toString());
 				return ret;
 			}
 			jedis.del(step1key);
@@ -97,7 +97,7 @@ public class ChangingPwdByPhoneStep2Api extends HandlerAdapter {
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		return ret;

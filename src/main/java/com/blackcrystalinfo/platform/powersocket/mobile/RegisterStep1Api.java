@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import com.blackcrystalinfo.platform.common.Constants;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.ErrorCode;
 import com.blackcrystalinfo.platform.common.VerifyCode;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
@@ -61,7 +61,7 @@ public class RegisterStep1Api extends HandlerAdapter {
 		Jedis j = null;
 
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			if (usrSvr.userExist(phone)) {
 				ret.put(status, C0036.toString());
@@ -96,14 +96,14 @@ public class RegisterStep1Api extends HandlerAdapter {
 			ret.put("count", times);
 
 			String key = UUID.randomUUID().toString();
-			j.setex(key, CODE_EXPIRE, code);
+			j.setex(key+phone, CODE_EXPIRE, code);
 
 			ret.put("step1key", key);
 			ret.put(status, ErrorCode.SUCCESS.toString());
 		} catch (Exception e) {
 			logger.error("", e);
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return ret;

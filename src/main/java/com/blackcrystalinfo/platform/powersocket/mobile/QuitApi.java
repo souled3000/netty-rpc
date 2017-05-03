@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSON;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -50,7 +50,7 @@ public class QuitApi extends HandlerAdapter {
 		String uId = req.getUserId();
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			String fId = j.hget("user:family", uId);
 
 			if (StringUtils.isBlank(fId)) {
@@ -104,7 +104,7 @@ public class QuitApi extends HandlerAdapter {
 			r.put(status, SYSERROR.toString());
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		return r;

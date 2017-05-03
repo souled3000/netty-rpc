@@ -2,6 +2,12 @@ package com.blackcrystalinfo.platform.common;
 
 public final class NumberByte {
 
+	public static byte[] short2Byte(short x) {
+		byte[] bb = new byte[2];
+		bb[0] = (byte) (x >> 8);
+		bb[1] = (byte) (x >> 0);
+		return bb;
+	}
 	public static byte[] long2Byte(long x) {
 		byte[] bb = new byte[8];
 		bb[0] = (byte) (x >> 56);

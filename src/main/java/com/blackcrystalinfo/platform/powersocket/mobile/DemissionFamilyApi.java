@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller;
 import com.blackcrystalinfo.platform.common.BizCode;
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.LogType;
 import com.blackcrystalinfo.platform.common.Utils;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
@@ -49,7 +49,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 		String userId = req.getUserId();
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 
 			// 非家庭主账号，不可以解散家庭
 			String fId = j.hget("user:family", userId);
@@ -83,7 +83,7 @@ public class DemissionFamilyApi extends HandlerAdapter {
 			logger.error("DemissionFamily error uId:{}|status:{}|msg:{}", userId, r.get("status"), e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 		return r;
 	}

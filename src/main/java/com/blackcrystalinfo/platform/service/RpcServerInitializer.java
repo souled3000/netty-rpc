@@ -73,7 +73,6 @@ public class RpcServerInitializer extends ChannelInitializer<SocketChannel> {
 			this.context.init(kmf.getKeyManagers(), new TrustManager[] { x509m }, new SecureRandom());
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

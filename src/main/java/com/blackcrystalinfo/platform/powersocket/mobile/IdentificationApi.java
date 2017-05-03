@@ -21,7 +21,7 @@ import redis.clients.jedis.Jedis;
 
 import com.blackcrystalinfo.platform.common.Constants;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.powersocket.bo.User;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
 import com.blackcrystalinfo.platform.server.RpcRequest;
@@ -40,7 +40,7 @@ public class IdentificationApi extends HandlerAdapter {
 		String cookie = req.getParameter("cookie");
 		Jedis j = null;
 		try {
-			j = DataHelper.getJedis();
+			j = JedisHelper.getJedis();
 			byte[] k = j.get(URLDecoder.decode(cookie, "utf8").getBytes());
 			if (null == k) {
 				r.put(status, C0002.toString());
@@ -86,7 +86,7 @@ public class IdentificationApi extends HandlerAdapter {
 			logger.error("Check cookie failed", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(j);
+			JedisHelper.returnJedis(j);
 		}
 
 		r.put(status, SUCCESS.toString());

@@ -1,7 +1,3 @@
 *.[oa]
 target/*
 /target
-src/main/java/com/JedisPoolsHolder.java
-src/main/java/com/ZookeeperLab.java
-src/main/java/com/blackcrystalinfo/platform/util/cryto/a.java
-src/main/java/com/blackcrystalinfo/platform/util/cryto/b.java

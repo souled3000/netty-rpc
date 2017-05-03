@@ -14,9 +14,10 @@ import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.blackcrystalinfo.platform.common.CookieUtil;
-import com.blackcrystalinfo.platform.common.DataHelper;
+import com.blackcrystalinfo.platform.common.JedisHelper;
 import com.blackcrystalinfo.platform.common.NumberByte;
 import com.blackcrystalinfo.platform.server.HandlerAdapter;
+import com.blackcrystalinfo.platform.server.Path;
 import com.blackcrystalinfo.platform.server.RpcRequest;
 import com.blackcrystalinfo.platform.service.IDeviceSrv;
 import com.blackcrystalinfo.platform.service.InternalException;
@@ -25,6 +26,7 @@ import com.blackcrystalinfo.platform.util.cryto.AESCoder;
 import redis.clients.jedis.Jedis;
 
 @Controller("/api/device/login")
+@Path(path="C2")
 public class DeviceLoginHandler extends HandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceLoginHandler.class);
 
@@ -56,7 +58,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 
 		Jedis jedis = null;
 		try {
-			jedis = DataHelper.getJedis();
+			jedis = JedisHelper.getJedis();
 
 			// 1. 根据mac获取deviceId
 			Long id = deviceSrv.getIdByMac(mac);
@@ -113,7 +115,7 @@ public class DeviceLoginHandler extends HandlerAdapter {
 			logger.error("", e);
 			return r;
 		} finally {
-			DataHelper.returnJedis(jedis);
+			JedisHelper.returnJedis(jedis);
 		}
 
 		r.put("status", 0);
@@ -131,7 +133,6 @@ public class DeviceLoginHandler extends HandlerAdapter {
 	private String parseRealCookie(String cookie, String keyMd5) {
 		String result = null;
 
-		// TODO: use keyMd5 decode the cookie
 		result = cookie;
 
 		return result;
